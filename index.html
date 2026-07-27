@@ -2201,7 +2201,7 @@ function recomputeFromManager(){
     if(idxCode !== -1 && r[idxCode]) byCode[String(r[idxCode]).trim()] = r;
     if(idxClient !== -1 && r[idxClient]) byClient[r[idxClient]] = r;
   });
-  let matched = 0;
+  let matched = 0, codeFilled = 0;
   listData.forEach(row=>{
     const r = (idxCode !== -1 && byCode[String(row.code).trim()]) || byClient[row.client];
     if(!r) return;
@@ -2210,12 +2210,18 @@ function recomputeFromManager(){
     if(idxPay !== -1 && r[idxPay] !== undefined && r[idxPay] !== null && r[idxPay] !== '') row.paymentBasis = r[idxPay];
     if(idxTurn !== -1 && r[idxTurn] !== undefined && r[idxTurn] !== null && r[idxTurn] !== '') row.turn = r[idxTurn];
     if(idxRegion !== -1 && r[idxRegion] !== undefined && r[idxRegion] !== null && r[idxRegion] !== '') row.region = r[idxRegion];
+    // 코드가 비어있는 매입처는 새로 업로드한 발주담당자 데이터의 코드(다미스코드)로 채워줍니다.
+    if((!row.code || String(row.code).trim() === '') && idxCode !== -1 && r[idxCode]){
+      row.code = r[idxCode];
+      codeFilled++;
+    }
   });
   recomputeManagerSummary();
   renderKpis(); renderListTable(); renderMgrTable();
   buildFilterOptions();
   scheduleSave();
-  banner.innerHTML += ` <span style="color:var(--teal)">✓ 발주담당자가 ${matched.toLocaleString()}개 거래처에 반영됨</span>`;
+  const codeNote = codeFilled ? ` · 코드가 없던 거래처 ${codeFilled.toLocaleString()}곳의 코드도 채워짐` : '';
+  banner.innerHTML += ` <span style="color:var(--teal)">✓ 발주담당자가 ${matched.toLocaleString()}개 거래처에 반영됨${codeNote}</span>`;
 }
 
 // ---------- 재고 및 파손재고현황 (재고 및 반품) ----------
