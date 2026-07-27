@@ -43,7 +43,7 @@
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{ max-width:1440px; margin:0 auto; padding: 28px 28px 60px; }
+  .wrap{ max-width:none; margin:0 auto; padding: 28px 32px 60px; }
 
   /* header */
   .head{
@@ -123,7 +123,7 @@
   .panel.active{ display:block; }
 
   /* sub-sections (used inside the 품절 현황 목록 tab and 기초DATABASE tab) */
-  .sub-section{ margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--line); }
+  .sub-section{ margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--line); }
   .sub-section:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
   .sub-section-title{ font-size:14.5px; font-weight:800; color:var(--ink); margin-bottom:7px; letter-spacing:-0.01em; }
 
@@ -132,6 +132,7 @@
     .sidebar{ width:100%; position:static; }
     .kpis{ grid-template-columns:repeat(3,1fr); }
     .tabs{ flex-direction:row; flex-wrap:wrap; }
+    .mgr-scroll{ max-width:100%; min-width:0; }
   }
 
   /* toolbar */
@@ -144,7 +145,7 @@
   .toolbar input[type="text"]{ min-width:220px; }
   .toolbar .spacer{ flex:1; }
   .count-badge{ color:var(--ink-dim); font-size:12.5px; font-weight:600; padding: 0 4px;}
-  .save-indicator{ font-size:12px; color:var(--ink-faint); display:flex; align-items:center; gap:5px; min-width:110px;}
+  .save-indicator{ font-size:12px; color:var(--ink-faint); display:flex; align-items:center; gap:5px; min-width:110px; white-space:nowrap; flex:none; }
   .save-dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-faint); transition:background .2s; }
   .save-dot.saved{ background:var(--teal); box-shadow:0 0 0 3px rgba(47,95,214,0.14); }
   .save-dot.saving{ background:var(--amber); animation: pulse-dot 0.9s ease-in-out infinite; }
@@ -156,12 +157,12 @@
   thead th{
     position:sticky; top:0; background:#e7ecf5; color:var(--ink);
     font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:.035em;
-    padding:11px 12px; border-bottom:1px solid var(--line-strong); text-align:left; cursor:pointer;
+    padding:8px 12px; border-bottom:1px solid var(--line-strong); text-align:left; cursor:pointer;
     user-select:none;
   }
   thead th:hover{ color:var(--accent); background:#dfe6f2; }
   thead th .arrow{ opacity:.55; margin-left:3px; font-size:10px;}
-  tbody td{ padding:9px 12px; border-bottom:1px solid #eef1f6; font-variant-numeric: tabular-nums; color:var(--ink); }
+  tbody td{ padding:6px 12px; border-bottom:1px solid #eef1f6; font-variant-numeric: tabular-nums; color:var(--ink); }
   tbody tr:nth-child(even){ background: rgba(19,27,44,0.018); }
   tbody tr:hover{ background:var(--teal-bg); }
   tbody tr:last-child td{ border-bottom:none; }
@@ -181,6 +182,7 @@
 
   /* summary tab */
   #mgrTable{ font-size:12.5px; }
+  .mgr-scroll{ width:fit-content; max-width:100%; }
   #mgrTable td, #mgrTable th{ padding:3px 14px; }
   #mgrTable thead th[data-key="manager"], #mgrTable tbody td:first-child{
     position:sticky; left:0; z-index:5; background:#fff; box-shadow: 2px 0 4px rgba(19,27,44,0.05);
@@ -231,7 +233,7 @@
   }
 
   /* upload */
-  .upload-bar{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px; row-gap:4px; }
+  .upload-bar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:6px; row-gap:8px; }
   .upload-drop{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
     background:var(--panel); border:1px dashed #c3ccd6; border-radius:10px;
@@ -241,13 +243,13 @@
   .upload-drop.dragover{ border-color:var(--teal); background:var(--teal-bg); }
   .upload-drop.processing{ border-color:var(--amber); background:var(--amber-bg); opacity:.85; cursor:wait; pointer-events:none; }
   .upload-drop.processing .upload-icon{ animation: pulse-dot 1s ease-in-out infinite; }
-  .upload-drop.compact{ padding:4px 12px; gap:6px; flex:1 1 100%; min-width:260px; }
+  .upload-drop.compact{ padding:4px 12px; gap:6px; flex:2 1 380px; min-width:260px; }
   .upload-drop.compact .upload-icon{ font-size:13px; }
   .upload-drop.compact .upload-sub{ font-size:10.5px; margin-left:21px; line-height:1.3; }
   .upload-icon{ font-size:18px; color:var(--teal); }
   .upload-sub{ color:var(--ink-faint); font-size:12px; width:100%; margin-left:28px; }
-  .upload-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; width:100%; }
-  .upload-meta{ color:var(--ink-dim); font-size:12.5px; }
+  .upload-actions{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; flex:1 1 340px; justify-content:flex-end; min-width:0; overflow-x:auto; }
+  .upload-meta{ color:var(--ink-dim); font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1 1 auto; min-width:0; }
   .pager{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-dim); }
   .pager button{
     background:var(--panel-2); border:1px solid var(--line); color:var(--ink); border-radius:6px;
@@ -303,6 +305,19 @@
   thead th.grp-stock2{ background: rgba(193,121,27,0.12); color:var(--amber-ink); border-bottom:1px solid rgba(193,121,27,0.25); }
   #stockTable td.num{ text-align:right; }
   #stockTable colgroup col.sep{ border-left:2px solid var(--line-strong); }
+  #stockTable th, #stockTable td{ min-width:108px; }
+  #stockTable th:nth-child(1), #stockTable td:nth-child(1){ min-width:66px; }
+  #stockTable th:nth-child(2), #stockTable td:nth-child(2){ min-width:150px; }
+  #stockTable th:nth-child(3), #stockTable td:nth-child(3),
+  #stockTable th:nth-child(4), #stockTable td:nth-child(4){ min-width:92px; }
+
+  /* 품절 현황 목록 · 담당자별 품절현황 · 재고 및 파손재고현황: 항목별 구분을 위한 세로 줄 */
+  #listTable th, #listTable td,
+  #mgrTable th, #mgrTable td,
+  #stockTable th, #stockTable td{ border-left:1px solid var(--line); }
+  #listTable th:first-child, #listTable td:first-child,
+  #mgrTable th:first-child, #mgrTable td:first-child,
+  #stockTable th:first-child, #stockTable td:first-child{ border-left:none; }
 
 </style>
 </head>
@@ -363,7 +378,7 @@
 
         <!-- 담당자별 품절 현황 (목록 위에 항상 표시) -->
         <div class="sub-section">
-          <div class="table-scroll">
+          <div class="table-scroll mgr-scroll">
             <table id="mgrTable">
               <thead id="mgrHead"></thead>
               <tbody id="mgrBody"></tbody>
@@ -539,7 +554,7 @@
               <tbody id="stockBody"></tbody>
             </table>
           </div>
-          <div class="foot-note">기초DATABASE(재고 및 반품)에서 우선처별 재고 및 매입실적 4개 시트(전월·당월 × 광주·의정부)를 업로드하면, 엑셀 '통합' 시트가 계산하는 방식 그대로 매출액합계·전월재고·당월재고합계·재고증감비율·외상대비재고비율·전월파손재고·당월파손재고·파손재고감소율이 자동으로 계산돼요 · 창고별 재고액합계·파손재고금액·잔고·잔고%·보상입고·미착殘·선입殘·선출殘도 함께 갱신돼요 · 발주담당자는 발주 쪽 발주담당자 업로드 값을, 반품담당자는 아래 기초DATABASE의 반품담당자 업로드 값을 그대로 보여줘요 (조회 전용 표입니다).</div>
+          <div class="foot-note">기초DATABASE(재고 및 반품)에서 우선처별 재고 및 매입실적 4개 시트(전월·당월 × 광주·의정부)를 업로드하면, 엑셀 '통합' 시트가 계산하는 방식 그대로 매출액합계·채무총액·전월재고·당월재고합계·재고증감비율·외상대비재고비율·전월파손재고·당월파손재고·파손재고감소율(전체 현황)이 자동으로 계산돼요 · 광주·의정부를 합산한 결과만 보여드리고 창고별 세부 항목은 표시하지 않아요 · 발주담당자는 발주 쪽 발주담당자 업로드 값을, 반품담당자는 아래 기초DATABASE의 반품담당자 업로드 값을 그대로 보여줘요 (조회 전용 표입니다).</div>
         </div>
       </div>
 
@@ -1182,8 +1197,7 @@ function renderMgrTable(){
       if(h.key==='manager'){
         const name = String(val ?? '');
         if(isTotal) return `<td>${name}</td>`;
-        const initial = name.replace(/[\s\n].*$/,'').slice(0,1) || '?';
-        return `<td><div class="mgr-name"><span class="mgr-avatar">${initial}</span><span>${name}</span></div></td>`;
+        return `<td>${name}</td>`;
       }
       if(h.pct){
         const pctVal = (Number(val)||0)*100;
@@ -1284,7 +1298,6 @@ function exportListToXlsx(){
 
 function exportStockToXlsx(){
   const headerRow = ['코드','거래처','반품담당자','발주담당자', ...STOCK_SUMMARY_METRICS.map(m=>m.label)];
-  STOCK_DISPLAY_PERIODS.forEach(p=> STOCK_METRICS.forEach(m=> headerRow.push(p.label + ' - ' + m.label)));
   const aoa = [headerRow];
   stockData.forEach(r=>{
     const row = [r.code, r.client||'', r.returnManager||'', r.orderManager||''];
@@ -1292,13 +1305,6 @@ function exportStockToXlsx(){
       let v = r[m.key];
       if(v===null || v===undefined || v==='' || isNaN(Number(v))){ row.push(''); return; }
       row.push(m.ratio ? Number(v)*100 : Number(v));
-    });
-    STOCK_DISPLAY_PERIODS.forEach(p=>{
-      const d = r[p.id] || {};
-      STOCK_METRICS.forEach(m=>{
-        const v = d[m.key];
-        row.push((v===null||v===undefined||v==='') ? '' : v);
-      });
     });
     aoa.push(row);
   });
@@ -1355,7 +1361,7 @@ const STOCK_METRICS = [
   { key:'fifoIn', label:'선입殘' },
   { key:'fifoOut', label:'선출殘' },
 ];
-// "통합(전사) 요약" 그룹 — 엑셀 통합 시트의 실제 수식을 그대로 재현해 위 4개 시트 업로드만으로 계산합니다.
+// "전체 현황" 그룹 — 엑셀 통합 시트의 실제 수식을 그대로 재현해 위 4개 시트 업로드만으로 계산합니다.
 //   매출액합계        = 당월(광주).純매출금액 + 당월(의정부).純매출금액
 //   채무총액          = 당월(광주).잔고 + 당월(의정부).잔고
 //   전월재고          = 전월(광주).재고액합계 + 전월(의정부).재고액합계
@@ -1679,6 +1685,7 @@ function updateUploadMeta(id){
     ? ` · <span style="color:var(--ink-dim);">필요한 컬럼만 저장됨 (원본 ${st.trimmedColumns.original}개 → ${st.trimmedColumns.kept}개)</span>`
     : '';
   meta.innerHTML = `${dt.toLocaleString('ko-KR')} 업로드${savedPart}${trimPart}`;
+  meta.title = meta.textContent;
   clearBtn.style.display = 'inline-flex';
   if(saveBtn) saveBtn.style.display = 'inline-flex';
   if(saveState){ saveState.style.display = 'flex'; setUploadSaveState(id, st.savedAt ? 'saved' : 'idle'); }
@@ -2301,16 +2308,9 @@ function renderStockTable(){
   if(!head) return;
 
   const fixedCols = ['코드','거래처','반품담당자','발주담당자'];
-  const groupRow = fixedCols.map(()=>`<th rowspan="2"></th>`);
-  const subRow = [];
-  groupRow.push(`<th colspan="${STOCK_SUMMARY_METRICS.length}" class="grp-head grp-stock1">통합(전사) 요약</th>`);
-  STOCK_SUMMARY_METRICS.forEach(m=> subRow.push(`<th class="grp-stock1">${m.label}</th>`));
-  STOCK_DISPLAY_PERIODS.forEach((p, gi)=>{
-    groupRow.push(`<th colspan="${STOCK_METRICS.length}" class="grp-head ${gi%2===0?'grp-stock1':'grp-stock2'}">${p.label}</th>`);
-    STOCK_METRICS.forEach(m=> subRow.push(`<th class="${gi%2===0?'grp-stock1':'grp-stock2'}">${m.label}</th>`));
-  });
-  // fixed 헤더 라벨은 rowspan 셀 안에 직접 적어줍니다
-  fixedCols.forEach((label, i)=>{ groupRow[i] = `<th rowspan="2">${label}</th>`; });
+  const groupRow = fixedCols.map(label=>`<th rowspan="2">${label}</th>`);
+  groupRow.push(`<th colspan="${STOCK_SUMMARY_METRICS.length}" class="grp-head grp-stock1">전체 현황</th>`);
+  const subRow = STOCK_SUMMARY_METRICS.map(m=>`<th class="grp-stock1">${m.label}</th>`);
   head.innerHTML = `<tr>${groupRow.join('')}</tr><tr>${subRow.join('')}</tr>`;
 
   const q = (document.getElementById('search-stock').value || '').trim().toLowerCase();
@@ -2333,13 +2333,6 @@ function renderStockTable(){
       const v = r[m.key];
       tds += `<td class="num">${m.ratio ? fmtRatio(v) : fmt(v)}</td>`;
     });
-    STOCK_DISPLAY_PERIODS.forEach(p=>{
-      const d = r[p.id] || {};
-      STOCK_METRICS.forEach(m=>{
-        const v = d[m.key];
-        tds += `<td class="num">${m.pct ? (v===null||v===undefined||v==='' ? '' : Number(v).toFixed(2)+'%') : fmt(v)}</td>`;
-      });
-    });
     return `<tr>${tds}</tr>`;
   }).join('');
 }
@@ -2352,9 +2345,9 @@ function renderStockKpis(){
   const totalSales = stockData.reduce((a,r)=>a+(Number(r.salesTotal)||0),0);
   const totalDamaged = stockData.reduce((a,r)=>a+(Number(r.curDamaged)||0),0);
   const kpis = [
-    { label:'전체재고액', val: totalStock.toLocaleString(), cls:'teal' },
-    { label:'매출액', val: totalSales.toLocaleString(), cls:'teal' },
-    { label:'파손재고액', val: totalDamaged.toLocaleString(), cls:'red' },
+    { label:'전체재고액', val: Math.round(totalStock).toLocaleString(), cls:'teal' },
+    { label:'매출액', val: Math.round(totalSales).toLocaleString(), cls:'teal' },
+    { label:'파손재고액', val: Math.round(totalDamaged).toLocaleString(), cls:'red' },
   ];
   el.innerHTML = kpis.map(k=>`
     <div class="kpi ${k.cls}">
@@ -2420,7 +2413,7 @@ function renderStockChart(){
   });
 
   el.innerHTML = `
-    <svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; max-width:820px; display:block;">
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; max-width:1400px; display:block;">
       ${grid}
       ${bars}
     </svg>
