@@ -157,7 +157,7 @@
   thead th{
     position:sticky; top:0; background:#e7ecf5; color:var(--ink);
     font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:.035em;
-    padding:8px 12px; border-bottom:1px solid var(--line-strong); text-align:left; cursor:pointer;
+    padding:8px 12px; border-bottom:1px solid var(--line-strong); text-align:center; cursor:pointer;
     user-select:none;
   }
   thead th:hover{ color:var(--accent); background:#dfe6f2; }
@@ -729,6 +729,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
@@ -1283,56 +1284,102 @@ function bindGlobalEvents(){
 
 }
 
-// 엑셀로 내려받을 때 헤더행에 자동필터를 걸고, 각 열 너비를 내용에 맞게 잡아서
-// 열어보자마자 표처럼 깔끔하게 보이도록 공통 처리합니다.
-function applyNiceTableFormatting(ws, aoa){
-  const numCols = aoa[0].length;
-  const numRows = aoa.length;
-  ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:numRows-1, c:numCols-1} }) };
-  ws['!cols'] = Array.from({length:numCols}, (_,c)=>{
-    let maxLen = 0;
-    for(let r=0; r<numRows; r++){
-      const v = aoa[r][c];
-      const len = (v===null||v===undefined) ? 0 : String(v).length;
-      if(len > maxLen) maxLen = len;
-    }
-    return { wch: Math.min(Math.max(maxLen + 2, 8), 32) };
+// 엑셀로 내려받을 때 헤더 색상·테두리·틀고정·자동필터·상태별 강조색까지 입혀서
+// 화면 표를 그대로 옮겨온 것처럼 보이도록 ExcelJS로 스타일을 적용합니다.
+// (SheetJS 무료버전은 셀 서식을 지원하지 않아, 서식 적용을 위해 ExcelJS를 함께 사용합니다.)
+async function downloadStyledXlsx({ sheetName, fileName, columns, rows, statusKey }){
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet(sheetName, { views: [{ state:'frozen', ySplit: 1 }] });
+  ws.columns = columns.map(c => ({ header: c.label, key: c.key, width: c.width || 14 }));
+
+  const THIN_LIGHT = { style:'thin', color:{ argb:'FFE3E7EF' } };
+  const THIN_HEAD  = { style:'thin', color:{ argb:'FFB9C2D6' } };
+
+  const headerRow = ws.getRow(1);
+  headerRow.height = 22;
+  headerRow.eachCell(cell=>{
+    cell.font = { bold:true, size:11, color:{ argb:'FFFFFFFF' } };
+    cell.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF2F5FD6' } };
+    cell.alignment = { vertical:'middle', horizontal:'center' };
+    cell.border = { top:THIN_HEAD, left:THIN_HEAD, bottom:THIN_HEAD, right:THIN_HEAD };
+  });
+
+  rows.forEach((r, i)=>{
+    const row = ws.addRow(r);
+    const banded = i % 2 === 1;
+    row.eachCell((cell, colNumber)=>{
+      const def = columns[colNumber - 1];
+      cell.border = { top:THIN_LIGHT, left:THIN_LIGHT, bottom:THIN_LIGHT, right:THIN_LIGHT };
+      cell.alignment = { vertical:'middle', horizontal: def && (def.numFmt || def.center) ? 'center' : 'left' };
+      if(def && def.numFmt) cell.numFmt = def.numFmt;
+      if(banded) cell.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFF4F6FB' } };
+      if(statusKey && def && def.key === statusKey){
+        const v = String(cell.value || '');
+        if(v.includes('없음')){
+          cell.font = { color:{ argb:'FF4C5A72' } };
+        } else if(v.includes('품절')){
+          cell.font = { bold:true, color:{ argb:'FF9C352E' } };
+          cell.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFF6C9C6' } };
+        }
+      }
+    });
+  });
+
+  ws.autoFilter = { from:{ row:1, column:1 }, to:{ row:1, column: columns.length } };
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type:'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function exportListToXlsx(){
+  const columns = LIST_HEADERS.map(h=>({
+    key: h.key, label: h.label,
+    width: h.key==='client' ? 16 : (h.isStatus ? 12 : (h.num ? 11 : 12)),
+    numFmt: h.num ? '#,##0' : undefined,
+    center: h.num || h.isStatus
+  }));
+  const rows = listData.map(r=>{
+    const o = {};
+    LIST_HEADERS.forEach(h=>{ o[h.key] = (r[h.key]===null || r[h.key]===undefined) ? '' : r[h.key]; });
+    return o;
+  });
+  await downloadStyledXlsx({
+    sheetName: '품절품목_현황',
+    fileName: '품절품목_현황_' + new Date().toISOString().slice(0,10) + '.xlsx',
+    columns, rows, statusKey: 'status'
   });
 }
 
-function exportListToXlsx(){
-  const cols = LIST_HEADERS.map(h=>h.label);
-  const aoa = [cols];
-  listData.forEach(r=>{
-    aoa.push(LIST_HEADERS.map(h=>{
-      const v = r[h.key];
-      return (v===null||v===undefined) ? '' : v;
-    }));
-  });
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
-  applyNiceTableFormatting(ws, aoa);
-  XLSX.utils.book_append_sheet(wb, ws, '품절품목_현황');
-  XLSX.writeFile(wb, '품절품목_현황_' + new Date().toISOString().slice(0,10) + '.xlsx');
-}
-
-function exportStockToXlsx(){
-  const headerRow = ['코드','거래처','반품담당자','발주담당자', ...STOCK_SUMMARY_METRICS.map(m=>m.label)];
-  const aoa = [headerRow];
-  stockData.forEach(r=>{
-    const row = [r.code, r.client||'', r.returnManager||'', r.orderManager||''];
+async function exportStockToXlsx(){
+  const columns = [
+    { key:'code', label:'코드', width:10, center:true },
+    { key:'client', label:'거래처', width:18 },
+    { key:'returnManager', label:'반품담당자', width:12, center:true },
+    { key:'orderManager', label:'발주담당자', width:12, center:true },
+    ...STOCK_SUMMARY_METRICS.map(m=>({
+      key: m.key, label: m.label, width:16,
+      numFmt: m.ratio ? '0.00"%"' : '#,##0'
+    }))
+  ];
+  const rows = stockData.map(r=>{
+    const o = { code:r.code, client:r.client||'', returnManager:r.returnManager||'', orderManager:r.orderManager||'' };
     STOCK_SUMMARY_METRICS.forEach(m=>{
       let v = r[m.key];
-      if(v===null || v===undefined || v==='' || isNaN(Number(v))){ row.push(''); return; }
-      row.push(m.ratio ? Number(v)*100 : Number(v));
+      if(v===null || v===undefined || v==='' || isNaN(Number(v))){ o[m.key] = ''; return; }
+      o[m.key] = m.ratio ? Number(v)*100 : Number(v);
     });
-    aoa.push(row);
+    return o;
   });
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
-  applyNiceTableFormatting(ws, aoa);
-  XLSX.utils.book_append_sheet(wb, ws, '재고 및 파손재고현황');
-  XLSX.writeFile(wb, '재고_및_파손재고현황_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  await downloadStyledXlsx({
+    sheetName: '재고_및_파손재고현황',
+    fileName: '재고_및_파손재고현황_' + new Date().toISOString().slice(0,10) + '.xlsx',
+    columns, rows
+  });
 }
 
 // ---------- generic upload-driven tables (품절data / 최종발주일) ----------
