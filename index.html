@@ -429,6 +429,7 @@
             <option value="품절없음">품절없음</option>
           </select>
           <select id="paymentFilter"><option value="">결제기준일 전체</option></select>
+          <select id="lastOrderDateFilter"><option value="">최종발주일 전체</option></select>
           <span class="count-badge" id="listCount"></span>
           <div class="spacer"></div>
           <button class="btn" id="exportListBtn">⬇ Excel 다운로드</button>
@@ -990,6 +991,16 @@ function buildFilterOptions(){
   pSel.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
   payments.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; pSel.appendChild(o); });
   if(payments.includes(prevPayment)) pSel.value = prevPayment;
+
+  // 최종발주일 필터: 값 정렬 후 "누락"만 맨 위로 끌어올립니다.
+  const lastOrderDates = [...new Set(listData.map(r=>r.lastOrderDate).filter(v=>v && v!==0))].sort((a,b)=>String(a).localeCompare(String(b)));
+  const missingIdx = lastOrderDates.indexOf('누락');
+  if(missingIdx > -1){ lastOrderDates.splice(missingIdx, 1); lastOrderDates.unshift('누락'); }
+  const lodSel = document.getElementById('lastOrderDateFilter');
+  const prevLastOrderDate = lodSel.value;
+  lodSel.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
+  lastOrderDates.forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; lodSel.appendChild(o); });
+  if(lastOrderDates.includes(prevLastOrderDate)) lodSel.value = prevLastOrderDate;
 }
 
 // ---------- KPI ----------
@@ -1065,12 +1076,14 @@ function renderListTable(){
   const mgrF = document.getElementById('managerFilter').value;
   const stF = document.getElementById('statusFilter').value;
   const payF = document.getElementById('paymentFilter').value;
+  const lodF = document.getElementById('lastOrderDateFilter').value;
 
   let rows = listData.map((r, idx)=>({r, idx})).filter(({r})=>{
     if(q && !(String(r.code).toLowerCase().includes(q) || String(r.client||'').toLowerCase().includes(q))) return false;
     if(mgrF && r.manager !== mgrF) return false;
     if(stF && r.status !== stF) return false;
     if(payF && r.paymentBasis !== payF) return false;
+    if(lodF && r.lastOrderDate !== lodF) return false;
     return true;
   });
 
@@ -1249,7 +1262,7 @@ function bindGlobalEvents(){
     });
   });
 
-  ['searchInput','managerFilter','statusFilter','paymentFilter'].forEach(id=>{
+  ['searchInput','managerFilter','statusFilter','paymentFilter','lastOrderDateFilter'].forEach(id=>{
     document.getElementById(id).addEventListener('input', renderListTable);
     document.getElementById(id).addEventListener('change', renderListTable);
   });
