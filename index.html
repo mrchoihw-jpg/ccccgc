@@ -1283,6 +1283,23 @@ function bindGlobalEvents(){
 
 }
 
+// 엑셀로 내려받을 때 헤더행에 자동필터를 걸고, 각 열 너비를 내용에 맞게 잡아서
+// 열어보자마자 표처럼 깔끔하게 보이도록 공통 처리합니다.
+function applyNiceTableFormatting(ws, aoa){
+  const numCols = aoa[0].length;
+  const numRows = aoa.length;
+  ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:numRows-1, c:numCols-1} }) };
+  ws['!cols'] = Array.from({length:numCols}, (_,c)=>{
+    let maxLen = 0;
+    for(let r=0; r<numRows; r++){
+      const v = aoa[r][c];
+      const len = (v===null||v===undefined) ? 0 : String(v).length;
+      if(len > maxLen) maxLen = len;
+    }
+    return { wch: Math.min(Math.max(maxLen + 2, 8), 32) };
+  });
+}
+
 function exportListToXlsx(){
   const cols = LIST_HEADERS.map(h=>h.label);
   const aoa = [cols];
@@ -1294,6 +1311,7 @@ function exportListToXlsx(){
   });
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(aoa);
+  applyNiceTableFormatting(ws, aoa);
   XLSX.utils.book_append_sheet(wb, ws, '품절품목_현황');
   XLSX.writeFile(wb, '품절품목_현황_' + new Date().toISOString().slice(0,10) + '.xlsx');
 }
@@ -1312,6 +1330,7 @@ function exportStockToXlsx(){
   });
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(aoa);
+  applyNiceTableFormatting(ws, aoa);
   XLSX.utils.book_append_sheet(wb, ws, '재고 및 파손재고현황');
   XLSX.writeFile(wb, '재고_및_파손재고현황_' + new Date().toISOString().slice(0,10) + '.xlsx');
 }
