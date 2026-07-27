@@ -1007,13 +1007,14 @@ function escapeAttr(s){
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 }
 function buildClientTip(r){
+  const n = v => (v===null||v===undefined) ? null : Number(v).toLocaleString();
   const lines = [
     `담당자: ${r.manager || '-'}`,
     `배송지: ${r.region || '-'}`,
     `결제기준일: ${r.paymentBasis || '-'} · 회전: ${r.turn || '-'}`,
     `최종발주일: ${r.lastOrderDate || '-'}`,
-    `취급품목수: ${r.itemCount ?? '-'}`,
-    `품절 ${r.stockout ?? 0} (미발주 ${r.noOrder ?? 0}) · 품절예상 ${r.expected ?? 0} (미발주 ${r.noOrder2 ?? 0})`,
+    `취급품목수: ${n(r.itemCount) ?? '-'}`,
+    `품절 ${n(r.stockout) ?? 0} (미발주 ${n(r.noOrder) ?? 0}) · 품절예상 ${n(r.expected) ?? 0} (미발주 ${n(r.noOrder2) ?? 0})`,
     `상태: ${r.status || '-'}`,
   ];
   return escapeAttr(lines.join('\n'));
@@ -1085,7 +1086,7 @@ function renderListTable(){
         return `<td class="editable" contenteditable="true" data-idx="${idx}" data-key="client"><span class="client-tip" data-tip="${tip}">${val}</span></td>`;
       }
       const val = r[h.key];
-      const display = (val===null || val===undefined) ? '' : val;
+      const display = (val===null || val===undefined || val==='') ? '' : (h.num && typeof val==='number' ? val.toLocaleString() : val);
       const cls = (h.num ? 'num ' : '') + (h.editable ? 'editable' : '');
       const editAttr = h.editable ? `contenteditable="true" data-idx="${idx}" data-key="${h.key}"` : '';
       return `<td class="${cls}" ${editAttr}>${display}</td>`;
@@ -1196,7 +1197,8 @@ function renderMgrTable(){
       }
       const cls = 'num' + (isTotal? '' : ' editable');
       const editAttr = isTotal ? '' : `contenteditable="true" data-idx="${idx}" data-key="${h.key}"`;
-      return `<td class="${cls}" ${editAttr}>${val===null||val===undefined?'':val}</td>`;
+      const display = (val===null||val===undefined) ? '' : (typeof val==='number' ? val.toLocaleString() : val);
+      return `<td class="${cls}" ${editAttr}>${display}</td>`;
     }).join('') + '</tr>';
   }).join('');
 
