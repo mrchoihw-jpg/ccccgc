@@ -544,6 +544,8 @@
           <div class="sub-section-title">재고 및 파손재고현황</div>
           <div class="toolbar">
             <input type="text" id="search-stock" placeholder="코드 또는 거래처 검색...">
+            <select id="returnMgrFilter-stock"><option value="">반품담당자 전체</option></select>
+            <select id="orderMgrFilter-stock"><option value="">발주담당자 전체</option></select>
             <span class="count-badge" id="count-stock"></span>
             <div class="spacer"></div>
             <button class="btn" id="exportStockBtn">⬇ Excel 다운로드</button>
@@ -893,7 +895,7 @@ const ORIGINAL_MGR = DAMDANGJA_RAW.rows.map(mgrRowToObj);
 
 let listData = [];
 let mgrData = [];
-let sortState = { list: {key:null, dir:1}, mgr: {key:null, dir:1} };
+let sortState = { list: {key:null, dir:1}, mgr: {key:null, dir:1}, stock: {key:null, dir:1} };
 
 const STORAGE_KEY = 'stockout_dashboard_edits_v1';
 
@@ -924,10 +926,10 @@ async function saveNow(){
   try{
     const now = new Date().toISOString();
     const payload = JSON.stringify({ list: listData, mgr: mgrData, savedAt: now });
-    const res = await window.storage.set(STORAGE_KEY, payload, true);
-    if(res){ lastSavedAt = now; updateGlobalSavedLabel(); }
-    setIndicator(res ? 'saved' : 'error');
-    return !!res;
+    await storageSetWithRetry(STORAGE_KEY, payload, true);
+    lastSavedAt = now; updateGlobalSavedLabel();
+    setIndicator('saved');
+    return true;
   }catch(e){ setIndicator('error'); return false; }
 }
 function scheduleSave(){
@@ -1547,15 +1549,21 @@ async function handleFile(id, file){
   setUploadProcessing(id, false);
 }
 
-function setUploadSaveState(id, state){
+function setUploadSaveState(id, state, errMsg){
   const indicator = document.getElementById('saveState-' + id);
   if(!indicator) return;
   const dot = indicator.querySelector('.save-dot');
   const label = indicator.querySelector('span:last-child');
   dot.classList.remove('saved','saving');
+  indicator.title = '';
+  indicator.style.cursor = '';
   if(state==='saving'){ dot.classList.add('saving'); label.textContent='저장 중...'; }
   else if(state==='saved'){ dot.classList.add('saved'); label.textContent='저장됨 · ' + formatSavedTime(uploadState[id] && uploadState[id].savedAt); }
-  else if(state==='error'){ label.textContent='저장 실패'; }
+  else if(state==='error'){
+    label.textContent = '⚠ 저장 실패 (클릭해서 재시도)';
+    indicator.title = errMsg ? ('오류 내용: ' + errMsg) : '';
+    indicator.style.cursor = 'pointer';
+  }
   else { label.textContent='대기 중'; }
 }
 
@@ -1565,10 +1573,29 @@ function setUploadSaveState(id, state){
 // made the save silently fail. To fix this, rows are split across multiple keys
 // (`${storageKey}_chunk_0`, `_chunk_1`, ...) whenever the serialized rows would be too big,
 // and reassembled on load. Small uploads are still saved as a single key, unchanged.
-const MAX_VALUE_BYTES = 4 * 1024 * 1024; // 4MB target, safety margin under the 5MB hard limit
+const MAX_VALUE_BYTES = 1.2 * 1024 * 1024; // ~1.2MB target per key — more conservative than the 5MB hard limit,
+                                            // since saves of datasets in the low single-MB range have been failing in practice
 
 function byteLengthOf(value){
   return new TextEncoder().encode(JSON.stringify(value)).length;
+}
+
+// window.storage 저장은 일시적으로 실패할 수 있어(공식 안내상 "always use try-catch"),
+// 실패 시 짧게 대기했다가 몇 번 더 시도합니다. 마지막에도 실패하면 에러를 그대로 던집니다.
+async function storageSetWithRetry(key, value, shared, retries){
+  retries = retries === undefined ? 2 : retries;
+  let lastErr = null;
+  for(let attempt=0; attempt<=retries; attempt++){
+    try{
+      const res = await window.storage.set(key, value, shared);
+      if(res) return res;
+      lastErr = new Error('저장소가 빈 응답을 반환했어요');
+    }catch(e){
+      lastErr = e;
+    }
+    if(attempt < retries) await new Promise(r=>setTimeout(r, 400 + attempt*500));
+  }
+  throw lastErr || new Error('알 수 없는 저장 오류');
 }
 
 function splitRowsIntoChunks(rows, maxBytes){
@@ -1600,11 +1627,9 @@ async function saveUpload(id){
       try{ await window.storage.delete(cfg.storageKey + '_chunk_' + i, true); }catch(e){}
     }
 
-    let ok = true;
     if(isChunked){
       for(let i=0; i<chunks.length; i++){
-        const chunkRes = await window.storage.set(cfg.storageKey + '_chunk_' + i, JSON.stringify(chunks[i]), true);
-        if(!chunkRes){ ok = false; break; }
+        await storageSetWithRetry(cfg.storageKey + '_chunk_' + i, JSON.stringify(chunks[i]), true);
       }
     }
 
@@ -1614,18 +1639,16 @@ async function saveUpload(id){
     };
     if(!isChunked) metaPayload.rows = chunks[0];
 
-    const res = ok ? await window.storage.set(cfg.storageKey, JSON.stringify(metaPayload), true) : null;
-    if(res){
-      st.savedAt = now;
-      st.chunkCount = chunks.length;
-      lastSavedAt = now;
-      updateGlobalSavedLabel();
-      updateUploadMeta(id);
-      setUploadSaveState(id, 'saved');
-    } else {
-      setUploadSaveState(id, 'error');
-    }
-  }catch(e){ setUploadSaveState(id, 'error'); /* best effort */ }
+    await storageSetWithRetry(cfg.storageKey, JSON.stringify(metaPayload), true);
+    st.savedAt = now;
+    st.chunkCount = chunks.length;
+    lastSavedAt = now;
+    updateGlobalSavedLabel();
+    updateUploadMeta(id);
+    setUploadSaveState(id, 'saved');
+  }catch(e){
+    setUploadSaveState(id, 'error', (e && e.message) || String(e));
+  }
 }
 
 async function loadUploadFromStorage(id){
@@ -1800,6 +1823,10 @@ function bindUploadTab(id){
   const saveBtnEl = document.getElementById('save-' + id);
   if(saveBtnEl){
     saveBtnEl.addEventListener('click', ()=>{ if(uploadState[id]) saveUpload(id); });
+  }
+  const saveStateEl = document.getElementById('saveState-' + id);
+  if(saveStateEl){
+    saveStateEl.addEventListener('click', ()=>{ if(uploadState[id]) saveUpload(id); });
   }
   document.getElementById('clear-' + id).addEventListener('click', async ()=>{
     if(!confirm(UPLOAD_CONFIGS[id].label + ' 업로드 데이터를 지울까요? 목록/담당자별 현황도 원본 값으로 되돌아갑니다.')) return;
@@ -2303,24 +2330,75 @@ function rebuildStockData(){
   stockData.sort((a,b)=> String(a.client||'').localeCompare(String(b.client||''), 'ko'));
 }
 
+// 재고 및 파손재고현황: 반품담당자/발주담당자 드롭다운 필터 옵션을 stockData 기준으로 채웁니다.
+function buildStockFilterOptions(){
+  const rSel = document.getElementById('returnMgrFilter-stock');
+  const oSel = document.getElementById('orderMgrFilter-stock');
+  if(!rSel || !oSel) return;
+  const returnMgrs = [...new Set(stockData.map(r=>r.returnManager).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+  const orderMgrs = [...new Set(stockData.map(r=>r.orderManager).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+
+  const prevR = rSel.value;
+  rSel.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
+  returnMgrs.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; rSel.appendChild(o); });
+  if(returnMgrs.includes(prevR)) rSel.value = prevR;
+
+  const prevO = oSel.value;
+  oSel.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
+  orderMgrs.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; oSel.appendChild(o); });
+  if(orderMgrs.includes(prevO)) oSel.value = prevO;
+}
+
+// 숫자로 변환 가능한 값끼리는 숫자 정렬, 아니면 한글 문자열 정렬을 씁니다 (코드·거래처·담당자 포함 전 항목 공용).
+function stockSortCompare(a, b, key, dir){
+  let av = a[key], bv = b[key];
+  const an = Number(av), bn = Number(bv);
+  if(av!==null && av!==undefined && av!=='' && bv!==null && bv!==undefined && bv!=='' && !isNaN(an) && !isNaN(bn)){
+    return (an - bn) * dir;
+  }
+  av = String(av ?? ''); bv = String(bv ?? '');
+  return av.localeCompare(bv, 'ko') * dir;
+}
+
 function renderStockTable(){
   const head = document.getElementById('stockHead');
   if(!head) return;
 
-  const fixedCols = ['코드','거래처','반품담당자','발주담당자'];
-  const groupRow = fixedCols.map(label=>`<th rowspan="2">${label}</th>`);
+  const fixedDefs = [
+    { key:'code', label:'코드' }, { key:'client', label:'거래처' },
+    { key:'returnManager', label:'반품담당자' }, { key:'orderManager', label:'발주담당자' }
+  ];
+  const groupRow = fixedDefs.map(d=>`<th rowspan="2" data-key="${d.key}">${d.label}${sortArrow('stock', d.key)}</th>`);
   groupRow.push(`<th colspan="${STOCK_SUMMARY_METRICS.length}" class="grp-head grp-stock1">전체 현황</th>`);
-  const subRow = STOCK_SUMMARY_METRICS.map(m=>`<th class="grp-stock1">${m.label}</th>`);
+  const subRow = STOCK_SUMMARY_METRICS.map(m=>`<th class="grp-stock1" data-key="${m.key}">${m.label}${sortArrow('stock', m.key)}</th>`);
   head.innerHTML = `<tr>${groupRow.join('')}</tr><tr>${subRow.join('')}</tr>`;
+  head.querySelectorAll('th[data-key]').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.key;
+      if(sortState.stock.key === key) sortState.stock.dir *= -1;
+      else { sortState.stock.key = key; sortState.stock.dir = 1; }
+      renderStockTable();
+    });
+  });
 
   const q = (document.getElementById('search-stock').value || '').trim().toLowerCase();
-  const rows = stockData.filter(r=>{
+  const rFilter = document.getElementById('returnMgrFilter-stock').value;
+  const oFilter = document.getElementById('orderMgrFilter-stock').value;
+  let rows = stockData.filter(r=>{
+    if(rFilter && r.returnManager !== rFilter) return false;
+    if(oFilter && r.orderManager !== oFilter) return false;
     if(!q) return true;
     return String(r.code).toLowerCase().includes(q) ||
            String(r.client||'').toLowerCase().includes(q) ||
            String(r.returnManager||'').toLowerCase().includes(q) ||
            String(r.orderManager||'').toLowerCase().includes(q);
   });
+
+  if(sortState.stock.key){
+    const k = sortState.stock.key, d = sortState.stock.dir;
+    rows = rows.slice().sort((a,b)=> stockSortCompare(a, b, k, d));
+  }
+
   document.getElementById('count-stock').textContent = `${rows.length.toLocaleString()} / ${stockData.length.toLocaleString()}건`;
 
   const fmt = v => (v===null || v===undefined || v==='') ? '' : (typeof v==='number' ? v.toLocaleString(undefined,{maximumFractionDigits:1}) : v);
@@ -2426,6 +2504,7 @@ function renderStockChart(){
 // 재고 관련 업로드가 바뀔 때마다 표·KPI·그래프를 한 번에 갱신합니다.
 function refreshStockViews(){
   rebuildStockData();
+  buildStockFilterOptions();
   renderStockTable();
   renderStockKpis();
   upsertStockHistorySnapshot();
@@ -2436,12 +2515,15 @@ initUploadTabs().then(async ()=>{
   await loadStockHistory();
   // 로딩 순서와 무관하게, 모든 업로드가 로드된 뒤 한 번 더 확실히 재계산합니다.
   rebuildStockData();
+  buildStockFilterOptions();
   renderStockTable();
   renderStockKpis();
   renderStockChart();
 });
 
 document.getElementById('search-stock').addEventListener('input', renderStockTable);
+document.getElementById('returnMgrFilter-stock').addEventListener('change', renderStockTable);
+document.getElementById('orderMgrFilter-stock').addEventListener('change', renderStockTable);
 
 </script>
 </body>
