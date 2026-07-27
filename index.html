@@ -239,6 +239,8 @@
   }
   .upload-drop:hover{ border-color:var(--teal); background:#eef4ff; }
   .upload-drop.dragover{ border-color:var(--teal); background:var(--teal-bg); }
+  .upload-drop.processing{ border-color:var(--amber); background:var(--amber-bg); opacity:.85; cursor:wait; pointer-events:none; }
+  .upload-drop.processing .upload-icon{ animation: pulse-dot 1s ease-in-out infinite; }
   .upload-drop.compact{ padding:4px 12px; gap:6px; flex:1 1 100%; min-width:260px; }
   .upload-drop.compact .upload-icon{ font-size:13px; }
   .upload-drop.compact .upload-sub{ font-size:10.5px; margin-left:21px; line-height:1.3; }
@@ -421,7 +423,7 @@
             <label class="upload-drop compact" for="file-usage3m">
               <span class="upload-icon">⬆</span>
               <span><b>3개월사용품목</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'3개월사용품목' 시트를 자동으로 찾아 불러옵니다 (없으면 첫 시트 사용) · 업로드하면 취급품목수 KPI가 자동으로 갱신돼요 · 우선처 기준으로 집계하며, 헤더에 "매출"·"매입"·"가용"이 들어간 컬럼(예: 05/06/07純매출, 05/06/07純매입, 現가용)의 합이 양수인 품목(행)만 사용품목수로 반영됩니다</span>
+              <span class="upload-sub">'3개월사용품목' 시트를 자동으로 찾아 불러옵니다 (없으면 첫 시트 사용) · 업로드하면 취급품목수 KPI가 자동으로 갱신돼요 · 우선처 기준으로 집계하며, 헤더에 "매출"·"매입"·"가용"이 들어간 컬럼(예: 05/06/07純매출, 05/06/07純매입, 現가용)의 합이 양수인 품목(행)만 사용품목수로 반영됩니다 · 원본 파일에 다른 컬럼(가격, 약정%, 코드 등)이 많아도 위 계산에 필요한 컬럼만 추려서 저장하므로 미리보기 표에는 우선처/純매출·純매입/現가용 컬럼만 보입니다</span>
             </label>
             <input type="file" id="file-usage3m" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -1054,22 +1056,24 @@ function bindGlobalEvents(){
 const UPLOAD_CONFIGS = {
   pumjeoldata: { sheetNames: ['품절data','품절 data','품절 Data'], storageKey: 'stockout_dashboard_upload_pumjeoldata_v1', label: '품절data' },
   finalorder:  { sheetNames: ['최종발주일'], storageKey: 'stockout_dashboard_upload_finalorder_v1', label: '최종발주일' },
-  usage3m:     { sheetNames: ['3개월사용품목'], storageKey: 'stockout_dashboard_upload_usage3m_v1', label: '3개월사용품목' },
+  usage3m:     { sheetNames: ['3개월사용품목'], storageKey: 'stockout_dashboard_upload_usage3m_v1', label: '3개월사용품목',
+                 // recomputeFromUsage3m only ever reads the client column and the 純매출/純매입/가용 columns —
+                 // everything else in the source sheet (가격, 약정%, 변경예정일 등) is unused, so we keep only
+                 // these at upload time. This shrinks a 40+ column sheet down to a handful of columns.
+                 essentialColumns: { clientCandidates: ['우선처'], usageKeywords: ['純매출','純매입','가용'] } },
   ordermgr:    { sheetNames: ['발주담당자'], storageKey: 'stockout_dashboard_upload_ordermgr_v1', label: '발주담당자', headerHint: '매입처명' },
 };
 const uploadState = {}; // id -> { headers, rows, page, pageSize, sort:{key,dir}, filtered }
 
-function findSheet(workbook, names){
-  for(const n of names){
-    if(workbook.SheetNames.includes(n)) return n;
-  }
-  return workbook.SheetNames[0];
-}
+// ---------- background parsing worker ----------
+// XLSX.read()/sheet_to_json() on a large workbook (tens of thousands of rows) is a long,
+// fully synchronous operation. Running it on the main thread freezes the whole page with
+// no visual feedback until it finishes, which looks exactly like a broken/failed upload.
+// Moving the parse into a Web Worker keeps the tab responsive and lets us show a
+// "처리 중" indicator that actually renders while the work happens.
+const PARSE_WORKER_SRC = `
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
 
-// pick the header row: compare non-empty cell counts of first two rows.
-// group-header rows (row 1) are usually sparser than the real header row (row 2).
-// If a headerHint keyword is given (for sheets with legend rows before the real header,
-// e.g. 발주담당자), scan the first 20 rows for one containing that keyword instead.
 function detectHeaderRow(aoa, headerHint){
   if(headerHint){
     for(let i=0; i<Math.min(20, aoa.length); i++){
@@ -1085,28 +1089,123 @@ function detectHeaderRow(aoa, headerHint){
   return { headerIdx: 0, dataStart: 1 };
 }
 
+function pickEssentialColumns(headers, rows, essentialColumns){
+  if(!essentialColumns) return { headers, rows, trimmed: false };
+  const norm = s => String(s == null ? '' : s).replace(/\\s+/g,'');
+  const { clientCandidates, usageKeywords } = essentialColumns;
+
+  let clientIdx = headers.indexOf(clientCandidates.find(c => headers.includes(c)));
+  if(clientIdx === -1){
+    const target = norm(clientCandidates[0]);
+    clientIdx = headers.findIndex(h => norm(h).includes(target));
+  }
+  const usageIdx = headers
+    .map((h,i)=>({h:norm(h), i}))
+    .filter(({h}) => usageKeywords.some(k => h.includes(k)))
+    .map(({i}) => i);
+
+  const keepIdx = clientIdx !== -1 ? [clientIdx, ...usageIdx] : usageIdx;
+  if(keepIdx.length === 0) return { headers, rows, trimmed: false };
+
+  return {
+    headers: keepIdx.map(i => headers[i]),
+    rows: rows.map(r => keepIdx.map(i => r[i])),
+    trimmed: true,
+    originalColumnCount: headers.length,
+    keptColumnCount: keepIdx.length
+  };
+}
+
+self.onmessage = function(e){
+  const { buf, sheetNames, headerHint, essentialColumns } = e.data;
+  try{
+    const wb = XLSX.read(buf, { type:'array', cellDates:false });
+    const sheetName = sheetNames.find(n => wb.SheetNames.includes(n)) || wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null });
+    const { headerIdx, dataStart } = detectHeaderRow(aoa, headerHint);
+    const rawHeaders = aoa[headerIdx].map((h,i)=> (h===null||h==='') ? ('열'+(i+1)) : String(h));
+    const rawRows = aoa.slice(dataStart).filter(r => r.some(v => v!==null && v!==''));
+    const picked = pickEssentialColumns(rawHeaders, rawRows, essentialColumns);
+    self.postMessage({
+      ok: true, sheetName, headers: picked.headers, rows: picked.rows, trimmed: picked.trimmed,
+      originalColumnCount: picked.originalColumnCount, keptColumnCount: picked.keptColumnCount
+    });
+  }catch(err){
+    self.postMessage({ ok: false, error: String((err && err.message) || err) });
+  }
+};
+`;
+
+let parseWorker = null;
+function getParseWorker(){
+  if(!parseWorker){
+    const blob = new Blob([PARSE_WORKER_SRC], { type: 'application/javascript' });
+    parseWorker = new Worker(URL.createObjectURL(blob));
+  }
+  return parseWorker;
+}
+
+function parseFileInWorker(buf, cfg){
+  return new Promise((resolve, reject)=>{
+    const worker = getParseWorker();
+    const handleMessage = (e)=>{
+      worker.removeEventListener('message', handleMessage);
+      worker.removeEventListener('error', handleError);
+      if(e.data && e.data.ok) resolve(e.data);
+      else reject(new Error((e.data && e.data.error) || '파일 처리 중 알 수 없는 오류가 발생했어요.'));
+    };
+    const handleError = (err)=>{
+      worker.removeEventListener('message', handleMessage);
+      worker.removeEventListener('error', handleError);
+      reject(err);
+    };
+    worker.addEventListener('message', handleMessage);
+    worker.addEventListener('error', handleError);
+    worker.postMessage({ buf, sheetNames: cfg.sheetNames, headerHint: cfg.headerHint, essentialColumns: cfg.essentialColumns }, [buf]);
+  });
+}
+
+function setUploadProcessing(id, isProcessing, fileName){
+  const meta = document.getElementById('meta-' + id);
+  const dropLabel = document.querySelector(`label[for="file-${id}"]`);
+  const fileInput = document.getElementById('file-' + id);
+  if(isProcessing){
+    if(dropLabel) dropLabel.classList.add('processing');
+    if(fileInput) fileInput.disabled = true;
+    if(meta) meta.innerHTML = `⏳ <b>${fileName}</b> 처리 중이에요… 대용량 파일은 다소 시간이 걸릴 수 있어요 (페이지는 멈추지 않으니 다른 작업을 하며 기다리셔도 됩니다)`;
+  } else {
+    if(dropLabel) dropLabel.classList.remove('processing');
+    if(fileInput) fileInput.disabled = false;
+  }
+}
+
 async function handleFile(id, file){
   const cfg = UPLOAD_CONFIGS[id];
-  const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type:'array', cellDates:false });
-  const sheetName = findSheet(wb, cfg.sheetNames);
-  const ws = wb.Sheets[sheetName];
-  const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null });
-  const { headerIdx, dataStart } = detectHeaderRow(aoa, cfg.headerHint);
-  const rawHeaders = aoa[headerIdx].map((h,i)=> (h===null||h==='') ? ('열'+(i+1)) : String(h));
-  const rows = aoa.slice(dataStart).filter(r => r.some(v => v!==null && v!==''));
-
-  uploadState[id] = {
-    headers: rawHeaders, rows, page: 0, pageSize: 50,
-    sort: { key:null, dir:1 }, sheetUsed: sheetName, uploadedAt: new Date().toISOString(), fileName: file.name
-  };
-  await saveUpload(id);
-  renderUploadTable(id);
-  updateUploadMeta(id);
-  if(id === 'pumjeoldata') recomputeFromPumjeoldata();
-  if(id === 'finalorder') recomputeFromFinalOrder();
-  if(id === 'usage3m') recomputeFromUsage3m();
-  if(id === 'ordermgr') recomputeFromManager();
+  setUploadProcessing(id, true, file.name);
+  try{
+    const buf = await file.arrayBuffer();
+    const result = await parseFileInWorker(buf, cfg);
+    uploadState[id] = {
+      headers: result.headers, rows: result.rows, page: 0, pageSize: 50,
+      sort: { key:null, dir:1 }, sheetUsed: result.sheetName, uploadedAt: new Date().toISOString(), fileName: file.name,
+      trimmedColumns: result.trimmed ? { original: result.originalColumnCount, kept: result.keptColumnCount } : null
+    };
+    await saveUpload(id);
+    renderUploadTable(id);
+    updateUploadMeta(id);
+    if(id === 'pumjeoldata') recomputeFromPumjeoldata();
+    if(id === 'finalorder') recomputeFromFinalOrder();
+    if(id === 'usage3m') recomputeFromUsage3m();
+    if(id === 'ordermgr') recomputeFromManager();
+  }catch(err){
+    console.error('업로드 처리 실패:', err);
+    setUploadProcessing(id, false);
+    updateUploadMeta(id);
+    alert('파일을 읽는 중 문제가 발생했어요: ' + (err && err.message ? err.message : err));
+    return;
+  }
+  setUploadProcessing(id, false);
 }
 
 function setUploadSaveState(id, state){
@@ -1121,17 +1220,65 @@ function setUploadSaveState(id, state){
   else { label.textContent='대기 중'; }
 }
 
+// ---------- chunked storage helpers ----------
+// window.storage caps each key's value at 5MB. Large source sheets (e.g. "3개월사용품목",
+// which can be tens of thousands of rows) easily exceed that in a single JSON blob, which
+// made the save silently fail. To fix this, rows are split across multiple keys
+// (`${storageKey}_chunk_0`, `_chunk_1`, ...) whenever the serialized rows would be too big,
+// and reassembled on load. Small uploads are still saved as a single key, unchanged.
+const MAX_VALUE_BYTES = 4 * 1024 * 1024; // 4MB target, safety margin under the 5MB hard limit
+
+function byteLengthOf(value){
+  return new TextEncoder().encode(JSON.stringify(value)).length;
+}
+
+function splitRowsIntoChunks(rows, maxBytes){
+  if(rows.length === 0) return [[]];
+  const totalBytes = byteLengthOf(rows);
+  if(totalBytes <= maxBytes) return [rows];
+  // +15% safety buffer since row sizes can vary a bit from the average
+  const numChunks = Math.max(2, Math.ceil((totalBytes / maxBytes) * 1.15));
+  const chunkSize = Math.ceil(rows.length / numChunks);
+  const chunks = [];
+  for(let i=0; i<rows.length; i+=chunkSize){
+    chunks.push(rows.slice(i, i+chunkSize));
+  }
+  return chunks;
+}
+
 async function saveUpload(id){
   const cfg = UPLOAD_CONFIGS[id];
   const st = uploadState[id];
   setUploadSaveState(id, 'saving');
   try{
     const now = new Date().toISOString();
-    const res = await window.storage.set(cfg.storageKey, JSON.stringify({
-      headers: st.headers, rows: st.rows, sheetUsed: st.sheetUsed, uploadedAt: st.uploadedAt, fileName: st.fileName, savedAt: now
-    }), true);
+    const chunks = splitRowsIntoChunks(st.rows, MAX_VALUE_BYTES);
+    const isChunked = chunks.length > 1;
+
+    // if a previous save had more chunks than we need now (e.g. re-uploaded a smaller file), drop the leftovers
+    const prevChunkCount = st.chunkCount || 0;
+    for(let i=chunks.length; i<prevChunkCount; i++){
+      try{ await window.storage.delete(cfg.storageKey + '_chunk_' + i, true); }catch(e){}
+    }
+
+    let ok = true;
+    if(isChunked){
+      for(let i=0; i<chunks.length; i++){
+        const chunkRes = await window.storage.set(cfg.storageKey + '_chunk_' + i, JSON.stringify(chunks[i]), true);
+        if(!chunkRes){ ok = false; break; }
+      }
+    }
+
+    const metaPayload = {
+      headers: st.headers, sheetUsed: st.sheetUsed, uploadedAt: st.uploadedAt, fileName: st.fileName, savedAt: now,
+      chunked: isChunked, chunkCount: chunks.length, trimmedColumns: st.trimmedColumns || null
+    };
+    if(!isChunked) metaPayload.rows = chunks[0];
+
+    const res = ok ? await window.storage.set(cfg.storageKey, JSON.stringify(metaPayload), true) : null;
     if(res){
       st.savedAt = now;
+      st.chunkCount = chunks.length;
       lastSavedAt = now;
       updateGlobalSavedLabel();
       updateUploadMeta(id);
@@ -1148,10 +1295,21 @@ async function loadUploadFromStorage(id){
     const res = await window.storage.get(cfg.storageKey, true);
     if(res && res.value){
       const parsed = JSON.parse(res.value);
+      let rows = parsed.rows || [];
+      if(parsed.chunked){
+        const chunkResults = await Promise.all(
+          Array.from({length: parsed.chunkCount}, (_, i) =>
+            window.storage.get(cfg.storageKey + '_chunk_' + i, true).catch(()=>null)
+          )
+        );
+        rows = [];
+        chunkResults.forEach(r=>{ if(r && r.value) rows = rows.concat(JSON.parse(r.value)); });
+      }
       uploadState[id] = {
-        headers: parsed.headers, rows: parsed.rows, page:0, pageSize:50,
+        headers: parsed.headers, rows, page:0, pageSize:50,
         sort:{key:null,dir:1}, sheetUsed: parsed.sheetUsed, uploadedAt: parsed.uploadedAt, fileName: parsed.fileName,
-        savedAt: parsed.savedAt || parsed.uploadedAt
+        savedAt: parsed.savedAt || parsed.uploadedAt, chunkCount: parsed.chunked ? parsed.chunkCount : 0,
+        trimmedColumns: parsed.trimmedColumns || null
       };
       if(parsed.savedAt && (!lastSavedAt || parsed.savedAt > lastSavedAt)){ lastSavedAt = parsed.savedAt; updateGlobalSavedLabel(); }
       renderUploadTable(id);
@@ -1183,7 +1341,10 @@ function updateUploadMeta(id){
   }
   const dt = new Date(st.uploadedAt);
   const savedPart = st.savedAt ? ` · <span style="color:var(--teal-ink); font-weight:700;">최종 저장 ${formatSavedTime(st.savedAt)}</span>` : '';
-  meta.innerHTML = `${dt.toLocaleString('ko-KR')} 업로드${savedPart}`;
+  const trimPart = st.trimmedColumns
+    ? ` · <span style="color:var(--ink-dim);">필요한 컬럼만 저장됨 (원본 ${st.trimmedColumns.original}개 → ${st.trimmedColumns.kept}개)</span>`
+    : '';
+  meta.innerHTML = `${dt.toLocaleString('ko-KR')} 업로드${savedPart}${trimPart}`;
   clearBtn.style.display = 'inline-flex';
   if(saveBtn) saveBtn.style.display = 'inline-flex';
   if(saveState){ saveState.style.display = 'flex'; setUploadSaveState(id, st.savedAt ? 'saved' : 'idle'); }
@@ -1301,8 +1462,15 @@ function bindUploadTab(id){
   }
   document.getElementById('clear-' + id).addEventListener('click', async ()=>{
     if(!confirm(UPLOAD_CONFIGS[id].label + ' 업로드 데이터를 지울까요? 목록/담당자별 현황도 원본 값으로 되돌아갑니다.')) return;
+    // clean up chunked rows too; if we don't know the exact chunk count (e.g. saved in another
+    // session), try a generous upper bound — deleting a non-existent key is harmless here.
+    const knownChunkCount = (uploadState[id] && uploadState[id].chunkCount) || 0;
+    const chunkDeleteAttempts = Math.max(knownChunkCount, 40);
     delete uploadState[id];
     try{ await window.storage.delete(UPLOAD_CONFIGS[id].storageKey, true); }catch(e){}
+    for(let i=0; i<chunkDeleteAttempts; i++){
+      try{ await window.storage.delete(UPLOAD_CONFIGS[id].storageKey + '_chunk_' + i, true); }catch(e){}
+    }
     updateUploadMeta(id);
     if(id === 'pumjeoldata'){
       listData.forEach((row, i)=>{
