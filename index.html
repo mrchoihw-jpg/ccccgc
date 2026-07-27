@@ -281,12 +281,19 @@
   #toolbar-returnmgr, #scroll-returnmgr{ display:none !important; }
 
   /* section groups in the sidebar: 발주 / 재고 및 반품 각각 큰 타이틀 + 그 아래 탭 목록 */
-  .tabs-groups{ display:flex; flex-direction:column; gap:14px; }
-  .tabs-group-title{
-    font-size:13.5px; font-weight:800; color:var(--ink); letter-spacing:-0.01em;
-    padding:0 2px 8px; display:flex; align-items:center; gap:6px;
+  .tabs-groups{ display:flex; flex-direction:column; gap:16px; }
+  .section-block{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:14px 14px 16px; box-shadow:var(--shadow-sm); border-top:3px solid var(--line-strong);
   }
-  .tabs-group-title .dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none; }
+  .section-block.accent-order{ border-top-color:var(--accent); }
+  .section-block.accent-stock{ border-top-color:var(--amber); }
+  .tabs-group-title{
+    font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-0.01em;
+    padding:0 0 10px; margin-bottom:10px; display:flex; align-items:center; gap:7px;
+    border-bottom:1px solid var(--line);
+  }
+  .tabs-group-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:none; }
   .kpis-label{ font-size:11.5px; font-weight:800; color:var(--ink-dim); letter-spacing:.02em; padding:0 2px 5px; }
   .kpis.kpis-3{ grid-template-columns:1fr; margin-bottom:14px; }
   .kpi .val small{ font-size:9px; color:var(--ink-dim); font-weight:600; margin-left:2px; }
@@ -328,7 +335,7 @@
   <div class="dash-layout">
     <div class="sidebar">
       <div class="tabs-groups">
-        <div>
+        <div class="section-block accent-order">
           <div class="tabs-group-title"><span class="dot"></span>발주</div>
           <div class="kpis" id="kpiRow"></div>
           <div class="tabs">
@@ -336,7 +343,7 @@
             <div class="tab" data-tab="basedb">기초DATABASE</div>
           </div>
         </div>
-        <div>
+        <div class="section-block accent-stock">
           <div class="tabs-group-title"><span class="dot" style="background:var(--amber);"></span>구매 및 반품</div>
           <div class="kpis-label">재고현황</div>
           <div class="kpis kpis-3" id="kpiRow2"></div>
@@ -1849,6 +1856,24 @@ async function initUploadTabs(){
 //                 (원본처럼 최신순 정렬을 가정합니다)
 // 취급품목수·발주담당자·결제기준일·회전은 '3개월사용품목'/'발주담당자' 시트가 있어야 계산되므로
 // 이 대시보드에서는 건드리지 않고 기존 값을 유지합니다.
+// 업로드된 원본(품절data, 3개월사용품목 등)에 있는 거래처가 아직 품절 현황 목록에 없으면
+// 새 행을 자동으로 만들어 추가합니다. 코드가 있으면 코드로, 없으면 거래처명으로 기존 행을 찾습니다.
+function findOrCreateListRow(client, code){
+  const c = code ? String(code).trim() : '';
+  let row = null;
+  if(c) row = listData.find(r => String(r.code || '').trim() === c);
+  if(!row && client) row = listData.find(r => r.client === client);
+  if(!row){
+    row = {
+      code: c || '', client: client || '', itemCount: 0, stockout: 0, noOrder: 0,
+      expected: 0, noOrder2: 0, totalNoOrder: 0, lastOrderDate: '', region: '',
+      manager: '', paymentBasis: '', turn: '', status: '품절없음'
+    };
+    listData.push(row);
+  }
+  return row;
+}
+
 function recomputeFromPumjeoldata(){
   const up = uploadState['pumjeoldata'];
   const banner = document.getElementById('meta-pumjeoldata');
@@ -1865,13 +1890,16 @@ function recomputeFromPumjeoldata(){
   // '발주미입'에 수량이 있으면 이미 발주가 들어간 것으로 보고 미발주에서 제외.
   const hasBaljuCol = idxBalju !== -1;
   const isUnordered = (v)=> v===null || v===undefined || v==='' || Number(v)===0;
+  // 코드 컬럼이 있으면 신규 거래처 생성 시 코드도 함께 채웁니다.
+  const idxCode = findHeaderIndex(headers, '다미스코드', '코드', '거래처코드');
 
-  const soCount = {}, soUnordered = {}, expCount = {}, expUnordered = {};
+  const soCount = {}, soUnordered = {}, expCount = {}, expUnordered = {}, clientToCode = {};
   up.rows.forEach(r=>{
     const client = r[idxAB];
     const status = r[idxV];
     const balju = hasBaljuCol ? r[idxBalju] : null;
     if(!client) return;
+    if(idxCode !== -1 && r[idxCode] && !clientToCode[client]) clientToCode[client] = r[idxCode];
     if(status === '품절'){
       soCount[client] = (soCount[client]||0) + 1;
       if(hasBaljuCol && isUnordered(balju)) soUnordered[client] = (soUnordered[client]||0) + 1;
@@ -1879,6 +1907,15 @@ function recomputeFromPumjeoldata(){
       expCount[client] = (expCount[client]||0) + 1;
       if(hasBaljuCol && isUnordered(balju)) expUnordered[client] = (expUnordered[client]||0) + 1;
     }
+  });
+
+  // 목록에 없는 거래처는 새 행으로 자동 생성합니다.
+  const newClients = new Set([...Object.keys(soCount), ...Object.keys(expCount)]);
+  let createdCount = 0;
+  newClients.forEach(c=>{
+    const existed = listData.some(r=>r.client===c);
+    findOrCreateListRow(c, clientToCode[c]);
+    if(!existed) createdCount++;
   });
 
   listData.forEach(row=>{
@@ -1899,11 +1936,13 @@ function recomputeFromPumjeoldata(){
 
   recomputeManagerSummary();
   renderKpis(); renderListTable(); renderMgrTable();
+  buildFilterOptions();
   scheduleSave();
+  const createdNote = createdCount ? ` · 목록에 없던 거래처 ${createdCount.toLocaleString()}곳을 새로 추가했어요` : '';
   if(hasBaljuCol){
-    banner.innerHTML += ' <span style="color:var(--teal)">✓ 품절 현황 목록·담당자별 현황에 반영됨</span>';
+    banner.innerHTML += ` <span style="color:var(--teal)">✓ 품절 현황 목록·담당자별 현황에 반영됨${createdNote}</span>`;
   } else {
-    banner.innerHTML += ' <span style="color:var(--amber)">✓ 품절/품절예상 수는 갱신됨. 다만 "발주미입" 컬럼을 찾지 못해 미발주 수치는 이전 값을 그대로 유지했어요.</span>';
+    banner.innerHTML += ` <span style="color:var(--amber)">✓ 품절/품절예상 수는 갱신됨. 다만 "발주미입" 컬럼을 찾지 못해 미발주 수치는 이전 값을 그대로 유지했어요${createdNote}.</span>`;
   }
 }
 
@@ -2054,12 +2093,23 @@ function recomputeFromUsage3m(){
     qualifiedRows++;
     itemCount[client] = (itemCount[client]||0) + 1;
   });
+
+  // 목록에 없는 거래처는 새 행으로 자동 생성합니다 (3개월사용품목 essential-column 추출 특성상 코드는 없이 거래처명만 채워집니다).
+  let createdCount = 0;
+  Object.keys(itemCount).forEach(c=>{
+    const existed = listData.some(r=>r.client===c);
+    findOrCreateListRow(c, null);
+    if(!existed) createdCount++;
+  });
+
   listData.forEach(row=>{ row.itemCount = itemCount[row.client] || 0; });
   recomputeManagerSummary();
   renderKpis(); renderListTable(); renderMgrTable();
+  buildFilterOptions();
   scheduleSave();
 
   let msg = ' <span style="color:var(--teal)">✓ 취급품목수(우선처 기준)가 목록·담당자별 현황에 반영됨';
+  if(createdCount) msg += ` · 목록에 없던 거래처 ${createdCount.toLocaleString()}곳을 새로 추가했어요`;
   if(hasUsageCols){
     msg += ` · "${usageColLabels.join(', ')}" 합이 양수인 ${qualifiedRows.toLocaleString()}행만 반영 (업로드 전체 ${totalRows.toLocaleString()}행 중)`;
   } else {
