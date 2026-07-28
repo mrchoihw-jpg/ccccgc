@@ -81,7 +81,13 @@
   .main-content{ flex:1; min-width:0; }
 
   /* kpi cards (compact, ~half size, stacked 2-up above the side menu) */
-  .kpis{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .kpis{
+    display:grid; grid-template-columns:1fr 1fr; gap:6px;
+    border:2px solid var(--line-strong); border-radius:14px; padding:8px;
+    background:linear-gradient(180deg,#f7f9fc,#eef1f7);
+    box-shadow: inset 0 1px 3px rgba(19,27,44,0.06), var(--shadow-sm);
+  }
+  .kpis .kpi{ border-color:var(--line); }
   .kpi{
     position:relative; overflow:hidden;
     background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:5px 8px 5px;
@@ -112,12 +118,14 @@
     display:flex; flex-direction:column; gap:6px; background:transparent; border:none; padding:0;
   }
   .tab{
-    padding:8px 12px; cursor:pointer; color:var(--ink-dim); font-size:13px; font-weight:700;
+    padding:9px 12px; cursor:pointer; color:var(--ink-dim); font-size:13px; font-weight:700;
     border-radius:9px; background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow-sm);
     transition: background .15s, color .15s, box-shadow .15s, border-color .15s, transform .08s;
+    display:flex; align-items:center; gap:9px;
   }
-  .tab:hover{ color:var(--ink); border-color:var(--line-strong); box-shadow:var(--shadow-md); transform:translateY(-1px); }
-  .tab:active{ transform:translateY(0); }
+  .tab .tab-ic{ font-size:14px; flex:none; line-height:1; }
+  .tab:hover{ color:var(--ink); border-color:var(--line-strong); box-shadow:var(--shadow-md); transform:translateX(2px); }
+  .tab:active{ transform:translateX(0); }
   .tab.active{ color:#fff; background:var(--accent-grad); border-color:transparent; box-shadow:var(--shadow-md); font-weight:800; }
 
   .panel{ display:none; }
@@ -301,21 +309,24 @@
   #toolbar-returnmgr, #scroll-returnmgr{ display:none !important; }
 
   /* section groups in the sidebar: 발주 / 재고 및 반품 각각 큰 타이틀 + 그 아래 탭 목록 */
-  .tabs-groups{ display:flex; flex-direction:column; gap:16px; }
+  .tabs-groups{ display:flex; flex-direction:column; gap:18px; }
   .section-block{
-    background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    padding:10px 12px 12px; box-shadow:var(--shadow-sm); border-top:3px solid var(--line-strong);
+    position:relative; overflow:hidden;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:14px 13px 13px; box-shadow:var(--shadow-sm);
   }
-  .section-block.accent-order{ border-top-color:var(--accent); }
-  .section-block.accent-stock{ border-top-color:var(--amber); }
+  .section-block::before{
+    content:''; position:absolute; left:0; top:0; right:0; height:4px;
+    background:var(--line-strong);
+  }
+  .section-block.accent-order::before{ background:var(--accent-grad); }
+  .section-block.accent-stock::before{ background:linear-gradient(90deg,#c1791b,#e0aa5a); }
   .tabs-group-title{
-    font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-0.01em;
-    padding:0 0 6px; margin-bottom:6px; display:flex; align-items:center; gap:7px;
-    border-bottom:1px solid var(--line);
+    font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-0.01em;
+    padding:2px 0 0; margin-bottom:2px; display:flex; align-items:center; gap:8px;
   }
-  .tabs-group-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:none; }
-  .kpis-label{ font-size:11px; font-weight:800; color:var(--ink-dim); letter-spacing:.02em; padding:0 2px 3px; }
-  .kpis.kpis-3{ grid-template-columns:1fr; margin-bottom:8px; }
+  .tabs-group-title .dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); flex:none; box-shadow:0 0 0 3px rgba(47,95,214,0.14); }
+  .kpis.kpis-3{ grid-template-columns:1fr; margin-bottom:8px; gap:8px; }
   .kpi .val small{ font-size:9px; color:var(--ink-dim); font-weight:600; margin-left:2px; }
 
   /* stock table grouped header colors (재고 및 파손재고현황) */
@@ -455,7 +466,8 @@
   .p-seal-row{display:flex;justify-content:flex-end;margin-top:10px;}
   .p-seal-row img{width:190px;}
   .p-pagenum{
-    text-align:center;font-size:10px;color:#333;margin-top:14px;
+    position:absolute; left:0; right:0; bottom:0;
+    text-align:center;font-size:10px;color:#333;
   }
 
   @page { size: A4; margin: 0; }
@@ -513,20 +525,19 @@
           <div class="tabs-group-title"><span class="dot"></span>발주</div>
           <div class="kpis" id="kpiRow"></div>
           <div class="tabs">
-            <div class="tab active" data-tab="list">품절 현황 목록</div>
-            <div class="tab" data-tab="basedb">기초DB</div>
+            <div class="tab active" data-tab="list"><span class="tab-ic">📋</span>품절 현황 목록</div>
+            <div class="tab" data-tab="basedb"><span class="tab-ic">🗂️</span>기초DB</div>
           </div>
         </div>
         <div class="section-block accent-stock">
           <div class="tabs-group-title"><span class="dot" style="background:var(--amber);"></span>구매 및 반품</div>
-          <div class="kpis-label">재고현황</div>
           <div class="kpis kpis-3" id="kpiRow2"></div>
           <div class="tabs">
-            <div class="tab" data-tab="stock">재고 및 파손재고현황</div>
-            <div class="tab" data-tab="stocktrend">재고현황</div>
-            <div class="tab" data-tab="stockdamage">파손재고현황</div>
-            <div class="tab" data-tab="returns">반품신청서</div>
-            <div class="tab" data-tab="stockdb">기초DB</div>
+            <div class="tab" data-tab="stock"><span class="tab-ic">📦</span>재고 및 파손재고현황</div>
+            <div class="tab" data-tab="stocktrend"><span class="tab-ic">📈</span>재고현황</div>
+            <div class="tab" data-tab="stockdamage"><span class="tab-ic">⚠️</span>파손재고현황</div>
+            <div class="tab" data-tab="returns"><span class="tab-ic">📝</span>반품신청서</div>
+            <div class="tab" data-tab="stockdb"><span class="tab-ic">🗂️</span>기초DB</div>
           </div>
         </div>
       </div>
