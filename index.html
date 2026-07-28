@@ -82,15 +82,15 @@
 
   /* kpi cards (compact, ~half size, stacked 2-up above the side menu) */
   .kpis{
-    display:grid; grid-template-columns:1fr 1fr; gap:6px;
-    border:2px solid var(--line-strong); border-radius:14px; padding:8px;
+    display:grid; grid-template-columns:1fr 1fr; gap:5px;
+    border:2px solid var(--line-strong); border-radius:12px; padding:6px;
     background:linear-gradient(180deg,#f7f9fc,#eef1f7);
     box-shadow: inset 0 1px 3px rgba(19,27,44,0.06), var(--shadow-sm);
   }
   .kpis .kpi{ border-color:var(--line); }
   .kpi{
     position:relative; overflow:hidden;
-    background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:5px 8px 5px;
+    background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:4px 7px 4px;
     box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s;
   }
   .kpi:hover{ transform: translateY(-1px); box-shadow: var(--shadow-md); }
@@ -98,8 +98,8 @@
     content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--line-strong);
   }
   .kpi .icon{ display:none; }
-  .kpi .label{ color:var(--ink-dim); font-size:10px; font-weight:600; margin-bottom:3px; letter-spacing:.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .kpi .val{ font-size:14px; font-weight:800; font-variant-numeric: tabular-nums; color:var(--ink); letter-spacing:-0.01em;}
+  .kpi .label{ color:var(--ink-dim); font-size:9.5px; font-weight:600; margin-bottom:2px; letter-spacing:.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .kpi .val{ font-size:13px; font-weight:800; font-variant-numeric: tabular-nums; color:var(--ink); letter-spacing:-0.01em;}
   .kpi .val small{ font-size:9px; color:var(--ink-dim); font-weight:600; }
   .kpi.red::before{ background:var(--red); }
   .kpi.red .val{ color:var(--red-ink); }
@@ -115,15 +115,15 @@
 
   /* tabs: vertical menu in the sidebar */
   .tabs{
-    display:flex; flex-direction:column; gap:6px; background:transparent; border:none; padding:0;
+    display:flex; flex-direction:column; gap:5px; background:transparent; border:none; padding:0;
   }
   .tab{
-    padding:9px 12px; cursor:pointer; color:var(--ink-dim); font-size:13px; font-weight:700;
+    padding:7px 11px; cursor:pointer; color:var(--ink-dim); font-size:12.5px; font-weight:700;
     border-radius:9px; background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow-sm);
     transition: background .15s, color .15s, box-shadow .15s, border-color .15s, transform .08s;
-    display:flex; align-items:center; gap:9px;
+    display:flex; align-items:center; gap:8px;
   }
-  .tab .tab-ic{ font-size:14px; flex:none; line-height:1; }
+  .tab .tab-ic{ font-size:13px; flex:none; line-height:1; }
   .tab:hover{ color:var(--ink); border-color:var(--line-strong); box-shadow:var(--shadow-md); transform:translateX(2px); }
   .tab:active{ transform:translateX(0); }
   .tab.active{ color:#fff; background:var(--accent-grad); border-color:transparent; box-shadow:var(--shadow-md); font-weight:800; }
@@ -309,11 +309,12 @@
   #toolbar-returnmgr, #scroll-returnmgr{ display:none !important; }
 
   /* section groups in the sidebar: 발주 / 재고 및 반품 각각 큰 타이틀 + 그 아래 탭 목록 */
-  .tabs-groups{ display:flex; flex-direction:column; gap:18px; }
+  .tabs-groups{ display:flex; flex-direction:column; gap:14px; }
   .section-block{
     position:relative; overflow:hidden;
     background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:14px 13px 13px; box-shadow:var(--shadow-sm);
+    padding:11px 11px 10px; box-shadow:var(--shadow-sm);
+    display:flex; flex-direction:column; gap:8px;
   }
   .section-block::before{
     content:''; position:absolute; left:0; top:0; right:0; height:4px;
@@ -322,11 +323,11 @@
   .section-block.accent-order::before{ background:var(--accent-grad); }
   .section-block.accent-stock::before{ background:linear-gradient(90deg,#c1791b,#e0aa5a); }
   .tabs-group-title{
-    font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-0.01em;
-    padding:2px 0 0; margin-bottom:2px; display:flex; align-items:center; gap:8px;
+    font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-0.01em;
+    padding:1px 0 0; display:flex; align-items:center; gap:7px;
   }
-  .tabs-group-title .dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); flex:none; box-shadow:0 0 0 3px rgba(47,95,214,0.14); }
-  .kpis.kpis-3{ grid-template-columns:1fr; margin-bottom:8px; gap:8px; }
+  .tabs-group-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:none; box-shadow:0 0 0 3px rgba(47,95,214,0.14); }
+  .kpis.kpis-3{ grid-template-columns:1fr; gap:6px; }
   .kpi .val small{ font-size:9px; color:var(--ink-dim); font-weight:600; margin-left:2px; }
 
   /* stock table grouped header colors (재고 및 파손재고현황) */
