@@ -62,6 +62,7 @@
   #lastSavedGlobal{ color:var(--ink-faint); }
   #lastSavedGlobal.fresh{ color:var(--teal-ink); font-weight:700; }
   .head-actions{ display:none; gap:8px; }
+  .head-updated{ color:var(--ink-faint); font-size:11px; align-self:flex-start; white-space:nowrap; }
   .btn{
     background: var(--panel); color:var(--ink); border:1px solid var(--line-strong);
     padding:9px 15px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
@@ -192,7 +193,8 @@
   /* summary tab */
   #mgrTable{ font-size:12.5px; }
   .mgr-scroll{ width:fit-content; max-width:100%; }
-  #mgrTable td, #mgrTable th{ padding:3px 14px; }
+  #mgrTable td, #mgrTable th{ padding:6px 14px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); }
+  #mgrTable td:last-child, #mgrTable th:last-child{ border-right:none; }
   #mgrTable thead th[data-key="manager"], #mgrTable tbody td:first-child{
     position:sticky; left:0; z-index:5; background:#fff; box-shadow: 2px 0 4px rgba(19,27,44,0.05);
   }
@@ -204,6 +206,12 @@
     font-size:9.5px; font-weight:800; color:#fff; background:linear-gradient(135deg,#7a8bb8,#4c5a72);
   }
   tbody tr:nth-child(even) td:first-child{ background:#f9fafc; }
+  #mgrTable tbody tr:nth-child(even) td{ background:#f9fafc; }
+  #mgrTable td.grp-red{ background:#fdf8f7; }
+  #mgrTable td.grp-amber{ background:#fdfaf3; }
+  #mgrTable tbody tr:nth-child(even) td.grp-red{ background:#fbf1f0; }
+  #mgrTable tbody tr:nth-child(even) td.grp-amber{ background:#fbf4e6; }
+  #mgrTable tbody tr:hover td{ background:var(--teal-bg); }
   #mgrTable tbody tr:hover td:first-child{ background:var(--teal-bg); }
   .bar-cell{ display:flex; align-items:center; gap:7px; min-width:130px; }
   .bar-track{ flex:1; height:6px; background:#e6eaf1; border-radius:99px; overflow:hidden; box-shadow: inset 0 1px 1px rgba(19,27,44,.05); }
@@ -215,12 +223,12 @@
   tr.total-row td{ background:#e9edf5 !important; font-weight:800; border-top:2px solid var(--line-strong); color:var(--ink); }
   tr.total-row td:first-child{ background:#e9edf5 !important; }
   thead th.grp-head{ text-align:center; font-size:12px; letter-spacing:.03em; font-weight:800; }
-  thead th.grp-red{ background: rgba(209,72,63,0.14); color:var(--red-ink); border-bottom:1px solid rgba(209,72,63,0.25); }
-  thead th.grp-amber{ background: rgba(193,121,27,0.16); color:var(--amber-ink); border-bottom:1px solid rgba(193,121,27,0.25); }
+  thead th.grp-red{ background: rgba(209,72,63,0.09); color:var(--red-ink); border-bottom:1px solid rgba(209,72,63,0.2); }
+  thead th.grp-amber{ background: rgba(193,121,27,0.1); color:var(--amber-ink); border-bottom:1px solid rgba(193,121,27,0.2); }
   #mgrTable thead th[class*="grp-"]:not(.grp-head){ font-size:11px; }
-  #mgrTable colgroup col.sep{ border-left:2px solid var(--line-strong); }
+  #mgrTable colgroup col.sep{ border-left:3px solid #9aa4ba; }
   #mgrTable td[data-key="soCount"], #mgrTable th[data-key="soCount"],
-  #mgrTable td[data-key="expCount"], #mgrTable th[data-key="expCount"]{ border-left:2px solid var(--line-strong); }
+  #mgrTable td[data-key="expCount"], #mgrTable th[data-key="expCount"]{ border-left:3px solid #9aa4ba; }
 
   .foot-note{ color:var(--ink-faint); font-size:12px; margin-top:14px; }
   .foot-note code{ background:var(--panel-2); padding:1px 5px; border-radius:4px; font-family:var(--mono); }
@@ -276,6 +284,8 @@
   .upload-drop.compact .upload-sub{ font-size:10.5px; margin-left:21px; line-height:1.3; }
   .upload-icon{ font-size:18px; color:var(--teal); }
   .upload-sub{ color:var(--ink-faint); font-size:12px; width:100%; margin-left:28px; }
+  .upload-source{ color:#0f3d68; font-weight:400; font-size:13.5px; width:100%; margin-left:28px; }
+  .upload-drop.compact .upload-source{ margin-left:21px; }
   .upload-actions{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; flex:2 1 400px; justify-content:flex-end; min-width:0; overflow-x:auto; }
   .upload-meta{ color:var(--ink-dim); font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1 1 auto; min-width:0; }
   .pager{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-dim); }
@@ -368,6 +378,7 @@
   .rt-scope .upload-card.dragover{background:var(--rt-blue-050);border-color:var(--rt-blue-900);}
   .rt-scope .upload-card h3{margin:0 0 6px;font-size:14.5px;color:var(--rt-blue-900);}
   .rt-scope .upload-card p{margin:0 0 14px;font-size:12.5px;color:var(--rt-muted);}
+  .rt-scope .upload-card p.upload-source{color:#0f3d68;}
   .rt-scope .upload-card input[type=file]{display:none;}
 
   .rt-scope .status-line{font-size:12px;margin-top:10px;color:var(--rt-muted);}
@@ -512,6 +523,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-07-28</div>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
       <button class="btn" id="exportBtn">⬇ Excel 다운로드</button>
@@ -557,8 +569,7 @@
               <tbody id="mgrBody"></tbody>
             </table>
           </div>
-          <div class="foot-row">
-            <div class="foot-note">품절율 / 발주율 등 숫자 셀도 클릭해서 수동으로 고칠 수 있어요. 막대는 품절 비중을 시각적으로 보여줍니다.</div>
+          <div class="foot-row" style="justify-content:flex-end;">
             <div class="save-indicator" id="saveIndicator2"><span class="save-dot"></span><span>대기 중</span></div>
           </div>
         </div>
@@ -569,7 +580,7 @@
             <label class="upload-drop compact" for="file-pumjeoldata">
               <span class="upload-icon">⬆</span>
               <span><b>품절data</b> 엑셀/CSV 드래그 시 아래 품절 현황 목록 갱신</span>
-              <span class="upload-sub">'품절data' 시트 자동 인식(없으면 첫 시트) · 업로드 시 목록·담당자별 현황 자동 재계산·저장</span>
+              <span class="upload-source">'EX2050I_異常재고상품에서 내린자료 업로드'</span>
             </label>
             <input type="file" id="file-pumjeoldata" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -626,7 +637,7 @@
             <label class="upload-drop compact" for="file-finalorder">
               <span class="upload-icon">⬆</span>
               <span><b>최종발주일</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'최종발주일' 시트를 자동으로 찾아 불러옵니다 (없으면 첫 시트 사용) · 업로드하면 목록의 최종발주일 컬럼도 자동으로 갱신되고 저장돼요</span>
+              <span class="upload-source">'PU3050E_구매발주 상세내역에서 내린자료 업로드'</span>
             </label>
             <input type="file" id="file-finalorder" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -656,7 +667,7 @@
             <label class="upload-drop compact" for="file-usage3m">
               <span class="upload-icon">⬆</span>
               <span><b>3개월사용품목</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'3개월사용품목' 시트를 자동으로 찾아 불러옵니다 (없으면 첫 시트 사용) · 업로드하면 취급품목수 KPI가 자동으로 갱신돼요 · 우선처 기준으로 집계하며, 헤더에 "매출"·"매입"·"가용"이 들어간 컬럼(예: 05/06/07純매출, 05/06/07純매입, 現가용)의 합이 양수인 품목(행)만 사용품목수로 반영됩니다 · 원본 파일에 다른 컬럼(가격, 약정%, 코드 등)이 많아도 위 계산에 필요한 컬럼만 추려서 저장하므로 미리보기 표에는 우선처/純매출·純매입/現가용 컬럼만 보입니다</span>
+              <span class="upload-source">'EX2040I_상품 3개월 매입매출실적에서 내린자료 업로드'</span>
             </label>
             <input type="file" id="file-usage3m" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -770,22 +781,22 @@
           <div class="topbar">
             <div>
               <h2>반품신청서</h2>
-              <div class="sub">반품 대상 목록 엑셀을 올리면, 맨 위 첫 행의 우선처를 수신처로 하는 반품요청서 1건으로 자동 정리합니다. (이 데이터는 이 브라우저에만 저장되며 다른 사람과 공유되지 않아요)</div>
-              <div class="rt-last-saved" id="lastSavedInfo">저장된 데이터 없음</div>
             </div>
           </div>
 
-          <div class="upload-card" id="dropZone">
-            <h3>📄 엑셀 파일을 여기에 끌어다 놓거나 클릭해서 선택하세요</h3>
-            <p>필수 컬럼: 코드, 상품명, 규격, 수량, 제조번호, 사용기한, 표준코드, 우선처 (컬럼 순서 무관, 이름으로 인식)</p>
-            <label class="btn primary" for="fileInput">파일 선택</label>
+          <div class="upload-bar">
+            <label class="upload-drop compact" for="fileInput" id="dropZone">
+              <span class="upload-icon">⬆</span>
+              <span><b>반품신청서</b> 엑셀/CSV 드래그 시 아래 목록 자동 정리</span>
+              <span class="upload-source">'WH2060E_구매반품검사 &amp; 승인결과에서 내린자료 업로드'</span>
+            </label>
             <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden>
-            <div class="status-line" id="uploadStatus"></div>
           </div>
+          <div class="status-line" id="uploadStatus"></div>
 
           <div id="rawPreviewWrap" style="display:none;">
             <div class="form-toolbar">
-              <div class="left">업로드된 원자료 <b id="rawCount">0</b>행 · 정리된 품목 <b id="itemCount">0</b>건</div>
+              <div class="left">업로드된 원자료 <b id="rawCount">0</b>행 · 정리된 품목 <b id="itemCount">0</b>건 · <span id="lastSavedInfo">아직 업로드된 파일 없음</span></div>
               <div class="right">
                 <button class="btn" id="toggleRawPreview">원자료 미리보기 열기</button>
                 <button class="btn danger" id="uploadResetBtn">업로드 데이터 초기화</button>
@@ -811,7 +822,7 @@
             <label class="upload-drop compact" for="file-stockGJ">
               <span class="upload-icon">⬆</span>
               <span><b>광주</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'우선처별 재고 및 매입실적' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열(재고액합계·잔고·잔고%·보상입고·미착殘·선입殘·선출殘)만 반영돼요 · 파일명에서 연도·월을 자동으로 인식해 그 달 자료로 저장하고, 업로드 즉시 재고 및 파손재고현황에 반영돼요</span>
+              <span class="upload-source">'EX3100I_우선처별 재고 및 매입실적에서 내린자료 업로드'</span>
             </label>
             <input type="file" id="file-stockGJ" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -841,7 +852,7 @@
             <label class="upload-drop compact" for="file-stockEJ">
               <span class="upload-icon">⬆</span>
               <span><b>의정부</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'우선처별 재고 및 매입실적' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열만 반영돼요 · 파일명에서 연도·월을 자동으로 인식해 그 달 자료로 저장하고, 업로드 즉시 재고 및 파손재고현황에 반영돼요</span>
+              <span class="upload-source">'EX3100I_우선처별 재고 및 매입실적에서 내린자료 업로드'</span>
             </label>
             <input type="file" id="file-stockEJ" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -1386,6 +1397,7 @@ function renderMgrTable(){
     const isTotal = r.manager === '전체';
     return `<tr class="${isTotal?'total-row':''}" data-idx="${idx}">` + MGR_HEADERS.map(h=>{
       const val = r[h.key];
+      const groupCls = h.group ? (h.group.includes('예상') ? 'grp-amber' : 'grp-red') : '';
       if(h.key==='manager'){
         const name = String(val ?? '');
         if(isTotal) return `<td>${name}</td>`;
@@ -1394,14 +1406,14 @@ function renderMgrTable(){
       if(h.pct){
         const pctVal = (Number(val)||0)*100;
         if(h.bar){
-          return `<td><div class="bar-cell">
+          return `<td class="${groupCls}"><div class="bar-cell">
             <div class="bar-track"><div class="bar-fill ${h.bar}" style="width:${Math.min(pctVal,100)}%"></div></div>
             <span class="bar-num">${pctVal.toFixed(1)}%</span>
           </div></td>`;
         }
-        return `<td class="num editable" contenteditable="true" data-idx="${idx}" data-key="${h.key}" data-pct="1">${val===null||val===undefined?'':pctVal.toFixed(1)+'%'}</td>`;
+        return `<td class="num editable ${groupCls}" contenteditable="true" data-idx="${idx}" data-key="${h.key}" data-pct="1">${val===null||val===undefined?'':pctVal.toFixed(1)+'%'}</td>`;
       }
-      const cls = 'num' + (isTotal? '' : ' editable');
+      const cls = 'num' + (isTotal? '' : ' editable') + (groupCls ? ' '+groupCls : '');
       const editAttr = isTotal ? '' : `contenteditable="true" data-idx="${idx}" data-key="${h.key}"`;
       const display = (val===null||val===undefined) ? '' : (typeof val==='number' ? val.toLocaleString() : val);
       return `<td class="${cls}" ${editAttr}>${display}</td>`;
@@ -3298,14 +3310,18 @@ let state = {
   }
 };
 let activeView = 'main';
+let uploadedAt = null;
+
+function updateUploadedLabel(){
+  const el = document.getElementById('lastSavedInfo');
+  if(!el) return;
+  el.textContent = uploadedAt ? ('업로드: ' + uploadedAt.toLocaleString('ko-KR')) : '아직 업로드된 파일 없음';
+}
 
 function saveState(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    document.getElementById('lastSavedInfo').textContent = '마지막 저장: ' + new Date().toLocaleString('ko-KR');
-  }catch(e){
-    document.getElementById('lastSavedInfo').textContent = '저장 실패 (브라우저 저장공간 확인 필요)';
-  }
+  }catch(e){ /* 반품신청서는 저장 실패해도 화면에는 업로드 시각만 표기하므로 별도 안내하지 않음 */ }
 }
 function loadState(){
   try{
@@ -3314,7 +3330,6 @@ function loadState(){
       const parsed = JSON.parse(raw);
       state = Object.assign(state, parsed);
       state.meta = Object.assign({}, state.meta, parsed.meta);
-      document.getElementById('lastSavedInfo').textContent = '마지막 저장: 불러옴';
     }
   }catch(e){ /* ignore */ }
 }
@@ -3332,7 +3347,6 @@ const fileInput = document.getElementById('fileInput');
 const dropZone = document.getElementById('dropZone');
 const uploadStatus = document.getElementById('uploadStatus');
 
-dropZone.addEventListener('click', (e)=>{ if(e.target.tagName !== 'INPUT') fileInput.click(); });
 dropZone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', (e)=>{
@@ -3380,6 +3394,8 @@ function handleFile(file){
       computeItems();
       saveState();
       renderAll();
+      uploadedAt = new Date();
+      updateUploadedLabel();
       uploadStatus.className = 'status-line good';
       uploadStatus.textContent = `업로드 완료 · ${rows.length}행 · 품목 ${state.items.length}건 정리됨 (수신처: ${firstClient})`;
     }catch(err){
@@ -3587,7 +3603,6 @@ function renderFormView(){
   root.appendChild(topbar);
 
   const toolbar = el('div', {class:'form-toolbar', style:'flex-direction:column;align-items:stretch;gap:10px;'}, [
-    el('div', {class:'left'}, ['서식별로 출력 / PDF저장 / 엑셀저장을 고를 수 있어요 (엑셀에는 다미스코드·표준코드 포함, 인쇄·PDF는 제외되어 깔끔하게 출력됩니다)']),
     el('div', {style:'display:flex;flex-wrap:wrap;align-items:center;gap:18px;'}, [
       buildFormatButtonRow('1'),
       buildFormatButtonRow('2')
@@ -3599,10 +3614,10 @@ function renderFormView(){
 
 function buildFormatButtonRow(ft){
   return el('div', {class:'right', style:'gap:8px;align-items:center;'}, [
-    el('b', {style:'color:var(--blue-900);margin-right:2px;'}, ['서식'+ft+' :']),
-    el('button', {class:'btn', onclick: ()=>printForm(ft)}, ['출력']),
-    el('button', {class:'btn', onclick: (e)=>generatePdf(ft, e.currentTarget)}, ['PDF저장']),
-    el('button', {class:'btn primary', onclick: ()=>downloadReturnFormXlsx(ft)}, ['엑셀저장'])
+    el('b', {style:'color:#0f3d68;margin-right:2px;'}, ['서식'+ft+' :']),
+    el('button', {class:'btn primary', onclick: ()=>printForm(ft)}, ['🖨️ 출력']),
+    el('button', {class:'btn primary', onclick: (e)=>generatePdf(ft, e.currentTarget)}, ['📄 PDF저장']),
+    el('button', {class:'btn primary', onclick: ()=>downloadReturnFormXlsx(ft)}, ['⬇ 엑셀저장'])
   ]);
 }
 
@@ -3664,6 +3679,8 @@ function doResetUpload(){
   state.meta.recv.orgManual = '';
   saveState();
   renderAll();
+  uploadedAt = null;
+  updateUploadedLabel();
 }
 document.getElementById('uploadResetBtn').addEventListener('click', doResetUpload);
 
