@@ -427,7 +427,7 @@
   .rt-scope .sheet-footer .addr input{color:var(--rt-muted);font-size:12px;}
 
   .rt-scope .seal-preview{margin-top:18px;display:flex;justify-content:flex-end;}
-  .rt-scope .seal-preview img{width:180px;opacity:.9;}
+  .rt-scope .seal-preview img{width:216px;opacity:.9;}
   .rt-scope .seal-preview-note{font-size:11px;color:var(--rt-muted);text-align:right;margin-top:4px;}
 
   .rt-scope .rt-last-saved{font-size:11.5px;color:var(--rt-muted);}
@@ -447,7 +447,7 @@
   .print-contact{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:16px;font-size:16.5px;}
   .print-contact .pcol .prow{display:grid;grid-template-columns:66px 12px 1fr;gap:3px;margin-bottom:4px;}
   .print-contact .pcol .prow span.k{color:#444;}
-  table.p-items{width:100%;border-collapse:separate;border-spacing:0;font-size:10.7px;table-layout:fixed;outline:1px solid #000;}
+  table.p-items{width:100%;border-collapse:separate;border-spacing:0;font-size:10.7px;table-layout:fixed;border:1px solid #000;}
   table.p-items th, table.p-items td{border-right:1px solid #000;border-bottom:1px solid #000;padding:2.5px 5px;text-align:center;overflow-wrap:break-word;}
   table.p-items thead th{border-top:1px solid #000;}
   table.p-items th:first-child, table.p-items td:first-child{border-left:1px solid #000;}
@@ -465,10 +465,10 @@
   .p-footer-msg{margin-top:10px;font-size:11px;line-height:1.6;}
   .p-footer-addr{font-size:15px;color:#444;}
   .p-seal-row{display:flex;justify-content:flex-end;margin-top:10px;}
-  .p-seal-row img{width:190px;}
+  .p-seal-row img{width:228px;}
   .p-pagenum{
-    position:absolute; left:0; right:0; bottom:0;
-    text-align:center;font-size:10px;color:#333;
+    position:absolute; left:0; right:0; bottom:5mm;
+    text-align:center;font-size:15px;color:#333;
   }
 
   @page { size: A4; margin: 0; }
@@ -905,6 +905,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
@@ -3599,8 +3601,8 @@ function buildFormatButtonRow(ft){
   return el('div', {class:'right', style:'gap:8px;align-items:center;'}, [
     el('b', {style:'color:var(--blue-900);margin-right:2px;'}, ['서식'+ft+' :']),
     el('button', {class:'btn', onclick: ()=>printForm(ft)}, ['출력']),
-    el('button', {class:'btn', onclick: ()=>printForm(ft)}, ['PDF저장']),
-    el('button', {class:'btn primary', onclick: ()=>downloadXlsxFormat(ft)}, ['엑셀저장'])
+    el('button', {class:'btn', onclick: (e)=>generatePdf(ft, e.currentTarget)}, ['PDF저장']),
+    el('button', {class:'btn primary', onclick: ()=>downloadReturnFormXlsx(ft)}, ['엑셀저장'])
   ]);
 }
 
@@ -3700,13 +3702,104 @@ function buildAoa(formatType){
   return aoa;
 }
 
-function downloadXlsxFormat(ft){
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(buildAoa(ft));
-  ws['!cols'] = [{wch:12},{wch:16},{wch:26},{wch:16},{wch:9},{wch:12},{wch:14},{wch:11},{wch:14}];
-  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:8}}];
-  XLSX.utils.book_append_sheet(wb, ws, '서식'+ft);
-  XLSX.writeFile(wb, `반품신청서_서식${ft}_${state.meta.recv.org||'미지정'}_${state.meta.date}.xlsx`);
+async function downloadReturnFormXlsx(formatType){
+  const m = state.meta;
+  const COLS = 9;
+  const THIN_LIGHT = { style:'thin', color:{ argb:'FFE3E7EF' } };
+  const THIN_HEAD  = { style:'thin', color:{ argb:'FFB9C2D6' } };
+
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('서식'+formatType, { views: [{ state:'frozen', ySplit: 9 }] });
+  ws.columns = [12,16,26,16,9,12,14,11,14].map(w=>({ width: w }));
+
+  // 1) 제목
+  ws.mergeCells(1,1,1,COLS);
+  const titleCell = ws.getCell(1,1);
+  titleCell.value = m.title;
+  titleCell.font = { bold:true, size:16 };
+  titleCell.alignment = { horizontal:'center', vertical:'middle' };
+  ws.getRow(1).height = 26;
+
+  // 2) 반품요청일
+  ws.getCell(2,1).value = '반품요청일';
+  ws.getCell(2,1).font = { bold:true };
+  ws.getCell(2,2).value = m.date;
+
+  // 4~7행: 수신처 / 발신처 정보
+  const infoRows = [
+    ['수신처', m.recv.org, '', '발신처', m.sender.org],
+    ['수신인', m.recv.org + m.recv.personSuffix, '', '발신인', m.sender.person],
+    ['TEL', m.recv.tel, '', 'TEL', m.sender.tel],
+    ['FAX', m.recv.fax, '', 'FAX', m.sender.fax]
+  ];
+  infoRows.forEach((r, i)=>{
+    const rowNum = 4 + i;
+    r.forEach((v, ci)=>{
+      const cell = ws.getCell(rowNum, ci+1);
+      cell.value = v;
+      if(ci===0 || ci===3) cell.font = { bold:true };
+    });
+  });
+
+  // 9행: 품목 표 헤더 (다른 메뉴 엑셀저장과 동일한 스타일)
+  const headerRowNum = 9;
+  const headers = ['다미스코드','표준코드','제 품 명','규 격','총수량','제조번호별 수량','제조번호','유효기간','비고'];
+  const headerRow = ws.getRow(headerRowNum);
+  headers.forEach((h, ci)=>{
+    const cell = headerRow.getCell(ci+1);
+    cell.value = h;
+    cell.font = { bold:true, size:11, color:{ argb:'FFFFFFFF' } };
+    cell.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF2F5FD6' } };
+    cell.alignment = { vertical:'middle', horizontal:'center' };
+    cell.border = { top:THIN_HEAD, left:THIN_HEAD, bottom:THIN_HEAD, right:THIN_HEAD };
+  });
+  headerRow.height = 22;
+
+  // 품목 행 (줄무늬 배경)
+  const items = itemsAoaRows(formatType);
+  items.forEach((r, i)=>{
+    const row = ws.getRow(headerRowNum + 1 + i);
+    const banded = i % 2 === 1;
+    r.forEach((v, ci)=>{
+      const cell = row.getCell(ci+1);
+      cell.value = v;
+      cell.border = { top:THIN_LIGHT, left:THIN_LIGHT, bottom:THIN_LIGHT, right:THIN_LIGHT };
+      const isNum = (ci===4 || ci===5);
+      cell.alignment = { vertical:'middle', horizontal: (ci===2 || ci===3) ? 'left' : 'center' };
+      if(isNum) cell.numFmt = '#,##0';
+      if(banded) cell.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFF4F6FB' } };
+    });
+  });
+
+  // 합계 행
+  const totalRowNum = headerRowNum + 1 + items.length;
+  const totalRow = ws.getRow(totalRowNum);
+  const totalVals = ['합계','','','', state.sumQty, state.sumQty,'','',''];
+  totalVals.forEach((v, ci)=>{
+    const cell = totalRow.getCell(ci+1);
+    cell.value = v;
+    cell.font = { bold:true };
+    cell.border = { top:THIN_HEAD, left:THIN_LIGHT, bottom:THIN_HEAD, right:THIN_LIGHT };
+    if(ci===4 || ci===5){ cell.numFmt = '#,##0'; cell.alignment = { horizontal:'center' }; }
+  });
+
+  // 안내문 / 발송처
+  const footRow1 = totalRowNum + 2;
+  ws.mergeCells(footRow1, 1, footRow1, COLS);
+  ws.getCell(footRow1, 1).value = m.footerMsg;
+  const footRow2 = footRow1 + 1;
+  ws.mergeCells(footRow2, 1, footRow2, COLS);
+  ws.getCell(footRow2, 1).value = '※ 발송처 : ' + m.sender.addr;
+
+  ws.autoFilter = { from:{ row:headerRowNum, column:1 }, to:{ row:headerRowNum, column:COLS } };
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type:'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `반품신청서_서식${formatType}_${state.meta.recv.org||'미지정'}_${state.meta.date}.xlsx`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ============================================================
@@ -3880,14 +3973,16 @@ function paginateItems(items, formatType){
     return [{ items: [], isFirst:true, isLast:true }];
   }
   const L = measurePrintLayout(items, formatType);
-  const availableFirst = L.pageContentHeight - L.headerHeight - L.theadHeight - L.pageNumHeight;
-  const availableOther = L.pageContentHeight - L.theadHeight - L.pageNumHeight;
+  // 페이지번호가 용지 밑에서 5mm 위치에 절대 고정되므로, 표 내용이 그 영역과
+  // 겹치지 않도록 페이지번호 실제 높이 + 5mm 여유를 예약해둡니다.
+  const pageNumReserved = L.pageNumHeight + mmToPx(5);
+  const availableFirst = L.pageContentHeight - L.headerHeight - L.theadHeight - pageNumReserved;
+  const availableOther = L.pageContentHeight - L.theadHeight - pageNumReserved;
   const neededForFooter = L.totalRowHeight + L.footerHeight;
   const n = items.length;
 
-  // 한 번의 패스로 채워나가되, 이 페이지에 "품목 전체의 마지막 행"이 들어갈 차례가 되면
-  // 합계·안내문·발송처·직인까지 같이 들어갈 자리가 있는지도 함께 확인한다.
-  // 자리가 없으면 그 행은 다음(새) 페이지로 넘어가고, 그 페이지가 곧 합계·안내문이 실리는 마지막 페이지가 된다.
+  // 1) 표(품목 행)를 채우는 것을 최우선으로 합니다 — 합계·안내문·발송처·직인이
+  //    같이 들어갈 자리를 미리 걱정하지 않고, 각 페이지에 최대한 많은 행을 채웁니다.
   const ranges = [];
   let idx = 0;
   while(idx < n){
@@ -3896,17 +3991,26 @@ function paginateItems(items, formatType){
     let used = 0, count = 0;
     while(idx + count < n){
       const rh = L.rowHeights[idx + count];
-      const isLastRowOverall = (idx + count === n - 1);
-      const extra = isLastRowOverall ? neededForFooter : 0;
-      if(used + rh + extra > avail){
-        if(count === 0){ used += rh; count = 1; } // 예외적으로 한 행조차 안 들어가면 그래도 최소 1행은 배치(무한루프 방지)
+      if(used + rh > avail){
+        if(count === 0){ used += rh; count = 1; } // 한 행조차 안 들어가면 그래도 최소 1행은 배치(무한루프 방지)
         break;
       }
       used += rh; count++;
     }
     if(count === 0) count = 1;
-    ranges.push({ start: idx, end: idx + count });
+    ranges.push({ start: idx, end: idx + count, used });
     idx += count;
+  }
+
+  // 2) 표를 다 채운 뒤에, 마지막 페이지에 합계·안내문·발송처·직인이 들어갈 자리가
+  //    남아있는지 확인합니다. 자리가 없으면 이미 채운 품목 행은 그대로 두고,
+  //    합계·안내문·직인만 담을 새 페이지를 하나 더 추가합니다(품목 행은 옮기지 않음).
+  const lastRange = ranges[ranges.length - 1];
+  const lastIsFirstPage = ranges.length === 1;
+  const lastAvail = lastIsFirstPage ? availableFirst : availableOther;
+  const footerFitsOnLastPage = (lastRange.used + neededForFooter) <= lastAvail;
+  if(!footerFitsOnLastPage){
+    ranges.push({ start: n, end: n, used: 0 });
   }
 
   const total = ranges.length;
@@ -3926,6 +4030,44 @@ function printForm(formatType){
     printArea.appendChild(buildPrintPage(pageInfo, idx+1, total, formatType));
   });
   window.print();
+}
+
+/* PDF저장 버튼: 인쇄창을 거치지 않고 바로 PDF 파일로 다운로드합니다.
+   (각 페이지를 화면 밖에 그려서 html2canvas로 캡처한 뒤 jsPDF로 이어붙입니다) */
+async function generatePdf(formatType, btn){
+  const originalLabel = btn ? btn.textContent : null;
+  if(btn){ btn.disabled = true; btn.textContent = 'PDF 생성 중…'; }
+
+  const printArea = document.getElementById('printArea');
+  printArea.innerHTML = '';
+  const pages = paginateItems(state.items, formatType);
+  const total = pages.length;
+  pages.forEach((pageInfo, idx)=>{
+    printArea.appendChild(buildPrintPage(pageInfo, idx+1, total, formatType));
+  });
+
+  // html2canvas가 캡처할 수 있도록 화면 밖(사용자 눈에는 보이지 않는 위치)에 실제 레이아웃으로 그려둡니다.
+  printArea.style.cssText = 'display:block; position:fixed; left:-99999px; top:0; background:#fff;';
+
+  try{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
+    const pageEls = Array.from(printArea.querySelectorAll('.print-page'));
+    for(let i=0; i<pageEls.length; i++){
+      const canvas = await html2canvas(pageEls[i], { scale:2, useCORS:true, backgroundColor:'#ffffff' });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      if(i > 0) doc.addPage();
+      doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+    }
+    doc.save(`반품신청서_서식${formatType}_${state.meta.recv.org||'미지정'}_${state.meta.date}.pdf`);
+  } catch(err){
+    console.error(err);
+    alert('PDF 생성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+  } finally {
+    printArea.style.cssText = '';
+    printArea.innerHTML = '';
+    if(btn){ btn.disabled = false; btn.textContent = originalLabel; }
+  }
 }
 
 /* ============================================================
