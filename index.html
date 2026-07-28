@@ -276,10 +276,8 @@
   #toolbar-finalorder, #scroll-finalorder,
   #toolbar-usage3m, #scroll-usage3m,
   #toolbar-ordermgr, #scroll-ordermgr,
-  #toolbar-stockPrevGJ, #scroll-stockPrevGJ,
-  #toolbar-stockPrevEJ, #scroll-stockPrevEJ,
-  #toolbar-stockCurGJ, #scroll-stockCurGJ,
-  #toolbar-stockCurEJ, #scroll-stockCurEJ,
+  #toolbar-stockGJ, #scroll-stockGJ,
+  #toolbar-stockEJ, #scroll-stockEJ,
   #toolbar-returnmgr, #scroll-returnmgr{ display:none !important; }
 
   /* section groups in the sidebar: 발주 / 재고 및 반품 각각 큰 타이틀 + 그 아래 탭 목록 */
@@ -355,7 +353,7 @@
           <div class="kpis" id="kpiRow"></div>
           <div class="tabs">
             <div class="tab active" data-tab="list">품절 현황 목록</div>
-            <div class="tab" data-tab="basedb">기초DATABASE</div>
+            <div class="tab" data-tab="basedb">기초DB</div>
           </div>
         </div>
         <div class="section-block accent-stock">
@@ -364,8 +362,8 @@
           <div class="kpis kpis-3" id="kpiRow2"></div>
           <div class="tabs">
             <div class="tab" data-tab="stock">재고 및 파손재고현황</div>
-            <div class="tab" data-tab="stocktrend">재고 추이</div>
-            <div class="tab" data-tab="stockdb">기초DATABASE</div>
+            <div class="tab" data-tab="stocktrend">재고현황</div>
+            <div class="tab" data-tab="stockdb">기초DB</div>
           </div>
         </div>
       </div>
@@ -544,6 +542,9 @@
         <div class="sub-section">
           <div class="sub-section-title">재고 및 파손재고현황</div>
           <div class="toolbar">
+            <select id="stockQueryYear"></select>
+            <select id="stockQueryMonth"></select>
+            <span class="count-badge" id="stockQueryLabel"></span>
             <input type="text" id="search-stock" placeholder="코드 또는 거래처 검색...">
             <select id="returnMgrFilter-stock"><option value="">반품담당자 전체</option></select>
             <select id="orderMgrFilter-stock"><option value="">발주담당자 전체</option></select>
@@ -557,16 +558,20 @@
               <tbody id="stockBody"></tbody>
             </table>
           </div>
-          <div class="foot-note">기초DATABASE(재고 및 반품)에서 우선처별 재고 및 매입실적 4개 시트(전월·당월 × 광주·의정부)를 업로드하면, 엑셀 '통합' 시트가 계산하는 방식 그대로 매출액합계·채무총액·전월재고·당월재고합계·재고증감비율·외상대비재고비율·전월파손재고·당월파손재고·파손재고감소율(전체 현황)이 자동으로 계산돼요 · 광주·의정부를 합산한 결과만 보여드리고 창고별 세부 항목은 표시하지 않아요 · 발주담당자는 발주 쪽 발주담당자 업로드 값을, 반품담당자는 아래 기초DATABASE의 반품담당자 업로드 값을 그대로 보여줘요 (조회 전용 표입니다).</div>
+          <div class="foot-note">기초DB(재고 및 반품)에서 우선처별 재고 및 매입실적 시트를 광주·의정부 각 1개씩 업로드하면(엑셀 파일명에서 연도·월을 자동으로 인식해요), 그 달 자료가 창고별로 쌓여요 · 위에서 연도·월을 고르면 그 달을 당월로, 바로 전달을 전월로 자동으로 짝지어 엑셀 '통합' 시트가 계산하는 방식 그대로 매출액합계·채무총액·전월재고·당월재고합계·재고증감비율·외상대비재고비율·전월파손재고·당월파손재고·파손재고감소율(전체 현황)을 계산해요 (예: 7월을 고르면 6월=전월, 7월=당월) · 광주·의정부를 합산한 결과만 보여드리고 창고별 세부 항목은 표시하지 않아요 · 발주담당자는 발주 쪽 발주담당자 업로드 값을, 반품담당자는 아래 기초DB의 반품담당자 업로드 값을 그대로 보여줘요 (조회 전용 표입니다).</div>
         </div>
       </div>
 
-      <!-- 재고 추이 TAB (재고 및 반품): 재고 4종 시트를 업로드할 때마다(당월 시트 기준) 그 달의 재고·파손재고·매출액 스냅샷이 쌓여서 그래프로 표시됩니다 -->
+      <!-- 재고현황 TAB (재고 및 반품): 재고 4종 시트를 업로드할 때마다(엑셀 파일명의 'N월' 표기 기준) 그 달의 재고·파손재고·매출액 스냅샷이 쌓여서 그래프로 표시됩니다 -->
       <div class="panel" id="panel-stocktrend">
         <div class="sub-section">
-          <div class="sub-section-title">월별 재고 및 파손재고 금액 추이</div>
+          <div class="sub-section-title">월별 매출액 · 재고액 · 파손재고액 현황</div>
+          <div class="toolbar">
+            <select id="stockHistoryYearFilter"><option value="">전체 연도</option></select>
+            <span class="count-badge" id="count-stockHistoryYear"></span>
+          </div>
           <div id="stockChartContainer"></div>
-          <div class="foot-note">재고 및 반품 &gt; 기초DATABASE에서 당월(광주)·당월(의정부) 시트를 올릴 때마다, 업로드 시점 기준으로 전사 재고총액·파손재고총액·매출액이 그 달의 스냅샷으로 저장되어 아래 그래프에 누적돼요 (단위: 천원). 같은 달에 다시 업로드하면 그 달 값이 최신 데이터로 갱신됩니다.</div>
+          <div class="foot-note">재고 및 반품 &gt; 기초DB에서 우선처별 재고 및 매입실적 시트(광주·의정부 각 1개)를 올릴 때, 엑셀 파일명에서 연도·월을 자동으로 인식해 그 달(연도 표기가 없으면 올해)로 스냅샷이 저장돼요 · 연도·월 표기를 찾을 수 없으면 업로드한 날짜의 연·월로 저장돼요 · 전사 재고총액·파손재고총액·매출액이 그 달의 스냅샷으로 아래 그래프에 누적되고, 같은 달에 다시 업로드하면 그 달 값이 최신 데이터로 갱신돼요 (단위: 천원) · 데이터가 쌓이면 위 연도 필터로 원하는 연도만 골라볼 수 있어요.</div>
         </div>
       </div>
 
@@ -574,121 +579,61 @@
       <div class="panel" id="panel-stockdb">
 
         <div class="sub-section">
-          <div class="sub-section-title">우선처별 재고 및 매입실적 - 전월(광주)</div>
-          <div class="upload-bar" id="upload-stockPrevGJ-bar">
-            <label class="upload-drop compact" for="file-stockPrevGJ">
+          <div class="sub-section-title">우선처별 재고 및 매입실적 - 광주</div>
+          <div class="upload-bar" id="upload-stockGJ-bar">
+            <label class="upload-drop compact" for="file-stockGJ">
               <span class="upload-icon">⬆</span>
-              <span><b>전월(광주)</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'우선처별 재고 및 매입실적-전월(광주)' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열(재고액합계·잔고·잔고%·보상입고·미착殘·선입殘·선출殘)만 반영돼요 · 업로드 즉시 재고 및 파손재고현황에 반영되고 저장돼요</span>
+              <span><b>광주</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+              <span class="upload-sub">'우선처별 재고 및 매입실적' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열(재고액합계·잔고·잔고%·보상입고·미착殘·선입殘·선출殘)만 반영돼요 · 파일명에서 연도·월을 자동으로 인식해 그 달 자료로 저장하고, 업로드 즉시 재고 및 파손재고현황에 반영돼요</span>
             </label>
-            <input type="file" id="file-stockPrevGJ" accept=".xlsx,.xls,.csv" hidden>
+            <input type="file" id="file-stockGJ" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
-              <button class="btn primary" id="save-stockPrevGJ" style="display:none;">💾 저장</button>
-              <button class="btn danger" id="clear-stockPrevGJ" style="display:none;">데이터 지우기</button>
-              <div class="upload-meta" id="meta-stockPrevGJ">아직 업로드된 데이터가 없어요</div>
-              <div class="save-indicator" id="saveState-stockPrevGJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+              <button class="btn primary" id="save-stockGJ" style="display:none;">💾 저장</button>
+              <button class="btn danger" id="clear-stockGJ" style="display:none;">데이터 지우기</button>
+              <div class="upload-meta" id="meta-stockGJ">아직 업로드된 데이터가 없어요</div>
+              <div class="save-indicator" id="saveState-stockGJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
             </div>
           </div>
-          <div class="toolbar" id="toolbar-stockPrevGJ" style="display:none;">
-            <input type="text" id="search-stockPrevGJ" placeholder="전체 컬럼 검색...">
-            <span class="count-badge" id="count-stockPrevGJ"></span>
+          <div class="toolbar" id="toolbar-stockGJ" style="display:none;">
+            <input type="text" id="search-stockGJ" placeholder="전체 컬럼 검색...">
+            <span class="count-badge" id="count-stockGJ"></span>
             <div class="spacer"></div>
-            <div class="pager" id="pager-stockPrevGJ"></div>
+            <div class="pager" id="pager-stockGJ"></div>
           </div>
-          <div class="table-scroll" id="scroll-stockPrevGJ" style="display:none;">
-            <table id="table-stockPrevGJ">
-              <thead><tr id="head-stockPrevGJ"></tr></thead>
-              <tbody id="body-stockPrevGJ"></tbody>
+          <div class="table-scroll" id="scroll-stockGJ" style="display:none;">
+            <table id="table-stockGJ">
+              <thead><tr id="head-stockGJ"></tr></thead>
+              <tbody id="body-stockGJ"></tbody>
             </table>
           </div>
         </div>
 
         <div class="sub-section">
-          <div class="sub-section-title">우선처별 재고 및 매입실적 - 전월(의정부)</div>
-          <div class="upload-bar" id="upload-stockPrevEJ-bar">
-            <label class="upload-drop compact" for="file-stockPrevEJ">
+          <div class="sub-section-title">우선처별 재고 및 매입실적 - 의정부</div>
+          <div class="upload-bar" id="upload-stockEJ-bar">
+            <label class="upload-drop compact" for="file-stockEJ">
               <span class="upload-icon">⬆</span>
-              <span><b>전월(의정부)</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'우선처별 재고 및 매입실적-전월(의정부)' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열만 반영돼요 · 업로드 즉시 재고 및 파손재고현황에 반영되고 저장돼요</span>
+              <span><b>의정부</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+              <span class="upload-sub">'우선처별 재고 및 매입실적' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열만 반영돼요 · 파일명에서 연도·월을 자동으로 인식해 그 달 자료로 저장하고, 업로드 즉시 재고 및 파손재고현황에 반영돼요</span>
             </label>
-            <input type="file" id="file-stockPrevEJ" accept=".xlsx,.xls,.csv" hidden>
+            <input type="file" id="file-stockEJ" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
-              <button class="btn primary" id="save-stockPrevEJ" style="display:none;">💾 저장</button>
-              <button class="btn danger" id="clear-stockPrevEJ" style="display:none;">데이터 지우기</button>
-              <div class="upload-meta" id="meta-stockPrevEJ">아직 업로드된 데이터가 없어요</div>
-              <div class="save-indicator" id="saveState-stockPrevEJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+              <button class="btn primary" id="save-stockEJ" style="display:none;">💾 저장</button>
+              <button class="btn danger" id="clear-stockEJ" style="display:none;">데이터 지우기</button>
+              <div class="upload-meta" id="meta-stockEJ">아직 업로드된 데이터가 없어요</div>
+              <div class="save-indicator" id="saveState-stockEJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
             </div>
           </div>
-          <div class="toolbar" id="toolbar-stockPrevEJ" style="display:none;">
-            <input type="text" id="search-stockPrevEJ" placeholder="전체 컬럼 검색...">
-            <span class="count-badge" id="count-stockPrevEJ"></span>
+          <div class="toolbar" id="toolbar-stockEJ" style="display:none;">
+            <input type="text" id="search-stockEJ" placeholder="전체 컬럼 검색...">
+            <span class="count-badge" id="count-stockEJ"></span>
             <div class="spacer"></div>
-            <div class="pager" id="pager-stockPrevEJ"></div>
+            <div class="pager" id="pager-stockEJ"></div>
           </div>
-          <div class="table-scroll" id="scroll-stockPrevEJ" style="display:none;">
-            <table id="table-stockPrevEJ">
-              <thead><tr id="head-stockPrevEJ"></tr></thead>
-              <tbody id="body-stockPrevEJ"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="sub-section">
-          <div class="sub-section-title">우선처별 재고 및 매입실적 - 당월(광주)</div>
-          <div class="upload-bar" id="upload-stockCurGJ-bar">
-            <label class="upload-drop compact" for="file-stockCurGJ">
-              <span class="upload-icon">⬆</span>
-              <span><b>당월(광주)</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'우선처별 재고 및 매입실적-당월(광주)' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열만 반영돼요 · 업로드 즉시 재고 및 파손재고현황에 반영되고 저장돼요</span>
-            </label>
-            <input type="file" id="file-stockCurGJ" accept=".xlsx,.xls,.csv" hidden>
-            <div class="upload-actions">
-              <button class="btn primary" id="save-stockCurGJ" style="display:none;">💾 저장</button>
-              <button class="btn danger" id="clear-stockCurGJ" style="display:none;">데이터 지우기</button>
-              <div class="upload-meta" id="meta-stockCurGJ">아직 업로드된 데이터가 없어요</div>
-              <div class="save-indicator" id="saveState-stockCurGJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
-            </div>
-          </div>
-          <div class="toolbar" id="toolbar-stockCurGJ" style="display:none;">
-            <input type="text" id="search-stockCurGJ" placeholder="전체 컬럼 검색...">
-            <span class="count-badge" id="count-stockCurGJ"></span>
-            <div class="spacer"></div>
-            <div class="pager" id="pager-stockCurGJ"></div>
-          </div>
-          <div class="table-scroll" id="scroll-stockCurGJ" style="display:none;">
-            <table id="table-stockCurGJ">
-              <thead><tr id="head-stockCurGJ"></tr></thead>
-              <tbody id="body-stockCurGJ"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="sub-section">
-          <div class="sub-section-title">우선처별 재고 및 매입실적 - 당월(의정부)</div>
-          <div class="upload-bar" id="upload-stockCurEJ-bar">
-            <label class="upload-drop compact" for="file-stockCurEJ">
-              <span class="upload-icon">⬆</span>
-              <span><b>당월(의정부)</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">'우선처별 재고 및 매입실적-당월(의정부)' 시트를 자동으로 찾아 불러옵니다 · 코드·우선처명과 I·L·M·N·O·P·Q열만 반영돼요 · 업로드 즉시 재고 및 파손재고현황에 반영되고 저장돼요</span>
-            </label>
-            <input type="file" id="file-stockCurEJ" accept=".xlsx,.xls,.csv" hidden>
-            <div class="upload-actions">
-              <button class="btn primary" id="save-stockCurEJ" style="display:none;">💾 저장</button>
-              <button class="btn danger" id="clear-stockCurEJ" style="display:none;">데이터 지우기</button>
-              <div class="upload-meta" id="meta-stockCurEJ">아직 업로드된 데이터가 없어요</div>
-              <div class="save-indicator" id="saveState-stockCurEJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
-            </div>
-          </div>
-          <div class="toolbar" id="toolbar-stockCurEJ" style="display:none;">
-            <input type="text" id="search-stockCurEJ" placeholder="전체 컬럼 검색...">
-            <span class="count-badge" id="count-stockCurEJ"></span>
-            <div class="spacer"></div>
-            <div class="pager" id="pager-stockCurEJ"></div>
-          </div>
-          <div class="table-scroll" id="scroll-stockCurEJ" style="display:none;">
-            <table id="table-stockCurEJ">
-              <thead><tr id="head-stockCurEJ"></tr></thead>
-              <tbody id="body-stockCurEJ"></tbody>
+          <div class="table-scroll" id="scroll-stockEJ" style="display:none;">
+            <table id="table-stockEJ">
+              <thead><tr id="head-stockEJ"></tr></thead>
+              <tbody id="body-stockEJ"></tbody>
             </table>
           </div>
         </div>
@@ -1379,7 +1324,7 @@ async function exportStockToXlsx(){
       numFmt: m.ratio ? '0.00"%"' : '#,##0'
     }))
   ];
-  const rows = stockData.map(r=>{
+  const rows = getActiveStockTableData().map(r=>{
     const o = { code:r.code, client:r.client||'', returnManager:r.returnManager||'', orderManager:r.orderManager||'' };
     STOCK_SUMMARY_METRICS.forEach(m=>{
       let v = r[m.key];
@@ -1405,27 +1350,24 @@ const UPLOAD_CONFIGS = {
                  // these at upload time. This shrinks a 40+ column sheet down to a handful of columns.
                  essentialColumns: { clientCandidates: ['우선처'], usageKeywords: ['純매출','純매입','가용'] } },
   ordermgr:    { sheetNames: ['발주담당자'], storageKey: 'stockout_dashboard_upload_ordermgr_v1', label: '발주담당자', headerHint: '매입처명' },
-  // 재고 및 반품 > 기초DATABASE: 우선처별 재고 및 매입실적 4개 시트 (전월/당월 × 광주/의정부).
+  // 재고 및 반품 > 기초DATABASE: 우선처별 재고 및 매입실적 2개 시트 (광주/의정부, 각 창고당 1개).
+  // 전월/당월 구분 없이 창고별로 파일 하나만 올리면, 파일명에서 뽑은 연·월(fileMonth) 기준으로 그 달 자료로 쌓이고
+  // '재고 및 파손재고현황'에서 연도·월을 고르면 그 달(당월)과 바로 전달(전월)을 자동으로 짝지어 계산합니다.
   // 각 시트는 코드(A)·우선처명(B)에 더해 F·I·J·K·L·M·N·O·P·Q열(純매출금액·재고액합계·가용재고금액·파손재고금액·잔고·잔고%·보상입고·미착殘·선입殘·선출殘)만
   // 위치(colIndexes) 기준으로 뽑아 저장합니다 — 헤더 이름 "%"가 두 번 나오는 시트라 이름 매칭 대신 열 위치로 특정합니다.
   // (엑셀 '통합' 시트가 이 값들로 매출액·재고·파손재고를 계산하는 수식을 그대로 재현하기 위한 원자재입니다.)
-  stockPrevGJ: { sheetNames: ['우선처별 재고 및 매입실적-전월(광주)','우선처별 재고 및 매입실적 전월(광주)'], storageKey: 'stockout_dashboard_upload_stockPrevGJ_v1', label: '우선처별 재고 및 매입실적-전월(광주)',
+  stockGJ: { sheetNames: ['우선처별 재고 및 매입실적-당월(광주)','우선처별 재고 및 매입실적 당월(광주)','우선처별 재고 및 매입실적-전월(광주)','우선처별 재고 및 매입실적 전월(광주)','우선처별 재고 및 매입실적(광주)','우선처별 재고 및 매입실적 광주'], sheetKeyword: '광주', storageKey: 'stockout_dashboard_upload_stockGJ_v1', label: '우선처별 재고 및 매입실적-광주',
                  essentialColumns: { colIndexes: [0,1,5,8,9,10,11,12,13,14,15,16], labels: ['코드','우선처명','純매출금액','재고액합계','가용재고금액','파손재고금액','잔고','잔고%','보상입고','미착殘','선입殘','선출殘'] } },
-  stockPrevEJ: { sheetNames: ['우선처별 재고 및 매입실적-전월(의정부)','우선처별 재고 및 매입실적 전월(의정부)'], storageKey: 'stockout_dashboard_upload_stockPrevEJ_v1', label: '우선처별 재고 및 매입실적-전월(의정부)',
-                 essentialColumns: { colIndexes: [0,1,5,8,9,10,11,12,13,14,15,16], labels: ['코드','우선처명','純매출금액','재고액합계','가용재고금액','파손재고금액','잔고','잔고%','보상입고','미착殘','선입殘','선출殘'] } },
-  stockCurGJ:  { sheetNames: ['우선처별 재고 및 매입실적-당월(광주)','우선처별 재고 및 매입실적 당월(광주)'], storageKey: 'stockout_dashboard_upload_stockCurGJ_v1', label: '우선처별 재고 및 매입실적-당월(광주)',
-                 essentialColumns: { colIndexes: [0,1,5,8,9,10,11,12,13,14,15,16], labels: ['코드','우선처명','純매출금액','재고액합계','가용재고금액','파손재고금액','잔고','잔고%','보상입고','미착殘','선입殘','선출殘'] } },
-  stockCurEJ:  { sheetNames: ['우선처별 재고 및 매입실적-당월(의정부)','우선처별 재고 및 매입실적 당월(의정부)'], storageKey: 'stockout_dashboard_upload_stockCurEJ_v1', label: '우선처별 재고 및 매입실적-당월(의정부)',
+  stockEJ: { sheetNames: ['우선처별 재고 및 매입실적-당월(의정부)','우선처별 재고 및 매입실적 당월(의정부)','우선처별 재고 및 매입실적-전월(의정부)','우선처별 재고 및 매입실적 전월(의정부)','우선처별 재고 및 매입실적(의정부)','우선처별 재고 및 매입실적 의정부'], sheetKeyword: '의정부', storageKey: 'stockout_dashboard_upload_stockEJ_v1', label: '우선처별 재고 및 매입실적-의정부',
                  essentialColumns: { colIndexes: [0,1,5,8,9,10,11,12,13,14,15,16], labels: ['코드','우선처명','純매출금액','재고액합계','가용재고금액','파손재고금액','잔고','잔고%','보상입고','미착殘','선입殘','선출殘'] } },
   returnmgr:   { sheetNames: ['반품담당자'], storageKey: 'stockout_dashboard_upload_returnmgr_v1', label: '반품담당자', headerHint: '반품담당자' },
 };
 
-// 재고 및 파손재고현황 표에서 쓰는 기간(시트) 목록과, 각 기간마다 표시할 지표
-const STOCK_PERIODS = [
-  { id:'stockPrevGJ', label:'전월(광주)' },
-  { id:'stockPrevEJ', label:'전월(의정부)' },
-  { id:'stockCurGJ', label:'당월(광주)' },
-  { id:'stockCurEJ', label:'당월(의정부)' },
+// 재고 및 파손재고현황 표에서 쓰는 창고(시트) 목록 — 전월/당월 구분 없이 창고별 최신 자료 하나만 보관하고,
+// '어느 달을 당월/전월로 볼지'는 조회 시점에 연도·월 선택으로 결정합니다.
+const STOCK_WAREHOUSES = [
+  { id:'stockGJ', label:'광주' },
+  { id:'stockEJ', label:'의정부' },
 ];
 // 재고 및 파손재고현황 표에는 광주·의정부를 합산한 값만 표시합니다 (창고별 세부값은 위 4개 업로드에만 보관).
 const STOCK_DISPLAY_PERIODS = [
@@ -1536,10 +1478,12 @@ function pickEssentialColumns(headers, rows, essentialColumns){
 }
 
 self.onmessage = function(e){
-  const { buf, sheetNames, headerHint, essentialColumns } = e.data;
+  const { buf, sheetNames, headerHint, essentialColumns, sheetKeyword } = e.data;
   try{
     const wb = XLSX.read(buf, { type:'array', cellDates:false });
-    const sheetName = sheetNames.find(n => wb.SheetNames.includes(n)) || wb.SheetNames[0];
+    const sheetName = sheetNames.find(n => wb.SheetNames.includes(n))
+      || (sheetKeyword && wb.SheetNames.find(n => n.includes(sheetKeyword)))
+      || wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
     const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null });
     const { headerIdx, dataStart } = detectHeaderRow(aoa, headerHint);
@@ -1581,8 +1525,48 @@ function parseFileInWorker(buf, cfg){
     };
     worker.addEventListener('message', handleMessage);
     worker.addEventListener('error', handleError);
-    worker.postMessage({ buf, sheetNames: cfg.sheetNames, headerHint: cfg.headerHint, essentialColumns: cfg.essentialColumns }, [buf]);
+    worker.postMessage({ buf, sheetNames: cfg.sheetNames, headerHint: cfg.headerHint, essentialColumns: cfg.essentialColumns, sheetKeyword: cfg.sheetKeyword }, [buf]);
   });
+}
+
+// 파일명에서 연도와 월을 함께 인식해 { year, month }로 반환합니다. 아래 형식을 순서대로 시도합니다:
+//   1) "2026-07", "2026.07", "2026_07", "2026/07" 처럼 연도-월이 붙어 있는 형식 (연/월 모두 명확히 인식)
+//   2) "202607" 처럼 구분자 없이 6자리 숫자로 붙어 있는 형식
+//   3) "2026년 7월", "26년7월"처럼 "년"·"월" 표기가 함께 있는 형식
+//   4) "7월"처럼 월만 있는 형식 — 이 경우 연도 표기가 없으면 업로드 시점의 연도를 사용합니다
+// 위 형식을 모두 찾지 못하면(=월을 특정할 수 없으면) null을 반환하고, 업로드 시점의 연/월로 대체합니다.
+function extractYearMonthFromFileName(fileName){
+  if(!fileName) return null;
+
+  // 1) YYYY-MM / YYYY.MM / YYYY_MM / YYYY/MM
+  const ymSep = fileName.match(/(20\d{2})\s*[-._/]\s*(\d{1,2})(?!\d)/);
+  if(ymSep){
+    const year = Number(ymSep[1]), month = Number(ymSep[2]);
+    if(month >= 1 && month <= 12) return { year, month };
+  }
+
+  // 2) YYYYMM (구분자 없음, 6자리)
+  const ymPacked = fileName.match(/(20\d{2})(0[1-9]|1[0-2])(?!\d)/);
+  if(ymPacked){
+    return { year: Number(ymPacked[1]), month: Number(ymPacked[2]) };
+  }
+
+  // 3)/4) "N월" 표기 — 있으면 근처의 "YYYY년"·"YY년"·"YYYY"에서 연도를, 없으면 업로드 시점 연도를 사용
+  const monthMatch = fileName.match(/(\d{1,2})\s*월/);
+  if(!monthMatch) return null;
+  const month = Number(monthMatch[1]);
+  if(!(month >= 1 && month <= 12)) return null;
+  let year = null;
+  const y4 = fileName.match(/(20\d{2})/);
+  const y2 = fileName.match(/(\d{2})\s*년/);
+  if(y4) year = Number(y4[1]);
+  else if(y2) year = 2000 + Number(y2[1]);
+  if(!year) year = new Date().getFullYear();
+  return { year, month };
+}
+function fileMonthKeyOf(fileName){
+  const ym = extractYearMonthFromFileName(fileName);
+  return ym ? (ym.year + '-' + String(ym.month).padStart(2,'0')) : null;
 }
 
 function setUploadProcessing(id, isProcessing, fileName){
@@ -1608,16 +1592,21 @@ async function handleFile(id, file){
     uploadState[id] = {
       headers: result.headers, rows: result.rows, page: 0, pageSize: 50,
       sort: { key:null, dir:1 }, sheetUsed: result.sheetName, uploadedAt: new Date().toISOString(), fileName: file.name,
-      trimmedColumns: result.trimmed ? { original: result.originalColumnCount, kept: result.keptColumnCount } : null
+      trimmedColumns: result.trimmed ? { original: result.originalColumnCount, kept: result.keptColumnCount } : null,
+      fileMonth: STOCK_WAREHOUSES.some(p=>p.id===id) ? fileMonthKeyOf(file.name) : null
     };
     await saveUpload(id);
+    if(STOCK_WAREHOUSES.some(p=>p.id===id)){
+      const monthKey = uploadState[id].fileMonth || new Date().toISOString().slice(0,7);
+      await saveMonthlyStockSnapshot(id, monthKey, uploadState[id]);
+    }
     renderUploadTable(id);
     updateUploadMeta(id);
     if(id === 'pumjeoldata') recomputeFromPumjeoldata();
     if(id === 'finalorder') recomputeFromFinalOrder();
     if(id === 'usage3m') recomputeFromUsage3m();
     if(id === 'ordermgr') { recomputeFromManager(); refreshStockViews(); }
-    if(id === 'returnmgr' || STOCK_PERIODS.some(p=>p.id===id)) { refreshStockViews(); }
+    if(id === 'returnmgr' || STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
   }catch(err){
     console.error('업로드 처리 실패:', err);
     setUploadProcessing(id, false);
@@ -1714,7 +1703,8 @@ async function saveUpload(id){
 
     const metaPayload = {
       headers: st.headers, sheetUsed: st.sheetUsed, uploadedAt: st.uploadedAt, fileName: st.fileName, savedAt: now,
-      chunked: isChunked, chunkCount: chunks.length, trimmedColumns: st.trimmedColumns || null
+      chunked: isChunked, chunkCount: chunks.length, trimmedColumns: st.trimmedColumns || null,
+      fileMonth: st.fileMonth || null
     };
     if(!isChunked) metaPayload.rows = chunks[0];
 
@@ -1750,7 +1740,8 @@ async function loadUploadFromStorage(id){
         headers: parsed.headers, rows, page:0, pageSize:50,
         sort:{key:null,dir:1}, sheetUsed: parsed.sheetUsed, uploadedAt: parsed.uploadedAt, fileName: parsed.fileName,
         savedAt: parsed.savedAt || parsed.uploadedAt, chunkCount: parsed.chunked ? parsed.chunkCount : 0,
-        trimmedColumns: parsed.trimmedColumns || null
+        trimmedColumns: parsed.trimmedColumns || null,
+        fileMonth: parsed.fileMonth || (STOCK_WAREHOUSES.some(p=>p.id===id) ? fileMonthKeyOf(parsed.fileName) : null)
       };
       if(parsed.savedAt && (!lastSavedAt || parsed.savedAt > lastSavedAt)){ lastSavedAt = parsed.savedAt; updateGlobalSavedLabel(); }
       renderUploadTable(id);
@@ -1759,7 +1750,7 @@ async function loadUploadFromStorage(id){
       if(id === 'finalorder') recomputeFromFinalOrder();
       if(id === 'usage3m') recomputeFromUsage3m();
       if(id === 'ordermgr') recomputeFromManager();
-      if(id === 'returnmgr' || STOCK_PERIODS.some(p=>p.id===id)) { refreshStockViews(); }
+      if(id === 'returnmgr' || STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
     }
   }catch(e){ /* nothing saved yet */ }
 }
@@ -1948,7 +1939,7 @@ function bindUploadTab(id){
       renderKpis(); renderListTable(); renderMgrTable(); scheduleSave();
       refreshStockViews();
     }
-    if(id === 'returnmgr' || STOCK_PERIODS.some(p=>p.id===id)){
+    if(id === 'returnmgr' || STOCK_WAREHOUSES.some(p=>p.id===id)){
       refreshStockViews();
     }
   });
@@ -2334,24 +2325,43 @@ function buildOrderManagerMap(){
   return map;
 }
 
-function rebuildStockData(){
+// 창고별(광주/의정부) 업로드는 이제 전월/당월 구분 없이 1개씩만 받고, '당월로 볼 달'과 '전월로 볼 달'은
+// 조회 시점에 정합니다. getCurData(warehouseId)/getPrevData(warehouseId)만 바꿔주면
+// 재고 및 파손재고현황 계산 로직(엑셀 '통합' 시트 수식 재현)을 그대로 재사용할 수 있도록 분리했습니다.
+function buildStockDataFrom(getCurData, getPrevData){
   const codeMap = new Map(); // code -> row
 
-  STOCK_PERIODS.forEach(p=>{
-    const up = uploadState[p.id];
-    if(!up) return;
-    up.rows.forEach(r=>{
-      const code = String(r[0] ?? '').trim();
-      if(!code) return;
-      if(!codeMap.has(code)) codeMap.set(code, { code, client: r[1] || '' });
-      const entry = codeMap.get(code);
-      if(!entry.client && r[1]) entry.client = r[1];
-      entry[p.id] = {
-        salesAmt: r[2], stockAmt: r[3], avail: r[4], damaged: r[5],
-        balance: r[6], balancePct: r[7], compensation: r[8],
-        unarrived: r[9], fifoIn: r[10], fifoOut: r[11]
-      };
-    });
+  STOCK_WAREHOUSES.forEach(w=>{
+    const cur = getCurData(w.id);
+    if(cur){
+      cur.rows.forEach(r=>{
+        const code = String(r[0] ?? '').trim();
+        if(!code) return;
+        if(!codeMap.has(code)) codeMap.set(code, { code, client: r[1] || '' });
+        const entry = codeMap.get(code);
+        if(!entry.client && r[1]) entry.client = r[1];
+        entry['cur_' + w.id] = {
+          salesAmt: r[2], stockAmt: r[3], avail: r[4], damaged: r[5],
+          balance: r[6], balancePct: r[7], compensation: r[8],
+          unarrived: r[9], fifoIn: r[10], fifoOut: r[11]
+        };
+      });
+    }
+    const prev = getPrevData ? getPrevData(w.id) : null;
+    if(prev){
+      prev.rows.forEach(r=>{
+        const code = String(r[0] ?? '').trim();
+        if(!code) return;
+        if(!codeMap.has(code)) codeMap.set(code, { code, client: r[1] || '' });
+        const entry = codeMap.get(code);
+        if(!entry.client && r[1]) entry.client = r[1];
+        entry['prev_' + w.id] = {
+          salesAmt: r[2], stockAmt: r[3], avail: r[4], damaged: r[5],
+          balance: r[6], balancePct: r[7], compensation: r[8],
+          unarrived: r[9], fifoIn: r[10], fifoOut: r[11]
+        };
+      });
+    }
   });
 
   const returnMap = new Map();
@@ -2372,13 +2382,13 @@ function rebuildStockData(){
 
   const orderMap = buildOrderManagerMap();
 
-  stockData = Array.from(codeMap.values()).map(entry=>{
+  const result = Array.from(codeMap.values()).map(entry=>{
     entry.returnManager = returnMap.get(entry.code) || returnMap.get('client:' + entry.client) || '';
     entry.orderManager = orderMap.get(entry.code) || orderMap.get('client:' + entry.client) || '';
 
     // 엑셀 '통합' 시트의 실제 수식을 그대로 재현합니다 (원 단위 → 천원 단위로 나눠 표시).
-    const pg = entry.stockPrevGJ || {}, pe = entry.stockPrevEJ || {};
-    const cg = entry.stockCurGJ || {}, ce = entry.stockCurEJ || {};
+    const pg = entry.prev_stockGJ || {}, pe = entry.prev_stockEJ || {};
+    const cg = entry.cur_stockGJ || {}, ce = entry.cur_stockEJ || {};
     const div = (a,b) => b ? a/b : 0;
 
     entry.salesTotal = ((Number(cg.salesAmt)||0) + (Number(ce.salesAmt)||0)) / 1000;
@@ -2410,18 +2420,182 @@ function rebuildStockData(){
     entry.prevCombined = combine(pg, pe);
     entry.curCombined = combine(cg, ce);
 
+    delete entry.cur_stockGJ; delete entry.cur_stockEJ;
+    delete entry.prev_stockGJ; delete entry.prev_stockEJ;
     return entry;
   });
-  stockData.sort((a,b)=> String(a.client||'').localeCompare(String(b.client||''), 'ko'));
+  result.sort((a,b)=> String(a.client||'').localeCompare(String(b.client||''), 'ko'));
+  return result;
 }
 
-// 재고 및 파손재고현황: 반품담당자/발주담당자 드롭다운 필터 옵션을 stockData 기준으로 채웁니다.
+// ---------- 재고 및 파손재고현황 연도·월 조회(창고별로 쌓인 과거 업로드분 보관) ----------
+// 광주·의정부 시트를 업로드할 때마다, 파일명에서 뽑은 연/월(fileMonth) 기준으로 원본 rows를 별도 보관해서,
+// 나중에 특정 연도·월을 고르면 그 달을 당월로, 바로 전달을 전월로 삼아 표를 다시 계산해 보여줍니다.
+const STOCK_MONTHLY_INDEX_KEY = 'stockout_dashboard_stock_monthly_index_v1';
+let stockMonthlyIndex = {}; // { 'YYYY-MM': ['stockGJ','stockEJ'] }
+let monthlyStockData = {}; // { 'YYYY-MM': { stockGJ: {headers, rows, fileName, uploadedAt}, stockEJ: {...} } }
+let stockQueryMonthKey = ''; // '' = 최신(자동), 그 외에는 사용자가 고른 'YYYY-MM'(당월 기준)
+let stockTableMonthData = null; // 조회 월이 선택됐을 때 계산해 캐시해 두는 표 데이터
+let stockTableMonthDataKey = null;
+
+// 'YYYY-MM'을 delta개월만큼 이동한 'YYYY-MM'을 반환합니다 (예: shiftMonthKey('2026-01', -1) === '2025-12').
+function shiftMonthKey(monthKey, delta){
+  const [y, m] = monthKey.split('-').map(Number);
+  const d = new Date(y, (m - 1) + delta, 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function monthOnlyLabel(monthKey){ return monthKey ? (Number(monthKey.slice(5, 7)) + '월') : ''; }
+// 창고 자료(stockGJ/stockEJ)가 하나라도 보관된 월들만, 최신순으로 반환합니다.
+function getArchivedStockMonths(){
+  return Object.keys(monthlyStockData)
+    .filter(m => monthlyStockData[m] && (monthlyStockData[m].stockGJ || monthlyStockData[m].stockEJ))
+    .sort((a, b) => b.localeCompare(a));
+}
+function getLatestArchivedStockMonth(){
+  const months = getArchivedStockMonths();
+  return months.length ? months[0] : null;
+}
+// 사용자가 조회 월을 고르지 않았으면 가장 최근에 업로드된 달을 당월 기준으로 씁니다.
+function resolveActiveStockMonthKey(){
+  return stockQueryMonthKey || getLatestArchivedStockMonth() || new Date().toISOString().slice(0, 7);
+}
+
+function stockMonthlyStorageKey(id, monthKey){ return 'stockout_dashboard_upload_' + id + '_m_' + monthKey; }
+
+async function saveMonthlyStockSnapshot(id, monthKey, state){
+  try{
+    const key = stockMonthlyStorageKey(id, monthKey);
+    const chunks = splitRowsIntoChunks(state.rows, MAX_VALUE_BYTES);
+    const isChunked = chunks.length > 1;
+    if(isChunked){
+      for(let i=0; i<chunks.length; i++){
+        await storageSetWithRetry(key + '_chunk_' + i, JSON.stringify(chunks[i]), true);
+      }
+    }
+    const meta = { headers: state.headers, fileName: state.fileName, uploadedAt: state.uploadedAt, chunked: isChunked, chunkCount: chunks.length };
+    if(!isChunked) meta.rows = chunks[0];
+    await storageSetWithRetry(key, JSON.stringify(meta), true);
+
+    monthlyStockData[monthKey] = monthlyStockData[monthKey] || {};
+    monthlyStockData[monthKey][id] = { headers: state.headers, rows: state.rows, fileName: state.fileName, uploadedAt: state.uploadedAt };
+    stockMonthlyIndex[monthKey] = stockMonthlyIndex[monthKey] || [];
+    if(!stockMonthlyIndex[monthKey].includes(id)) stockMonthlyIndex[monthKey].push(id);
+    await storageSetWithRetry(STOCK_MONTHLY_INDEX_KEY, JSON.stringify(stockMonthlyIndex), true);
+    renderStockQuerySelectors();
+  }catch(e){ console.error('월별 재고 스냅샷 저장 실패:', e); }
+}
+
+async function loadMonthlyStockArchive(){
+  try{
+    const res = await window.storage.get(STOCK_MONTHLY_INDEX_KEY, true);
+    if(res && res.value) stockMonthlyIndex = JSON.parse(res.value);
+  }catch(e){ stockMonthlyIndex = {}; }
+  const months = Object.keys(stockMonthlyIndex);
+  for(const month of months){
+    const roles = stockMonthlyIndex[month] || [];
+    for(const id of roles){
+      try{
+        const key = stockMonthlyStorageKey(id, month);
+        const res = await window.storage.get(key, true);
+        if(!(res && res.value)) continue;
+        const parsed = JSON.parse(res.value);
+        let rows = parsed.rows || [];
+        if(parsed.chunked){
+          const chunkResults = await Promise.all(
+            Array.from({length: parsed.chunkCount}, (_, i) =>
+              window.storage.get(key + '_chunk_' + i, true).catch(()=>null)
+            )
+          );
+          rows = [];
+          chunkResults.forEach(r=>{ if(r && r.value) rows = rows.concat(JSON.parse(r.value)); });
+        }
+        monthlyStockData[month] = monthlyStockData[month] || {};
+        monthlyStockData[month][id] = { headers: parsed.headers, rows, fileName: parsed.fileName, uploadedAt: parsed.uploadedAt };
+      }catch(e){ /* 해당 월/창고 스냅샷을 불러오지 못했어요 */ }
+    }
+  }
+  renderStockQuerySelectors();
+}
+
+// curKey를 당월로, 바로 전달(curKey - 1개월, 또는 명시적으로 넘긴 prevKey)을 전월로 삼아 표 데이터를 계산합니다.
+function buildStockDataForPeriod(curKey, prevKey){
+  prevKey = prevKey || shiftMonthKey(curKey, -1);
+  const curSrc = monthlyStockData[curKey] || {};
+  const prevSrc = monthlyStockData[prevKey] || {};
+  return buildStockDataFrom(id => curSrc[id], id => prevSrc[id]);
+}
+function computeStockDataForMonth(monthKey){
+  return buildStockDataForPeriod(monthKey);
+}
+// 사이드바 KPI·재고 추이 스냅샷 등 "현재" 값은 항상 가장 최근에 업로드된 달을 당월로, 그 전달을 전월로 삼습니다.
+function rebuildStockData(){
+  const latest = getLatestArchivedStockMonth();
+  stockData = latest ? computeStockDataForMonth(latest) : buildStockDataFrom(id => uploadState[id], () => null);
+  stockTableMonthData = null; stockTableMonthDataKey = null;
+}
+
+// 재고 및 파손재고현황 표 상단의 연도·월 드롭다운을 채웁니다 (보관된 월들 기준).
+function renderStockQuerySelectors(){
+  const yearSel = document.getElementById('stockQueryYear');
+  const monthSel = document.getElementById('stockQueryMonth');
+  const label = document.getElementById('stockQueryLabel');
+  if(!yearSel || !monthSel) return;
+  const months = getArchivedStockMonths();
+  if(!months.length){
+    yearSel.innerHTML = '<option value="">연도</option>';
+    monthSel.innerHTML = '<option value="">월</option>';
+    if(label) label.textContent = '업로드된 자료가 없어요';
+    return;
+  }
+  const activeKey = resolveActiveStockMonthKey();
+  const [activeYear, activeMonth] = activeKey.split('-');
+
+  const years = Array.from(new Set(months.map(m => m.slice(0, 4)))).sort((a, b) => b.localeCompare(a));
+  const wantYear = yearSel.value || activeYear;
+  yearSel.innerHTML = years.map(y => `<option value="${y}">${y}년</option>`).join('');
+  yearSel.value = years.includes(wantYear) ? wantYear : years[0];
+
+  const selYear = yearSel.value;
+  const monthsInYear = Array.from(new Set(months.filter(m => m.slice(0, 4) === selYear).map(m => Number(m.slice(5, 7))))).sort((a, b) => b - a);
+  const wantMonth = monthSel.value || (selYear === activeYear ? String(Number(activeMonth)) : '');
+  monthSel.innerHTML = monthsInYear.map(m => `<option value="${m}">${m}월</option>`).join('');
+  monthSel.value = monthsInYear.map(String).includes(wantMonth) ? wantMonth : String(monthsInYear[0]);
+
+  const curKey = selYear + '-' + String(monthSel.value).padStart(2, '0');
+  const prevKey = shiftMonthKey(curKey, -1);
+  if(label) label.textContent = `전월(${monthOnlyLabel(prevKey)}) · 당월(${monthOnlyLabel(curKey)})`;
+}
+// 연도·월 드롭다운에서 선택이 바뀌면 조회 기준월을 갱신하고 표를 다시 계산합니다.
+function applyStockQuerySelection(){
+  const yearSel = document.getElementById('stockQueryYear');
+  const monthSel = document.getElementById('stockQueryMonth');
+  if(!yearSel || !monthSel || !yearSel.value || !monthSel.value) return;
+  stockQueryMonthKey = yearSel.value + '-' + String(monthSel.value).padStart(2, '0');
+  stockTableMonthData = null; stockTableMonthDataKey = null;
+  renderStockQuerySelectors();
+  buildStockFilterOptions();
+  renderStockTable();
+}
+
+function getActiveStockTableData(){
+  const key = resolveActiveStockMonthKey();
+  const latest = getLatestArchivedStockMonth();
+  if(!stockQueryMonthKey || key === latest) return stockData;
+  if(stockTableMonthDataKey !== key){
+    stockTableMonthData = computeStockDataForMonth(key);
+    stockTableMonthDataKey = key;
+  }
+  return stockTableMonthData;
+}
+
+// 재고 및 파손재고현황: 반품담당자/발주담당자 드롭다운 필터 옵션을 현재 선택된 데이터(최신 또는 특정 월) 기준으로 채웁니다.
 function buildStockFilterOptions(){
   const rSel = document.getElementById('returnMgrFilter-stock');
   const oSel = document.getElementById('orderMgrFilter-stock');
   if(!rSel || !oSel) return;
-  const returnMgrs = [...new Set(stockData.map(r=>r.returnManager).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
-  const orderMgrs = [...new Set(stockData.map(r=>r.orderManager).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+  const activeData = getActiveStockTableData();
+  const returnMgrs = [...new Set(activeData.map(r=>r.returnManager).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+  const orderMgrs = [...new Set(activeData.map(r=>r.orderManager).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
 
   const prevR = rSel.value;
   rSel.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
@@ -2448,6 +2622,7 @@ function stockSortCompare(a, b, key, dir){
 function renderStockTable(){
   const head = document.getElementById('stockHead');
   if(!head) return;
+  const activeData = getActiveStockTableData();
 
   const fixedDefs = [
     { key:'code', label:'코드' }, { key:'client', label:'거래처' },
@@ -2469,7 +2644,7 @@ function renderStockTable(){
   const q = (document.getElementById('search-stock').value || '').trim().toLowerCase();
   const rFilter = document.getElementById('returnMgrFilter-stock').value;
   const oFilter = document.getElementById('orderMgrFilter-stock').value;
-  let rows = stockData.filter(r=>{
+  let rows = activeData.filter(r=>{
     if(rFilter && r.returnManager !== rFilter) return false;
     if(oFilter && r.orderManager !== oFilter) return false;
     if(!q) return true;
@@ -2484,7 +2659,7 @@ function renderStockTable(){
     rows = rows.slice().sort((a,b)=> stockSortCompare(a, b, k, d));
   }
 
-  document.getElementById('count-stock').textContent = `${rows.length.toLocaleString()} / ${stockData.length.toLocaleString()}건`;
+  document.getElementById('count-stock').textContent = `${rows.length.toLocaleString()} / ${activeData.length.toLocaleString()}건`;
 
   const fmt = v => (v===null || v===undefined || v==='') ? '' : (typeof v==='number' ? v.toLocaleString(undefined,{maximumFractionDigits:1}) : v);
   // ratio 필드는 0.087 같은 소수 비율로 계산돼 있으므로 100을 곱해 %로 표시합니다.
@@ -2499,6 +2674,7 @@ function renderStockTable(){
     return `<tr>${tds}</tr>`;
   }).join('');
 }
+
 
 // ---------- 재고현황 KPI 카드 (전체재고액 / 매출액 / 파손재고액) ----------
 function renderStockKpis(){
@@ -2530,32 +2706,61 @@ async function saveStockHistory(){
   try{ await window.storage.set(STOCK_HISTORY_KEY, JSON.stringify(stockHistory), true); }catch(e){ /* best effort */ }
 }
 function upsertStockHistorySnapshot(){
-  // 당월(광주)·당월(의정부) 시트가 하나도 없으면 의미 있는 당월 재고/파손재고 값을 계산할 수 없어 건너뜁니다.
-  if(!uploadState['stockCurGJ'] && !uploadState['stockCurEJ']) return;
+  // 광주·의정부 시트가 하나도 업로드/보관돼 있지 않으면 의미 있는 당월 재고/파손재고 값을 계산할 수 없어 건너뜁니다.
+  const month = getLatestArchivedStockMonth();
+  if(!month) return;
   const totalStock = stockData.reduce((a,r)=>a+(Number(r.curStockTotal)||0),0);
   const totalDamaged = stockData.reduce((a,r)=>a+(Number(r.curDamaged)||0),0);
   const totalSales = stockData.reduce((a,r)=>a+(Number(r.salesTotal)||0),0);
-  const month = new Date().toISOString().slice(0,7); // YYYY-MM (업로드 시점 기준)
   const entry = { month, totalStock, totalDamaged, totalSales, updatedAt: new Date().toISOString() };
   const idx = stockHistory.findIndex(h=>h.month===month);
   if(idx >= 0) stockHistory[idx] = entry; else stockHistory.push(entry);
   stockHistory.sort((a,b)=> a.month.localeCompare(b.month));
   saveStockHistory();
+  renderStockHistoryYearFilter();
   renderStockChart();
+}
+
+// stockHistory 안의 월(YYYY-MM)에서 연도(YYYY) 목록을 뽑아 연도 필터 드롭다운을 채웁니다.
+function renderStockHistoryYearFilter(){
+  const sel = document.getElementById('stockHistoryYearFilter');
+  if(!sel) return;
+  const years = Array.from(new Set(stockHistory.map(h=>h.month.slice(0,4)))).sort((a,b)=>b.localeCompare(a));
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="">전체 연도</option>' + years.map(y=>`<option value="${y}">${y}년</option>`).join('');
+  sel.value = years.includes(prevVal) ? prevVal : '';
+  const countEl = document.getElementById('count-stockHistoryYear');
+  if(countEl) countEl.textContent = years.length ? `${years.length}개 연도 · ${stockHistory.length}개월 데이터` : '';
+}
+
+function getFilteredStockHistory(){
+  const sel = document.getElementById('stockHistoryYearFilter');
+  const year = sel ? sel.value : '';
+  return year ? stockHistory.filter(h=>h.month.slice(0,4)===year) : stockHistory;
 }
 
 function renderStockChart(){
   const el = document.getElementById('stockChartContainer');
   if(!el) return;
+  const data = getFilteredStockHistory();
   if(!stockHistory.length){
-    el.innerHTML = '<div class="foot-note">아직 저장된 월별 스냅샷이 없어요. 재고 및 반품 &gt; 기초DATABASE에서 통합 시트를 업로드하면 업로드한 달의 재고·파손재고 금액이 이 그래프에 자동으로 쌓여요.</div>';
+    el.innerHTML = "<div class=\"foot-note\">아직 저장된 월별 스냅샷이 없어요. 재고 및 반품 &gt; 기초DB에서 우선처별 재고 및 매입실적 시트를 업로드하면(파일명에 'N월' 표기가 있으면 그 달 기준으로) 매출액·재고액·파손재고액이 이 그래프에 자동으로 쌓여요.</div>";
     return;
   }
-  const w = 780, h = 320, padL = 74, padR = 20, padT = 20, padB = 46;
+  if(!data.length){
+    el.innerHTML = '<div class="foot-note">선택한 연도에는 저장된 월별 스냅샷이 없어요.</div>';
+    return;
+  }
+  const w = 820, h = 340, padL = 78, padR = 20, padT = 20, padB = 46;
   const chartW = w - padL - padR, chartH = h - padT - padB;
-  const maxVal = Math.max(1, ...stockHistory.map(x=>Math.max(x.totalStock||0, x.totalDamaged||0)));
-  const groupW = chartW / stockHistory.length;
-  const barW = Math.max(10, Math.min(30, groupW/2 - 6));
+  const maxVal = Math.max(1, ...data.map(x=>Math.max(x.totalStock||0, x.totalDamaged||0, x.totalSales||0)));
+  const groupW = chartW / data.length;
+  const barW = Math.max(7, Math.min(22, groupW/3 - 6));
+  const series = [
+    { key:'totalSales', color:'var(--accent)', label:'매출액' },
+    { key:'totalStock', color:'var(--teal)', label:'재고액' },
+    { key:'totalDamaged', color:'var(--red)', label:'파손재고액' },
+  ];
 
   let grid = '';
   for(let i=0; i<=4; i++){
@@ -2566,12 +2771,15 @@ function renderStockChart(){
   }
 
   let bars = '';
-  stockHistory.forEach((entry, i)=>{
+  data.forEach((entry, i)=>{
     const xBase = padL + i*groupW + groupW/2;
-    const stockBarH = ((entry.totalStock||0)/maxVal)*chartH;
-    const dmgBarH = ((entry.totalDamaged||0)/maxVal)*chartH;
-    bars += `<rect x="${(xBase-barW-2).toFixed(1)}" y="${(padT+chartH-stockBarH).toFixed(1)}" width="${barW.toFixed(1)}" height="${stockBarH.toFixed(1)}" fill="var(--teal)" rx="3"></rect>`;
-    bars += `<rect x="${(xBase+2).toFixed(1)}" y="${(padT+chartH-dmgBarH).toFixed(1)}" width="${barW.toFixed(1)}" height="${dmgBarH.toFixed(1)}" fill="var(--red)" rx="3"></rect>`;
+    const startX = xBase - (barW*3 + 8)/2;
+    series.forEach((s, si)=>{
+      const val = Number(entry[s.key]) || 0;
+      const barH = (val/maxVal)*chartH;
+      const x = startX + si*(barW+4);
+      bars += `<rect x="${x.toFixed(1)}" y="${(padT+chartH-barH).toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${s.color}" rx="3"></rect>`;
+    });
     bars += `<text x="${xBase.toFixed(1)}" y="${padT+chartH+18}" text-anchor="middle" font-size="11" fill="var(--ink-dim)">${entry.month}</text>`;
   });
 
@@ -2580,15 +2788,15 @@ function renderStockChart(){
       ${grid}
       ${bars}
     </svg>
-    <div style="display:flex; gap:16px; font-size:12.5px; color:var(--ink-dim); margin-top:8px;">
-      <span><span style="display:inline-block;width:10px;height:10px;background:var(--teal);border-radius:2px;margin-right:5px;"></span>재고(당월재고합계, 천원)</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:var(--red);border-radius:2px;margin-right:5px;"></span>파손재고(당월파손재고, 천원)</span>
+    <div style="display:flex; gap:16px; font-size:12.5px; color:var(--ink-dim); margin-top:8px; flex-wrap:wrap;">
+      ${series.map(s=>`<span><span style="display:inline-block;width:10px;height:10px;background:${s.color};border-radius:2px;margin-right:5px;"></span>${s.label}(천원)</span>`).join('')}
     </div>`;
 }
 
 // 재고 관련 업로드가 바뀔 때마다 표·KPI·그래프를 한 번에 갱신합니다.
 function refreshStockViews(){
-  rebuildStockData();
+  rebuildStockData(); // 내부에서 stockTableMonthData 캐시도 초기화합니다
+  renderStockQuerySelectors();
   buildStockFilterOptions();
   renderStockTable();
   renderStockKpis();
@@ -2598,13 +2806,24 @@ function refreshStockViews(){
 init();
 initUploadTabs().then(async ()=>{
   await loadStockHistory();
+  await loadMonthlyStockArchive();
   // 로딩 순서와 무관하게, 모든 업로드가 로드된 뒤 한 번 더 확실히 재계산합니다.
   rebuildStockData();
+  renderStockQuerySelectors();
   buildStockFilterOptions();
   renderStockTable();
   renderStockKpis();
+  renderStockHistoryYearFilter();
   renderStockChart();
 });
+document.getElementById('stockHistoryYearFilter').addEventListener('change', renderStockChart);
+document.getElementById('stockQueryYear').addEventListener('change', ()=>{
+  // 연도를 바꾸면 해당 연도에서 고를 수 있는 월로 다시 채우고(가장 최근 달을 기본 선택), 바로 반영합니다.
+  document.getElementById('stockQueryMonth').value = '';
+  renderStockQuerySelectors();
+  applyStockQuerySelection();
+});
+document.getElementById('stockQueryMonth').addEventListener('change', applyStockQuerySelection);
 
 document.getElementById('search-stock').addEventListener('input', renderStockTable);
 document.getElementById('returnMgrFilter-stock').addEventListener('change', renderStockTable);
