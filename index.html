@@ -316,7 +316,8 @@
   #toolbar-ordermgr, #scroll-ordermgr,
   #toolbar-stockGJ, #scroll-stockGJ,
   #toolbar-stockEJ, #scroll-stockEJ,
-  #toolbar-returnmgr, #scroll-returnmgr{ display:none !important; }
+  #toolbar-returnmgr, #scroll-returnmgr,
+  #toolbar-productMaster, #scroll-productMaster{ display:none !important; }
 
   /* section groups in the sidebar: 발주 / 재고 및 반품 각각 큰 타이틀 + 그 아래 탭 목록 */
   .tabs-groups{ display:flex; flex-direction:column; gap:14px; }
@@ -332,6 +333,7 @@
   }
   .section-block.accent-order::before{ background:var(--accent-grad); }
   .section-block.accent-stock::before{ background:linear-gradient(90deg,#c1791b,#e0aa5a); }
+  .section-block.accent-master::before{ background:linear-gradient(90deg,#6a3fa0,#9b7bd1); }
   .tabs-group-title{
     font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-0.01em;
     padding:1px 0 0; display:flex; align-items:center; gap:7px;
@@ -539,7 +541,7 @@
           <div class="kpis" id="kpiRow"></div>
           <div class="tabs">
             <div class="tab active" data-tab="list"><span class="tab-ic">📋</span>품절 현황 목록</div>
-            <div class="tab" data-tab="basedb"><span class="tab-ic">🗂️</span>기초DB</div>
+            <div class="tab" data-tab="basedb"><span class="tab-ic">🗂️</span>DB업데이트</div>
           </div>
         </div>
         <div class="section-block accent-stock">
@@ -550,7 +552,13 @@
             <div class="tab" data-tab="stocktrend"><span class="tab-ic">📈</span>재고현황</div>
             <div class="tab" data-tab="stockdamage"><span class="tab-ic">⚠️</span>파손재고현황</div>
             <div class="tab" data-tab="returns"><span class="tab-ic">📝</span>반품신청서</div>
-            <div class="tab" data-tab="stockdb"><span class="tab-ic">🗂️</span>기초DB</div>
+            <div class="tab" data-tab="stockdb"><span class="tab-ic">🗂️</span>DB업데이트</div>
+          </div>
+        </div>
+        <div class="section-block accent-master">
+          <div class="tabs-group-title"><span class="dot" style="background:#6a3fa0;"></span>마스터DB</div>
+          <div class="tabs">
+            <div class="tab" data-tab="masterdb"><span class="tab-ic">🗄️</span>마스터DB</div>
           </div>
         </div>
       </div>
@@ -691,36 +699,6 @@
           </div>
         </div>
 
-        <div class="sub-section">
-          <div class="sub-section-title">발주담당자</div>
-          <div class="upload-bar" id="upload-ordermgr-bar">
-            <label class="upload-drop compact" for="file-ordermgr">
-              <span class="upload-icon">⬆</span>
-              <span><b>발주담당자</b> 엑셀/CSV 파일을 올려서 담당자를 바꾸세요</span>
-              <span class="upload-sub">'발주담당자' 시트를 자동으로 찾아 불러옵니다 · "다미스코드" 또는 "매입처명"으로 거래처를 찾아, "발주담당" 컬럼의 값을 새 발주담당자로 반영합니다 (배송지·결제기준일·회전 컬럼이 있으면 함께 갱신) · 업로드 즉시 품절 현황 목록·담당자별 현황에 반영되고 저장돼요</span>
-            </label>
-            <input type="file" id="file-ordermgr" accept=".xlsx,.xls,.csv" hidden>
-            <div class="upload-actions">
-              <button class="btn primary" id="save-ordermgr" style="display:none;">💾 저장</button>
-              <button class="btn danger" id="clear-ordermgr" style="display:none;">데이터 지우기</button>
-              <div class="upload-meta" id="meta-ordermgr">아직 업로드된 데이터가 없어요</div>
-              <div class="save-indicator" id="saveState-ordermgr" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
-            </div>
-          </div>
-          <div class="toolbar" id="toolbar-ordermgr" style="display:none;">
-            <input type="text" id="search-ordermgr" placeholder="전체 컬럼 검색...">
-            <span class="count-badge" id="count-ordermgr"></span>
-            <div class="spacer"></div>
-            <div class="pager" id="pager-ordermgr"></div>
-          </div>
-          <div class="table-scroll" id="scroll-ordermgr" style="display:none;">
-            <table id="table-ordermgr">
-              <thead><tr id="head-ordermgr"></tr></thead>
-              <tbody id="body-ordermgr"></tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
 
       <!-- 재고 및 파손재고현황 TAB (재고 및 반품) -->
@@ -744,7 +722,7 @@
               <tbody id="stockBody"></tbody>
             </table>
           </div>
-          <div class="foot-note">기초DB(재고 및 반품)에서 우선처별 재고 및 매입실적 시트를 광주·의정부 각 1개씩 업로드하면(엑셀 파일명에서 연도·월을 자동으로 인식해요), 그 달 자료가 창고별로 쌓여요 · 위에서 연도·월을 고르면 그 달을 당월로, 바로 전달을 전월로 자동으로 짝지어 엑셀 '통합' 시트가 계산하는 방식 그대로 매출액합계·채무총액·전월재고·당월재고합계·재고증감비율·외상대비재고비율·전월파손재고·당월파손재고·파손재고감소율(전체 현황)을 계산해요 (예: 7월을 고르면 6월=전월, 7월=당월) · 광주·의정부를 합산한 결과만 보여드리고 창고별 세부 항목은 표시하지 않아요 · 발주담당자는 발주 쪽 발주담당자 업로드 값을, 반품담당자는 아래 기초DB의 반품담당자 업로드 값을 그대로 보여줘요 (조회 전용 표입니다).</div>
+          <div class="foot-note">DB업데이트(재고 및 반품)에서 우선처별 재고 및 매입실적 시트를 광주·의정부 각 1개씩 업로드하면(엑셀 파일명에서 연도·월을 자동으로 인식해요), 그 달 자료가 창고별로 쌓여요 · 위에서 연도·월을 고르면 그 달을 당월로, 바로 전달을 전월로 자동으로 짝지어 엑셀 '통합' 시트가 계산하는 방식 그대로 매출액합계·채무총액·전월재고·당월재고합계·재고증감비율·외상대비재고비율·전월파손재고·당월파손재고·파손재고감소율(전체 현황)을 계산해요 (예: 7월을 고르면 6월=전월, 7월=당월) · 광주·의정부를 합산한 결과만 보여드리고 창고별 세부 항목은 표시하지 않아요 · 발주담당자·반품담당자는 마스터DB &gt; 거래처정보마스터DB 값을 그대로 보여줘요 (조회 전용 표입니다).</div>
         </div>
       </div>
 
@@ -757,7 +735,7 @@
             <span class="count-badge" id="count-stockHistoryYear"></span>
           </div>
           <div id="stockChartContainer" class="chart-box"></div>
-          <div class="foot-note">재고 및 반품 &gt; 기초DB에서 우선처별 재고 및 매입실적 시트(광주·의정부 각 1개)를 올릴 때, 엑셀 파일명에서 연도·월을 자동으로 인식해 그 달(연도 표기가 없으면 올해)로 스냅샷이 저장돼요 · 연도·월 표기를 찾을 수 없으면 업로드한 날짜의 연·월로 저장돼요 · 전사 재고총액·파손재고총액·매출액이 그 달의 스냅샷으로 아래 그래프에 누적되고, 같은 달에 다시 업로드하면 그 달 값이 최신 데이터로 갱신돼요 (단위: 원, 엑셀 원본 그대로) · 막대 아래에 매출액·재고액·파손재고액 각각의 <b>전월 대비 증감율(%)</b>을 계열 색으로 표기해요 · 데이터가 쌓이면 위 연도 필터로 원하는 연도만 골라볼 수 있어요.</div>
+          <div class="foot-note">재고 및 반품 &gt; DB업데이트에서 우선처별 재고 및 매입실적 시트(광주·의정부 각 1개)를 올릴 때, 엑셀 파일명에서 연도·월을 자동으로 인식해 그 달(연도 표기가 없으면 올해)로 스냅샷이 저장돼요 · 연도·월 표기를 찾을 수 없으면 업로드한 날짜의 연·월로 저장돼요 · 전사 재고총액·파손재고총액·매출액이 그 달의 스냅샷으로 아래 그래프에 누적되고, 같은 달에 다시 업로드하면 그 달 값이 최신 데이터로 갱신돼요 (단위: 원, 엑셀 원본 그대로) · 막대 아래에 매출액·재고액·파손재고액 각각의 <b>전월 대비 증감율(%)</b>을 계열 색으로 표기해요 · 데이터가 쌓이면 위 연도 필터로 원하는 연도만 골라볼 수 있어요.</div>
         </div>
       </div>
 
@@ -876,17 +854,92 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- 마스터DB TAB: 제품코드마스터DB(업로드·초기화만) / 거래처정보마스터DB(업로드+수기수정+신규거래처 자동추가) -->
+      <div class="panel" id="panel-masterdb">
+
         <div class="sub-section">
-          <div class="sub-section-title">반품담당자</div>
-          <div class="upload-bar" id="upload-returnmgr-bar">
+          <div class="sub-section-title">제품코드마스터DB</div>
+          <div class="upload-bar" id="upload-productMaster-bar">
+            <label class="upload-drop compact" for="file-productMaster">
+              <span class="upload-icon">⬆</span>
+              <span><b>제품코드마스터DB</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+              <span class="upload-sub">제품코드 전체 목록을 업로드하면 다른 메뉴에서 공용으로 조회할 수 있게 저장돼요 · 직접 수정은 지원하지 않고, 다시 올리면 전체가 새 파일로 교체돼요 · 필요 없어지면 초기화 버튼으로 지울 수 있어요</span>
+            </label>
+            <input type="file" id="file-productMaster" accept=".xlsx,.xls,.csv" hidden>
+            <div class="upload-actions">
+              <button class="btn primary" id="save-productMaster" style="display:none;">💾 저장</button>
+              <button class="btn danger" id="clear-productMaster" style="display:none;">초기화</button>
+              <div class="upload-meta" id="meta-productMaster">아직 업로드된 데이터가 없어요</div>
+              <div class="save-indicator" id="saveState-productMaster" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+            </div>
+          </div>
+          <div class="toolbar" id="toolbar-productMaster" style="display:none;">
+            <input type="text" id="search-productMaster" placeholder="전체 컬럼 검색...">
+            <span class="count-badge" id="count-productMaster"></span>
+            <div class="spacer"></div>
+            <div class="pager" id="pager-productMaster"></div>
+          </div>
+          <div class="table-scroll" id="scroll-productMaster" style="display:none;">
+            <table id="table-productMaster">
+              <thead><tr id="head-productMaster"></tr></thead>
+              <tbody id="body-productMaster"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="sub-section">
+          <div class="sub-section-title">거래처정보마스터DB</div>
+          <div class="upload-bar" id="upload-vendorMaster-bar">
+            <label class="upload-drop compact" for="file-vendorMaster">
+              <span class="upload-icon">⬆</span>
+              <span><b>거래처정보마스터DB</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+              <span class="upload-sub">다미스코드·매입처명 등 거래처 기초정보를 업로드하면 다른 메뉴에서 공용으로 참조할 수 있어요 · 아래 표는 셀을 클릭해서 직접 수정할 수 있어요 (제품코드마스터DB와는 별개로 관리돼요)</span>
+            </label>
+            <input type="file" id="file-vendorMaster" accept=".xlsx,.xls,.csv" hidden>
+            <div class="upload-actions">
+              <button class="btn primary" id="save-vendorMaster" style="display:none;">💾 저장</button>
+              <button class="btn danger" id="clear-vendorMaster" style="display:none;">데이터 지우기</button>
+              <div class="upload-meta" id="meta-vendorMaster">아직 업로드된 데이터가 없어요</div>
+              <div class="save-indicator" id="saveState-vendorMaster" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+            </div>
+          </div>
+
+          <div class="upload-bar" id="upload-ordermgr-bar" style="margin-top:10px;">
+            <label class="upload-drop compact" for="file-ordermgr">
+              <span class="upload-icon">⬆</span>
+              <span><b>발주담당자 갱신</b> 엑셀/CSV 파일을 올려서 위 거래처정보마스터DB의 발주담당자를 바꾸세요</span>
+              <span class="upload-sub">'발주담당자' 시트를 자동으로 찾아 불러옵니다 · "다미스코드" 또는 "매입처명"으로 위 거래처정보마스터DB의 행을 찾아 발주담당자(배송지·결제기준일·회전 컬럼이 있으면 함께) 값만 갱신해요 · 새 거래처를 추가하지는 않아요 · 품절 현황 목록·재고 및 파손재고현황은 항상 거래처정보마스터DB 값을 그대로 가져다 쓰므로 업로드 즉시 함께 갱신되고 저장돼요</span>
+            </label>
+            <input type="file" id="file-ordermgr" accept=".xlsx,.xls,.csv" hidden>
+            <div class="upload-actions">
+              <button class="btn danger" id="clear-ordermgr" style="display:none;">데이터 지우기</button>
+              <div class="upload-meta" id="meta-ordermgr">아직 업로드된 데이터가 없어요</div>
+              <div class="save-indicator" id="saveState-ordermgr" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+            </div>
+          </div>
+          <div class="toolbar" id="toolbar-ordermgr" style="display:none;">
+            <input type="text" id="search-ordermgr" placeholder="전체 컬럼 검색...">
+            <span class="count-badge" id="count-ordermgr"></span>
+            <div class="spacer"></div>
+            <div class="pager" id="pager-ordermgr"></div>
+          </div>
+          <div class="table-scroll" id="scroll-ordermgr" style="display:none;">
+            <table id="table-ordermgr">
+              <thead><tr id="head-ordermgr"></tr></thead>
+              <tbody id="body-ordermgr"></tbody>
+            </table>
+          </div>
+
+          <div class="upload-bar" id="upload-returnmgr-bar" style="margin-top:10px;">
             <label class="upload-drop compact" for="file-returnmgr">
               <span class="upload-icon">⬆</span>
-              <span><b>반품담당자</b> 엑셀/CSV 파일을 올려서 담당자를 바꾸세요</span>
-              <span class="upload-sub">'반품담당자' 시트를 자동으로 찾아 불러옵니다 (컬럼: 다미스코드, 거래처명, 반품담당자) · 업로드 즉시 재고 및 파손재고현황의 반품담당자 컬럼에 반영되고 저장돼요</span>
+              <span><b>반품담당자 갱신</b> 엑셀/CSV 파일을 올려서 위 거래처정보마스터DB의 반품담당자를 바꾸세요</span>
+              <span class="upload-sub">'반품담당자' 시트를 자동으로 찾아 불러옵니다 (컬럼: 다미스코드, 거래처명, 반품담당자) · "다미스코드" 또는 "거래처명"으로 위 거래처정보마스터DB의 행을 찾아 반품담당자 값만 갱신해요 · 새 거래처를 추가하지는 않아요 · 재고 및 파손재고현황은 항상 거래처정보마스터DB 값을 그대로 가져다 쓰므로 업로드 즉시 함께 갱신되고 저장돼요</span>
             </label>
             <input type="file" id="file-returnmgr" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
-              <button class="btn primary" id="save-returnmgr" style="display:none;">💾 저장</button>
               <button class="btn danger" id="clear-returnmgr" style="display:none;">데이터 지우기</button>
               <div class="upload-meta" id="meta-returnmgr">아직 업로드된 데이터가 없어요</div>
               <div class="save-indicator" id="saveState-returnmgr" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
@@ -904,6 +957,20 @@
               <tbody id="body-returnmgr"></tbody>
             </table>
           </div>
+
+          <div class="toolbar" id="toolbar-vendorMaster" style="display:none;">
+            <input type="text" id="search-vendorMaster" placeholder="전체 컬럼 검색...">
+            <span class="count-badge" id="count-vendorMaster"></span>
+            <div class="spacer"></div>
+            <button class="btn" id="exportVendorMasterBtn">⬇ Excel 다운로드</button>
+          </div>
+          <div class="table-scroll" id="scroll-vendorMaster" style="display:none;">
+            <table id="table-vendorMaster">
+              <thead><tr id="head-vendorMaster"></tr></thead>
+              <tbody id="body-vendorMaster"></tbody>
+            </table>
+          </div>
+          <div class="foot-note">제품코드마스터DB와는 코드 체계가 달라(우연히 값이 겹칠 수 있어요) 서로 자동으로 연동하지 않고 완전히 독립적으로 관리돼요 · 셀을 클릭하면 바로 수정·저장돼요 · <b>품절 현황 목록의 발주담당자·배송지구분·결제기준일·회전</b>과 <b>재고 및 파손재고현황의 발주담당자·반품담당자</b>는 이제 항상 이 표의 값을 그대로 가져다 써요 (여기서 수정하면 그쪽에도 바로 반영돼요).</div>
         </div>
 
       </div>
@@ -1482,6 +1549,7 @@ function bindGlobalEvents(){
   document.getElementById('exportBtn').addEventListener('click', exportListToXlsx);
   document.getElementById('exportListBtn').addEventListener('click', exportListToXlsx);
   document.getElementById('exportStockBtn').addEventListener('click', exportStockToXlsx);
+  document.getElementById('exportVendorMasterBtn').addEventListener('click', exportVendorMasterToXlsx);
 
 }
 
@@ -1556,6 +1624,22 @@ async function exportListToXlsx(){
   });
 }
 
+async function exportVendorMasterToXlsx(){
+  const st = uploadState['vendorMaster'];
+  if(!st || !st.rows.length){ alert('내려받을 거래처정보마스터DB 데이터가 없어요.'); return; }
+  const columns = st.headers.map(h => ({ key: h, label: h, width: 14 }));
+  const rows = st.rows.map(r=>{
+    const o = {};
+    st.headers.forEach((h, i)=>{ o[h] = (r[i]===null||r[i]===undefined) ? '' : r[i]; });
+    return o;
+  });
+  await downloadStyledXlsx({
+    sheetName: '거래처정보마스터DB',
+    fileName: '거래처정보마스터DB_' + new Date().toISOString().slice(0,10) + '.xlsx',
+    columns, rows
+  });
+}
+
 async function exportStockToXlsx(){
   const columns = [
     { key:'code', label:'코드', width:10, center:true },
@@ -1604,6 +1688,11 @@ const UPLOAD_CONFIGS = {
   stockEJ: { sheetNames: ['우선처별 재고 및 매입실적-당월(의정부)','우선처별 재고 및 매입실적 당월(의정부)','우선처별 재고 및 매입실적-전월(의정부)','우선처별 재고 및 매입실적 전월(의정부)','우선처별 재고 및 매입실적(의정부)','우선처별 재고 및 매입실적 의정부'], sheetKeyword: '의정부', storageKey: 'stockout_dashboard_upload_stockEJ_v1', label: '우선처별 재고 및 매입실적-의정부',
                  essentialColumns: { colIndexes: [0,1,5,8,9,10,11,12,13,14,15,16], labels: ['코드','우선처명','純매출금액','재고액합계','가용재고금액','파손재고금액','잔고','잔고%','보상입고','미착殘','선입殘','선출殘'] } },
   returnmgr:   { sheetNames: ['반품담당자'], storageKey: 'stockout_dashboard_upload_returnmgr_v1', label: '반품담당자', headerHint: '반품담당자' },
+  // 마스터DB: 제품코드/거래처정보 공용 기초 데이터베이스. 다른 대시보드(매입엑셀파일 등)와 같은 저장 키 규칙(shared_*_master_v1)을
+  // 써서, 나중에 다른 도구에서도 같은 키로 읽어 연동할 수 있게 준비해둡니다. 제품코드와 거래처코드는 체계가 달라
+  // (우연히 겹칠 수 있음) 서로 자동으로 연동하지 않고 완전히 독립적으로 관리합니다.
+  productMaster: { sheetNames: ['Sheet','제품코드','상품코드','제품코드마스터'], storageKey: 'shared_product_master_v1', label: '제품코드마스터DB', readOnly: true },
+  vendorMaster:  { sheetNames: ['Sheet1','거래처','거래처정보','거래처마스터'], storageKey: 'shared_vendor_master_v1', label: '거래처정보마스터DB', headerHint: '매입처명', noPagination: true },
 };
 
 // 재고 및 파손재고현황 표에서 쓰는 창고(시트) 목록 — 전월/당월 구분 없이 창고별 최신 자료 하나만 보관하고,
@@ -1819,7 +1908,10 @@ function setUploadProcessing(id, isProcessing, fileName){
   if(isProcessing){
     if(dropLabel) dropLabel.classList.add('processing');
     if(fileInput) fileInput.disabled = true;
-    if(meta) meta.innerHTML = `⏳ <b>${fileName}</b> 처리 중이에요… 대용량 파일은 다소 시간이 걸릴 수 있어요 (페이지는 멈추지 않으니 다른 작업을 하며 기다리셔도 됩니다)`;
+    const bigFileNote = id === 'productMaster'
+      ? ' (제품코드마스터DB는 데이터가 많아 읽는 데만 20~30초, 저장까지 합치면 1분 가까이 걸릴 수 있어요 — 창을 닫지 말고 기다려주세요)'
+      : ' (페이지는 멈추지 않으니 다른 작업을 하며 기다리셔도 됩니다)';
+    if(meta) meta.innerHTML = `⏳ <b>${fileName}</b> 처리 중이에요… 대용량 파일은 다소 시간이 걸릴 수 있어요${bigFileNote}`;
   } else {
     if(dropLabel) dropLabel.classList.remove('processing');
     if(fileInput) fileInput.disabled = false;
@@ -1848,8 +1940,10 @@ async function handleFile(id, file){
     if(id === 'pumjeoldata') recomputeFromPumjeoldata();
     if(id === 'finalorder') recomputeFromFinalOrder();
     if(id === 'usage3m') recomputeFromUsage3m();
-    if(id === 'ordermgr') { recomputeFromManager(); refreshStockViews(); }
-    if(id === 'returnmgr' || STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
+    if(id === 'ordermgr') { await syncOrdermgrToVendorMaster(); recomputeFromManager(); refreshStockViews(); }
+    if(id === 'returnmgr') { await syncReturnmgrToVendorMaster(); refreshStockViews(); }
+    if(id === 'vendorMaster') { recomputeFromManager(); refreshStockViews(); }
+    if(STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
   }catch(err){
     console.error('업로드 처리 실패:', err);
     setUploadProcessing(id, false);
@@ -1868,7 +1962,7 @@ function setUploadSaveState(id, state, errMsg){
   dot.classList.remove('saved','saving');
   indicator.title = '';
   indicator.style.cursor = '';
-  if(state==='saving'){ dot.classList.add('saving'); label.textContent='저장 중...'; }
+  if(state==='saving'){ dot.classList.add('saving'); label.textContent = errMsg ? errMsg : '저장 중...'; }
   else if(state==='saved'){ dot.classList.add('saved'); label.textContent='저장됨 · ' + formatSavedTime(uploadState[id] && uploadState[id].savedAt); }
   else if(state==='error'){
     label.textContent = '⚠ 저장 실패 (클릭해서 재시도)';
@@ -1940,6 +2034,7 @@ async function saveUpload(id){
 
     if(isChunked){
       for(let i=0; i<chunks.length; i++){
+        setUploadSaveState(id, 'saving', `저장 중... (${i+1}/${chunks.length})`);
         await storageSetWithRetry(cfg.storageKey + '_chunk_' + i, JSON.stringify(chunks[i]), true);
       }
     }
@@ -1992,8 +2087,8 @@ async function loadUploadFromStorage(id){
       if(id === 'pumjeoldata') recomputeFromPumjeoldata();
       if(id === 'finalorder') recomputeFromFinalOrder();
       if(id === 'usage3m') recomputeFromUsage3m();
-      if(id === 'ordermgr') recomputeFromManager();
-      if(id === 'returnmgr' || STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
+      if(id === 'vendorMaster') { recomputeFromManager(); refreshStockViews(); }
+      if(STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
     }
   }catch(e){ /* nothing saved yet */ }
 }
@@ -2032,6 +2127,7 @@ function updateUploadMeta(id){
 function renderUploadTable(id){
   const st = uploadState[id];
   if(!st) return;
+  const cfg = UPLOAD_CONFIGS[id] || {};
   const head = document.getElementById('head-' + id);
   head.innerHTML = st.headers.map((h,i)=>{
     let arrow = '';
@@ -2065,38 +2161,54 @@ function renderUploadTable(id){
 
   document.getElementById('count-' + id).textContent = `${rows.length.toLocaleString()} / ${st.rows.length.toLocaleString()}건`;
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / st.pageSize));
-  if(st.page >= totalPages) st.page = totalPages - 1;
-  const start = st.page * st.pageSize;
-  const pageRows = rows.slice(start, start + st.pageSize);
+  const totalPages = cfg.noPagination ? 1 : Math.max(1, Math.ceil(rows.length / st.pageSize));
+  if(!cfg.noPagination && st.page >= totalPages) st.page = totalPages - 1;
+  const start = cfg.noPagination ? 0 : st.page * st.pageSize;
+  const pageRows = cfg.noPagination ? rows : rows.slice(start, start + st.pageSize);
 
   const body = document.getElementById('body-' + id);
-  body.innerHTML = pageRows.map(({r, idx})=>{
-    return '<tr>' + r.map((v, colIdx)=>{
-      const display = (v===null||v===undefined) ? '' : v;
-      const cls = typeof v === 'number' ? 'num editable' : 'editable';
-      return `<td class="${cls}" contenteditable="true" data-idx="${idx}" data-col="${colIdx}">${display}</td>`;
-    }).join('') + '</tr>';
-  }).join('');
+  if(cfg.readOnly){
+    body.innerHTML = pageRows.map(({r})=>{
+      return '<tr>' + r.map((v)=>{
+        const display = (v===null||v===undefined) ? '' : v;
+        const cls = typeof v === 'number' ? 'num' : '';
+        return `<td class="${cls}">${display}</td>`;
+      }).join('') + '</tr>';
+    }).join('');
+  } else {
+    body.innerHTML = pageRows.map(({r, idx})=>{
+      return '<tr>' + r.map((v, colIdx)=>{
+        const display = (v===null||v===undefined) ? '' : v;
+        const cls = typeof v === 'number' ? 'num editable' : 'editable';
+        return `<td class="${cls}" contenteditable="true" data-idx="${idx}" data-col="${colIdx}">${display}</td>`;
+      }).join('') + '</tr>';
+    }).join('');
 
-  body.querySelectorAll('td[contenteditable]').forEach(td=>{
-    td.addEventListener('blur', (e)=>{
-      const idx = Number(td.dataset.idx);
-      const col = Number(td.dataset.col);
-      let val = td.textContent.trim();
-      const orig = st.rows[idx][col];
-      if(typeof orig === 'number'){
-        const n = Number(val.replace(/,/g,''));
-        val = isNaN(n) ? val : n;
-      }
-      st.rows[idx][col] = val;
-      td.classList.add('edited');
-      saveUpload(id);
+    body.querySelectorAll('td[contenteditable]').forEach(td=>{
+      td.addEventListener('blur', (e)=>{
+        const idx = Number(td.dataset.idx);
+        const col = Number(td.dataset.col);
+        let val = td.textContent.trim();
+        const orig = st.rows[idx][col];
+        if(typeof orig === 'number'){
+          const n = Number(val.replace(/,/g,''));
+          val = isNaN(n) ? val : n;
+        }
+        st.rows[idx][col] = val;
+        td.classList.add('edited');
+        saveUpload(id);
+        if(id === 'vendorMaster'){ recomputeFromManager(); refreshStockViews(); }
+      });
+      td.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); td.blur(); } });
     });
-    td.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); td.blur(); } });
-  });
+  }
 
-  renderPager(id, totalPages);
+  if(cfg.noPagination){
+    const pagerEl = document.getElementById('pager-' + id);
+    if(pagerEl) pagerEl.innerHTML = '';
+  } else {
+    renderPager(id, totalPages);
+  }
 }
 
 function renderPager(id, totalPages){
@@ -2142,7 +2254,11 @@ function bindUploadTab(id){
     saveStateEl.addEventListener('click', ()=>{ if(uploadState[id]) saveUpload(id); });
   }
   document.getElementById('clear-' + id).addEventListener('click', async ()=>{
-    if(!confirm(UPLOAD_CONFIGS[id].label + ' 업로드 데이터를 지울까요? 목록/담당자별 현황도 원본 값으로 되돌아갑니다.')) return;
+    const isMasterDb = (id === 'productMaster' || id === 'vendorMaster');
+    const confirmMsg = isMasterDb
+      ? (UPLOAD_CONFIGS[id].label + ' 데이터를 모두 지울까요? 이 작업은 되돌릴 수 없습니다.')
+      : (UPLOAD_CONFIGS[id].label + ' 업로드 데이터를 지울까요? 목록/담당자별 현황도 원본 값으로 되돌아갑니다.');
+    if(!confirm(confirmMsg)) return;
     // clean up chunked rows too; if we don't know the exact chunk count (e.g. saved in another
     // session), try a generous upper bound — deleting a non-existent key is harmless here.
     const knownChunkCount = (uploadState[id] && uploadState[id].chunkCount) || 0;
@@ -2172,6 +2288,15 @@ function bindUploadTab(id){
       renderKpis(); renderListTable(); renderMgrTable(); scheduleSave();
     }
     if(id === 'ordermgr'){
+      // 이 업로드는 거래처정보마스터DB를 갱신하는 보조 파일일 뿐이므로, 지워도 이미 반영된
+      // 거래처정보마스터DB 값은 그대로 유지하고 목록을 그 값 기준으로 다시 맞춥니다.
+      recomputeFromManager();
+      refreshStockViews();
+    }
+    if(id === 'returnmgr' || STOCK_WAREHOUSES.some(p=>p.id===id)){
+      refreshStockViews();
+    }
+    if(id === 'vendorMaster'){
       listData.forEach((row, i)=>{
         const o = ORIGINAL_LIST[i];
         row.managerPrev = o.managerPrev; row.manager = o.manager;
@@ -2182,10 +2307,80 @@ function bindUploadTab(id){
       renderKpis(); renderListTable(); renderMgrTable(); scheduleSave();
       refreshStockViews();
     }
-    if(id === 'returnmgr' || STOCK_WAREHOUSES.some(p=>p.id===id)){
-      refreshStockViews();
-    }
   });
+}
+
+// 제품코드마스터DB와 거래처정보마스터DB는 서로 다른 종류의 코드 체계를 쓰고
+// (제품코드가 거래처코드와 우연히 겹칠 수 있음) 자동으로 섞이면 안 되므로,
+// 두 마스터DB는 완전히 독립적으로 관리합니다 — 자동으로 새 행을 만들지 않습니다.
+// 다만 발주담당자/반품담당자 업로드는 거래처정보마스터DB에 '이미 있는' 행을 찾아
+// 해당 컬럼 값만 갱신해줍니다 (새 거래처를 추가하지는 않음).
+function applyToVendorMaster(sourceId, fieldMappings){
+  const src = uploadState[sourceId];
+  const vm = uploadState['vendorMaster'];
+  if(!src || !vm) return 0;
+  const srcHeaders = src.headers;
+  const idxSrcCode = findHeaderIndex(srcHeaders, '다미스코드', '코드');
+  const idxSrcClient = findHeaderIndex(srcHeaders, '매입처명', '거래처명', '거래처');
+  const vmHeaders = vm.headers;
+  const idxVmCode = findHeaderIndex(vmHeaders, '다미스코드', '코드');
+  const idxVmClient = findHeaderIndex(vmHeaders, '매입처명', '거래처명', '거래처');
+  if(idxVmCode === -1 && idxVmClient === -1) return 0;
+
+  const resolved = fieldMappings.map(fm=>{
+    const idx = findHeaderIndex(srcHeaders, ...fm.sourceCandidates);
+    const vmIdx = vmHeaders.indexOf(fm.target);
+    return { idx, vmIdx };
+  }).filter(x => x.idx !== -1 && x.vmIdx !== -1);
+  if(resolved.length === 0) return 0;
+
+  const byCode = new Map(), byClient = new Map();
+  src.rows.forEach(r=>{
+    if(idxSrcCode !== -1 && r[idxSrcCode]) byCode.set(String(r[idxSrcCode]).trim(), r);
+    if(idxSrcClient !== -1 && r[idxSrcClient]) byClient.set(String(r[idxSrcClient]).trim(), r);
+  });
+
+  let matched = 0;
+  vm.rows.forEach(row=>{
+    const code = idxVmCode !== -1 ? String(row[idxVmCode]||'').trim() : '';
+    const client = idxVmClient !== -1 ? String(row[idxVmClient]||'').trim() : '';
+    const r = (code && byCode.get(code)) || (client && byClient.get(client));
+    if(!r) return;
+    let touched = false;
+    resolved.forEach(({idx, vmIdx})=>{
+      const v = r[idx];
+      if(v !== undefined && v !== null && v !== ''){ row[vmIdx] = v; touched = true; }
+    });
+    if(touched) matched++;
+  });
+  return matched;
+}
+
+async function syncOrdermgrToVendorMaster(){
+  if(!uploadState['vendorMaster']) return;
+  const matched = applyToVendorMaster('ordermgr', [
+    { target: '발주담당자', sourceCandidates: ['발주담당\n(변경후)', '발주담당(변경후)', '발주담당변경후', '발주담당'] },
+    { target: '결제기준일', sourceCandidates: ['결제기준일'] },
+    { target: '회전', sourceCandidates: ['회전'] },
+    { target: '배송지', sourceCandidates: ['배송지'] }
+  ]);
+  if(matched > 0){
+    renderUploadTable('vendorMaster');
+    updateUploadMeta('vendorMaster');
+    await saveUpload('vendorMaster');
+  }
+}
+
+async function syncReturnmgrToVendorMaster(){
+  if(!uploadState['vendorMaster']) return;
+  const matched = applyToVendorMaster('returnmgr', [
+    { target: '반품담당자', sourceCandidates: ['반품담당자'] }
+  ]);
+  if(matched > 0){
+    renderUploadTable('vendorMaster');
+    updateUploadMeta('vendorMaster');
+    await saveUpload('vendorMaster');
+  }
 }
 
 async function initUploadTabs(){
@@ -2483,88 +2678,67 @@ function findHeaderIndex(headers, ...candidates){
   return -1;
 }
 
+// ---------- 품절 현황 목록: 발주담당자/배송지구분/결제기준일/회전은 마스터DB > 거래처정보마스터DB 값을 그대로 가져와 씁니다 ----------
+// (발주담당자 갱신 업로드는 거래처정보마스터DB의 해당 컬럼만 갱신하고, 목록은 항상 거래처정보마스터DB를 기준으로 다시 계산합니다.)
 function recomputeFromManager(){
-  const up = uploadState['ordermgr'];
-  const banner = document.getElementById('meta-ordermgr');
+  const up = uploadState['vendorMaster'];
   if(!up) return;
   const headers = up.headers;
-  const idxCode = findHeaderIndex(headers, '다미스코드', '코드');
-  const idxClient = findHeaderIndex(headers, '매입처명', '거래처');
-  // 담당자 컬럼: "발주담당(변경후)"가 있으면 그 값을 최종 담당자로 쓰고,
-  // 없으면 "발주담당(변경전)"이든 그냥 "발주담당"이든 "발주담당"이 들어간 컬럼을 찾아 그 값을 그대로 새 담당자로 반영합니다.
-  // (엑셀에 변경전/변경후 구분이 없어도 업로드한 값이 곧 새 담당자가 됩니다.)
-  let idxManager = findHeaderIndex(headers, '발주담당\n(변경후)', '발주담당(변경후)', '발주담당변경후');
-  if(idxManager === -1){
-    const norm = s => String(s ?? '').replace(/\s+/g,'');
-    idxManager = headers.findIndex(h => norm(h).includes('발주담당'));
-  }
+  const idxCode = findHeaderIndex(headers, '다미스코드', '코드', '거래처코드');
+  const idxClient = findHeaderIndex(headers, '매입처명', '거래처명', '거래처');
+  const idxManager = findHeaderIndex(headers, '발주담당자');
   const idxPay = findHeaderIndex(headers, '결제기준일');
   const idxTurn = findHeaderIndex(headers, '회전');
   const idxRegion = findHeaderIndex(headers, '배송지');
-  if(idxClient === -1 && idxCode === -1){
-    banner.innerHTML += ' <span style="color:var(--red)">⚠ "매입처명"(또는 "다미스코드") 컬럼을 찾지 못해 담당자 정보를 갱신하지 못했어요.</span>';
-    return;
-  }
-  if(idxManager === -1){
-    banner.innerHTML += ' <span style="color:var(--red)">⚠ "발주담당" 관련 컬럼을 찾지 못해 담당자를 갱신하지 못했어요.</span>';
-    return;
-  }
+  if(idxClient === -1 && idxCode === -1) return;
+
   const byCode = {}, byClient = {};
   up.rows.forEach(r=>{
     if(idxCode !== -1 && r[idxCode]) byCode[String(r[idxCode]).trim()] = r;
     if(idxClient !== -1 && r[idxClient]) byClient[r[idxClient]] = r;
   });
-  let matched = 0, codeFilled = 0;
   listData.forEach(row=>{
     const r = (idxCode !== -1 && byCode[String(row.code).trim()]) || byClient[row.client];
     if(!r) return;
-    matched++;
-    row.manager = r[idxManager];
+    if(idxManager !== -1 && r[idxManager] !== undefined && r[idxManager] !== null && r[idxManager] !== '') row.manager = r[idxManager];
     if(idxPay !== -1 && r[idxPay] !== undefined && r[idxPay] !== null && r[idxPay] !== '') row.paymentBasis = r[idxPay];
     if(idxTurn !== -1 && r[idxTurn] !== undefined && r[idxTurn] !== null && r[idxTurn] !== '') row.turn = r[idxTurn];
     if(idxRegion !== -1 && r[idxRegion] !== undefined && r[idxRegion] !== null && r[idxRegion] !== '') row.region = r[idxRegion];
-    // 코드가 비어있는 매입처는 새로 업로드한 발주담당자 데이터의 코드(다미스코드)로 채워줍니다.
-    if((!row.code || String(row.code).trim() === '') && idxCode !== -1 && r[idxCode]){
-      row.code = r[idxCode];
-      codeFilled++;
-    }
+    // 코드가 비어있는 매입처는 거래처정보마스터DB의 코드(다미스코드)로 채워줍니다.
+    if((!row.code || String(row.code).trim() === '') && idxCode !== -1 && r[idxCode]) row.code = r[idxCode];
   });
   recomputeManagerSummary();
   renderKpis(); renderListTable(); renderMgrTable();
   buildFilterOptions();
   scheduleSave();
-  const codeNote = codeFilled ? ` · 코드가 없던 거래처 ${codeFilled.toLocaleString()}곳의 코드도 채워짐` : '';
-  banner.innerHTML += ` <span style="color:var(--teal)">✓ 발주담당자가 ${matched.toLocaleString()}개 거래처에 반영됨${codeNote}</span>`;
 }
 
 // ---------- 재고 및 파손재고현황 (재고 및 반품) ----------
-// 발주담당자는 별도로 업로드받지 않고, 발주 쪽 기초DATABASE의 '발주담당자' 업로드값(없으면 이미
-// 반영되어 있는 품절 현황 목록의 담당자 값)을 코드/거래처명 기준으로 그대로 가져와 씁니다.
+// 발주담당자는 마스터DB > 거래처정보마스터DB의 발주담당자 컬럼을 코드/거래처명 기준으로 그대로 가져와 씁니다.
 function buildOrderManagerMap(){
   const map = new Map();
-  const up = uploadState['ordermgr'];
+  const up = uploadState['vendorMaster'];
   if(up){
     const headers = up.headers;
-    const idxCode = findHeaderIndex(headers, '다미스코드', '코드');
-    const idxClient = findHeaderIndex(headers, '매입처명', '거래처');
-    let idxManager = findHeaderIndex(headers, '발주담당\n(변경후)', '발주담당(변경후)', '발주담당변경후');
-    if(idxManager === -1){
-      const norm = s => String(s ?? '').replace(/\s+/g,'');
-      idxManager = headers.findIndex(h => norm(h).includes('발주담당'));
+    const idxCode = findHeaderIndex(headers, '다미스코드', '코드', '거래처코드');
+    const idxClient = findHeaderIndex(headers, '매입처명', '거래처명', '거래처');
+    const idxManager = findHeaderIndex(headers, '발주담당자');
+    if(idxManager !== -1){
+      up.rows.forEach(r=>{
+        const code = idxCode !== -1 ? String(r[idxCode] ?? '').trim() : '';
+        const client = idxClient !== -1 ? r[idxClient] : '';
+        const mgr = r[idxManager];
+        if(code) map.set(code, mgr);
+        if(client) map.set('client:' + client, mgr);
+      });
+      return map;
     }
-    up.rows.forEach(r=>{
-      const code = idxCode !== -1 ? String(r[idxCode] ?? '').trim() : '';
-      const client = idxClient !== -1 ? r[idxClient] : '';
-      const mgr = idxManager !== -1 ? r[idxManager] : '';
-      if(code) map.set(code, mgr);
-      if(client) map.set('client:' + client, mgr);
-    });
-  } else {
-    listData.forEach(row=>{
-      if(row.code) map.set(String(row.code).trim(), row.manager);
-      if(row.client) map.set('client:' + row.client, row.manager);
-    });
   }
+  // 거래처정보마스터DB가 아직 없거나 발주담당자 컬럼을 찾지 못하면 목록에 이미 반영된 값을 그대로 사용
+  listData.forEach(row=>{
+    if(row.code) map.set(String(row.code).trim(), row.manager);
+    if(row.client) map.set('client:' + row.client, row.manager);
+  });
   return map;
 }
 
@@ -2608,19 +2782,21 @@ function buildStockDataFrom(getCurData, getPrevData){
   });
 
   const returnMap = new Map();
-  const rm = uploadState['returnmgr'];
-  if(rm){
-    const headers = rm.headers;
-    const idxCode = findHeaderIndex(headers, '다미스코드', '코드');
-    const idxClient = findHeaderIndex(headers, '거래처명', '거래처');
+  const vm = uploadState['vendorMaster'];
+  if(vm){
+    const headers = vm.headers;
+    const idxCode = findHeaderIndex(headers, '다미스코드', '코드', '거래처코드');
+    const idxClient = findHeaderIndex(headers, '매입처명', '거래처명', '거래처');
     const idxMgr = findHeaderIndex(headers, '반품담당자');
-    rm.rows.forEach(r=>{
-      const code = idxCode !== -1 ? String(r[idxCode] ?? '').trim() : '';
-      const client = idxClient !== -1 ? r[idxClient] : '';
-      const mgr = idxMgr !== -1 ? r[idxMgr] : '';
-      if(code) returnMap.set(code, mgr);
-      if(client) returnMap.set('client:' + client, mgr);
-    });
+    if(idxMgr !== -1){
+      vm.rows.forEach(r=>{
+        const code = idxCode !== -1 ? String(r[idxCode] ?? '').trim() : '';
+        const client = idxClient !== -1 ? r[idxClient] : '';
+        const mgr = r[idxMgr];
+        if(code) returnMap.set(code, mgr);
+        if(client) returnMap.set('client:' + client, mgr);
+      });
+    }
   }
 
   const orderMap = buildOrderManagerMap();
@@ -3057,7 +3233,7 @@ function renderStockChart(){
   const el = document.getElementById('stockChartContainer');
   if(!el) return;
   if(!stockHistory.length){
-    el.innerHTML = "<div class=\"foot-note\">아직 저장된 월별 스냅샷이 없어요. 재고 및 반품 &gt; 기초DB에서 우선처별 재고 및 매입실적 시트를 업로드하면(파일명에 'N월' 표기가 있으면 그 달 기준으로) 매출액·재고액·파손재고액이 이 그래프에 자동으로 쌓여요.</div>";
+    el.innerHTML = "<div class=\"foot-note\">아직 저장된 월별 스냅샷이 없어요. 재고 및 반품 &gt; DB업데이트에서 우선처별 재고 및 매입실적 시트를 업로드하면(파일명에 'N월' 표기가 있으면 그 달 기준으로) 매출액·재고액·파손재고액이 이 그래프에 자동으로 쌓여요.</div>";
     return;
   }
   // 증감율은 '바로 전달' 데이터가 있어야 계산되므로, 연도 필터와 무관하게 전체 이력에서 먼저 계산한 뒤
@@ -3158,7 +3334,7 @@ function renderStockDamageChart(){
   const el = document.getElementById('stockDamageChartContainer');
   if(!el) return;
   if(!stockHistory.length){
-    el.innerHTML = "<div class=\"foot-note\">아직 저장된 월별 스냅샷이 없어요. 재고 및 반품 &gt; 기초DB에서 우선처별 재고 및 매입실적 시트를 업로드하면 파손재고액이 이 그래프에 자동으로 쌓여요.</div>";
+    el.innerHTML = "<div class=\"foot-note\">아직 저장된 월별 스냅샷이 없어요. 재고 및 반품 &gt; DB업데이트에서 우선처별 재고 및 매입실적 시트를 업로드하면 파손재고액이 이 그래프에 자동으로 쌓여요.</div>";
     return;
   }
   // 증감율은 '바로 전달' 데이터가 있어야 계산되므로, 연도 필터와 무관하게 전체 이력에서 먼저 계산한 뒤
