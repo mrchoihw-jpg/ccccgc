@@ -4077,7 +4077,7 @@ function updateSupplyPasteInfo(){
 
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일은 화면 표시 여부와 무관하게 항상 이 10개 컬럼을, 이 순서 그대로 내려줍니다.
-const SUPPLY_EXPORT_KEY_ORDER = ['productCode','dealType','damageType','barcode','qty','unit','amt','discount','lotNo','expiry'];
+const SUPPLY_EXPORT_KEY_ORDER = ['productCode','barcode','dealType','damageType','qty','unit','amt','discount','lotNo','expiry'];
 const SUPPLY_EXPORT_COLUMNS = SUPPLY_EXPORT_KEY_ORDER.map(k => SUPPLY_COLUMNS.find(c=>c.key===k));
 
 function buildSupplyExportRows(){
@@ -4115,9 +4115,6 @@ function exportSupplyXls(){
   const aoa = [SUPPLY_EXPORT_COLUMNS.map(c=>c.label)];
   rows.forEach(o=>{ aoa.push(SUPPLY_EXPORT_COLUMNS.map(c=>o[c.key])); });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols'] = SUPPLY_EXPORT_COLUMNS.map(()=>({ wch: 14 }));
-  // 레거시 .xls는 무료 라이브러리에서 셀 서식(글꼴색 등) 저장이 제한적이라, 열 너비만 정돈해요.
-  // 색상·줄무늬 등 완전한 스타일이 필요하면 XLSX 다운로드를 권장해요.
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (supplyDecision ? supplyDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, supplyExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
