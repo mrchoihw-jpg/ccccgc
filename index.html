@@ -865,7 +865,7 @@
             <label class="upload-drop compact" for="file-productMaster">
               <span class="upload-icon">⬆</span>
               <span><b>제품코드마스터DB</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">제품코드 전체 목록을 업로드하면 다른 메뉴에서 공용으로 조회할 수 있게 저장돼요 · 직접 수정은 지원하지 않고, 다시 올리면 전체가 새 파일로 교체돼요 · 필요 없어지면 초기화 버튼으로 지울 수 있어요</span>
+              <span class="upload-source">'CM2070I_상품에서 내린 자료 업로드'</span>
             </label>
             <input type="file" id="file-productMaster" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -895,7 +895,7 @@
             <label class="upload-drop compact" for="file-vendorMaster">
               <span class="upload-icon">⬆</span>
               <span><b>거래처정보마스터DB</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-sub">다미스코드·매입처명 등 거래처 기초정보를 업로드하면 다른 메뉴에서 공용으로 참조할 수 있어요 · 아래 표는 셀을 클릭해서 직접 수정할 수 있어요 (제품코드마스터DB와는 별개로 관리돼요)</span>
+              <span class="upload-source">'다미스코드/매입처명/사업자번호/발주담당자/반품담당자/결제기준일/회전/배송지/주문방식/매입전표부가세/매입특이사항'</span>
             </label>
             <input type="file" id="file-vendorMaster" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -910,7 +910,7 @@
             <label class="upload-drop compact" for="file-ordermgr">
               <span class="upload-icon">⬆</span>
               <span><b>발주담당자 갱신</b> 엑셀/CSV 파일을 올려서 위 거래처정보마스터DB의 발주담당자를 바꾸세요</span>
-              <span class="upload-sub">'발주담당자' 시트를 자동으로 찾아 불러옵니다 · "다미스코드" 또는 "매입처명"으로 위 거래처정보마스터DB의 행을 찾아 발주담당자(배송지·결제기준일·회전 컬럼이 있으면 함께) 값만 갱신해요 · 새 거래처를 추가하지는 않아요 · 품절 현황 목록·재고 및 파손재고현황은 항상 거래처정보마스터DB 값을 그대로 가져다 쓰므로 업로드 즉시 함께 갱신되고 저장돼요</span>
+              <span class="upload-source">'다미스코드/거래처명/발주담당자'</span>
             </label>
             <input type="file" id="file-ordermgr" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
@@ -936,7 +936,7 @@
             <label class="upload-drop compact" for="file-returnmgr">
               <span class="upload-icon">⬆</span>
               <span><b>반품담당자 갱신</b> 엑셀/CSV 파일을 올려서 위 거래처정보마스터DB의 반품담당자를 바꾸세요</span>
-              <span class="upload-sub">'반품담당자' 시트를 자동으로 찾아 불러옵니다 (컬럼: 다미스코드, 거래처명, 반품담당자) · "다미스코드" 또는 "거래처명"으로 위 거래처정보마스터DB의 행을 찾아 반품담당자 값만 갱신해요 · 새 거래처를 추가하지는 않아요 · 재고 및 파손재고현황은 항상 거래처정보마스터DB 값을 그대로 가져다 쓰므로 업로드 즉시 함께 갱신되고 저장돼요</span>
+              <span class="upload-source">'다미스코드/거래처명/반품담당자'</span>
             </label>
             <input type="file" id="file-returnmgr" accept=".xlsx,.xls,.csv" hidden>
             <div class="upload-actions">
