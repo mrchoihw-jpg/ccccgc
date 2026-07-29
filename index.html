@@ -349,9 +349,28 @@
   #stockTable td.num{ text-align:right; }
   #stockTable colgroup col.sep{ border-left:2px solid var(--line-strong); }
   #stockTable th, #stockTable td{ min-width:108px; }
-  /* 공급내역신고 결과 표: 가로 스크롤 없이 긴 글자는 말줄임표로 잘라 보여줍니다 */
-  #table-supply{ table-layout:fixed; }
-  #table-supply th, #table-supply td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-top:8px; padding-bottom:8px; }
+  /* 공급내역신고 / 입고현황조회(테스트) 결과 표: 가로 스크롤 없이 긴 글자는 말줄임표로 잘라 보여줍니다 */
+  #table-supply, #table-inbound{ table-layout:fixed; }
+  #table-supply th, #table-supply td,
+  #table-inbound th, #table-inbound td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-top:8px; padding-bottom:8px; }
+  /* 매입전표 합계액 계산기: 줄 간격을 좁히고 공급가·부가세·합계액 칸은 넓게 */
+  #supplyCalcTable th, #supplyCalcTable td,
+  #inboundCalcTable th, #inboundCalcTable td{ padding-top:2px; padding-bottom:2px; line-height:1.2; }
+  #supplyCalcTable, #inboundCalcTable{ table-layout:fixed; width:100%; }
+  #supplyCalcTable th:nth-child(1), #supplyCalcTable td:nth-child(1),
+  #inboundCalcTable th:nth-child(1), #inboundCalcTable td:nth-child(1){ width:15%; }
+  #supplyCalcTable th:nth-child(2), #supplyCalcTable td:nth-child(2),
+  #supplyCalcTable th:nth-child(3), #supplyCalcTable td:nth-child(3),
+  #supplyCalcTable th:nth-child(4), #supplyCalcTable td:nth-child(4),
+  #inboundCalcTable th:nth-child(2), #inboundCalcTable td:nth-child(2),
+  #inboundCalcTable th:nth-child(3), #inboundCalcTable td:nth-child(3),
+  #inboundCalcTable th:nth-child(4), #inboundCalcTable td:nth-child(4){ width:28.33%; }
+  #supplyExportXlsxBtn, #supplyExportXlsBtn, #inboundExportXlsxBtn, #inboundExportXlsBtn{
+    background:var(--accent); color:#fff; border-color:var(--accent);
+  }
+  #supplyExportXlsxBtn:hover, #supplyExportXlsBtn:hover, #inboundExportXlsxBtn:hover, #inboundExportXlsBtn:hover{
+    filter:brightness(1.08);
+  }
   #stockTable th:nth-child(1), #stockTable td:nth-child(1){ min-width:66px; }
   #stockTable th:nth-child(2), #stockTable td:nth-child(2){ min-width:150px; }
   #stockTable th:nth-child(3), #stockTable td:nth-child(3),
@@ -569,6 +588,7 @@
           <div class="tabs-group-title"><span class="dot" style="background:#1a8f6b;"></span>공급내역신고</div>
           <div class="tabs">
             <div class="tab" data-tab="supply"><span class="tab-ic">🧾</span>공급내역신고</div>
+            <div class="tab" data-tab="inbound"><span class="tab-ic">🧪</span>입고현황조회(테스트)</div>
           </div>
         </div>
       </div>
@@ -990,14 +1010,14 @@
 
         <div class="sub-section">
           <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
-            <div style="flex:0 0 300px;">
+            <div style="flex:1 1 0; min-width:280px;">
               <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입전표 합계액</div>
               <table id="supplyCalcTable">
                 <thead><tr><th>구분</th><th>공급가</th><th>부가세</th><th>합계액</th></tr></thead>
                 <tbody id="supplyCalcBody"></tbody>
               </table>
             </div>
-            <div style="flex:1 1 420px; min-width:320px;">
+            <div style="flex:2 1 0; min-width:320px;">
               <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
               <textarea id="supplyPasteArea" placeholder="여기에 엑셀에서 복사한 공급내역신고자료 데이터를 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:160px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
               <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
@@ -1027,7 +1047,7 @@
               <tbody id="body-supply"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요 · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요 · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="supplyEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1039,6 +1059,63 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- 입고현황조회(테스트) TAB: ESB 의약품유통정보 입고현황조회 형식 붙여넣기 테스트 -->
+      <div class="panel" id="panel-inbound">
+
+        <div class="sub-section">
+          <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="flex:1 1 0; min-width:280px;">
+              <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입전표 합계액</div>
+              <table id="inboundCalcTable">
+                <thead><tr><th>구분</th><th>공급가</th><th>부가세</th><th>합계액</th></tr></thead>
+                <tbody id="inboundCalcBody"></tbody>
+              </table>
+            </div>
+            <div style="flex:2 1 0; min-width:320px;">
+              <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <textarea id="inboundPasteArea" placeholder="여기에 입고현황조회 화면에서 복사한 데이터를 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:160px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+              <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
+                <div id="inboundPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn danger" id="inboundClearBtn">지우기</button>
+                  <button class="btn primary" id="inboundApplyBtn">💾 결과 계산</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-section">
+          <div class="sub-section-title">결과 (포함/별도 자동 판별)</div>
+          <div id="inboundModeInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
+          <div class="toolbar">
+            <div id="inboundSumInfo" style="display:none; font-weight:800; font-size:15px; color:var(--ink);"></div>
+            <span class="count-badge" id="count-inbound"></span>
+            <div class="spacer"></div>
+            <button class="btn" id="inboundExportXlsxBtn">⬇ XLSX 다운로드</button>
+            <button class="btn" id="inboundExportXlsBtn">⬇ XLS 다운로드</button>
+          </div>
+          <div class="table-scroll">
+            <table id="table-inbound">
+              <thead><tr id="head-inbound"></tr></thead>
+              <tbody id="body-inbound"></tbody>
+            </table>
+          </div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요 · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="sub-section" id="inboundEditsSection" style="display:none; margin-top:14px;">
+            <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>제품코드</th><th>상품코드</th><th>변경 항목</th><th>수정 전</th><th>수정 후</th></tr></thead>
+                <tbody id="inboundEditsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      
       </div>
 
     </div>
@@ -3917,7 +3994,10 @@ function renderSupplyModeInfo(){
     : '';
   const reconciledCount = Array.from(supplyEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
   const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
-  el.innerHTML = `${vendorPart}선택된 방식: <b>${supplyDecision.mode}</b> — ${supplyDecision.reason}${matchPart}${reconcilePart}`;
+  const diff = supplyDecision.diff;
+  const isBigDiff = diff !== null && diff !== undefined && Math.abs(diff) > 1000;
+  const warnPart = isBigDiff ? `<div style="color:var(--red); font-weight:800; margin-top:4px;">⚠ 매입전표 합계액과 결과값 차이가 커요 (${Math.abs(Math.round(diff)).toLocaleString()}원) — 계산기 입력값이나 붙여넣은 데이터를 다시 확인해주세요.</div>` : '';
+  el.innerHTML = `${vendorPart}선택된 방식: <b>${supplyDecision.mode}</b> — ${supplyDecision.reason}${matchPart}${reconcilePart}${warnPart}`;
 }
 
 let supplyColumnWidths = {}; // 사용자가 드래그로 조절한 컬럼 너비 (key: 컬럼 key 또는 'flag'/'editNote')
@@ -3955,7 +4035,8 @@ function renderSupplyTable(){
   const head = document.getElementById('head-supply');
   head.innerHTML = allCols.map(c=>{
     const w = supplyColumnWidths[c.key] || c.width;
-    return `<th style="width:${w}px; position:relative;">${c.label||''}<span class="supply-col-resize" data-col="${c.key}" style="position:absolute; right:0; top:0; width:6px; height:100%; cursor:col-resize;"></span></th>`;
+    const label = c.key === 'productCode' ? `${c.label||''} <span style="color:var(--red); font-weight:800;">(공급내역신고 주의)</span>` : (c.label||'');
+    return `<th style="width:${w}px; position:relative;">${label}<span class="supply-col-resize" data-col="${c.key}" style="position:absolute; right:0; top:0; width:6px; height:100%; cursor:col-resize;"></span></th>`;
   }).join('');
 
   head.querySelectorAll('.supply-col-resize').forEach(handle=>{
@@ -3980,7 +4061,17 @@ function renderSupplyTable(){
     });
   });
 
-  const rows = supplyFinalRows;
+  const rows = [...supplyFinalRows].sort((a,b)=>{
+    const rank = r=>{
+      const m = r.margin;
+      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m < 0.05 || m >= 0.15);
+      if(marginWarn) return 0;
+      const ml = monthsUntilExpiry(r.expiry);
+      if(ml !== null && ml < 9) return 1;
+      return 2;
+    };
+    return rank(a) - rank(b);
+  });
   document.getElementById('count-supply').textContent = `${rows.length.toLocaleString()}건`;
 
   const sumEl = document.getElementById('supplySumInfo');
@@ -3996,22 +4087,24 @@ function renderSupplyTable(){
   body.innerHTML = rows.map(r=>{
     const monthsLeft = monthsUntilExpiry(r.expiry);
     const isSoon = monthsLeft !== null && monthsLeft < 9;
-    const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${isSoon ? '임박' : ''}</td>`;
+    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin < 0.05 || r.margin >= 0.15);
+    const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
+    const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
+    const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
     const mainCells = screenCols.map(c=>{
       let v = r[c.key];
-      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*10000)/100).toLocaleString() + '%'; }
+      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*1000)/10).toLocaleString() + '%'; }
       else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
       else if(v===null || v===undefined) v = '';
       const isExpiryWarn = c.key === 'expiry' && isSoon;
-      const isMarginWarn = c.key === 'margin' && r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin < 0.05 || r.margin >= 0.12);
-      const style = (isExpiryWarn || isMarginWarn) ? ' style="color:var(--red); font-weight:700;"' : '';
+      const cellStyle = (!isMarginWarn && isExpiryWarn) ? ' style="color:var(--red); font-weight:700;"' : '';
       if(c.editable){
-        return `<td class="num editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}"${style}>${v}</td>`;
+        return `<td class="num editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}"${cellStyle}>${v}</td>`;
       }
-      return `<td class="${c.num||c.pct?'num':''}"${style}>${v}</td>`;
+      return `<td class="${c.num||c.pct?'num':''}"${cellStyle}>${v}</td>`;
     }).join('');
     const noteCell = `<td style="color:var(--ink-dim); font-size:12px;">${supplyEditNoteFor(r._idx)}</td>`;
-    return '<tr>' + flagCell + mainCells + noteCell + '</tr>';
+    return `<tr${rowStyle}>` + flagCell + mainCells + noteCell + '</tr>';
   }).join('');
 
   body.querySelectorAll('td[contenteditable]').forEach(td=>{
@@ -4085,7 +4178,7 @@ function buildSupplyExportRows(){
     const o = {};
     SUPPLY_EXPORT_COLUMNS.forEach(c=>{
       let v = r[c.key];
-      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*10000)/100;
+      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*1000)/10;
       else if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
       o[c.key] = (v===null||v===undefined) ? '' : v;
     });
@@ -4101,7 +4194,7 @@ function supplyExportFileBaseName(){
 async function exportSupplyXlsx(){
   if(!supplyFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
   const rows = buildSupplyExportRows();
-  const columns = SUPPLY_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.00"%"' : undefined), center: c.num||c.pct }));
+  const columns = SUPPLY_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.0"%"' : undefined), center: c.num||c.pct }));
   await downloadStyledXlsx({
     sheetName: (supplyDecision ? supplyDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
     fileName: supplyExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
@@ -4188,6 +4281,569 @@ async function initSupplyTab(){
   }
 }
 
+// ================= 입고현황조회(테스트) — 공급내역신고와 완전히 동일한 기능(계산기/7모드 자동판별/확인요망·임박/편집·비고/열너비 저장/내보내기), 원본 열 위치만 다름 =================
+// 헤더 있는 A~W(23개 열). 필요한 열만 씁니다 (0-based):
+//   B(1)=사업자등록번호(공급업체), K(10)=표준코드명칭, L(11)=표준코드,
+//   N(13)=공급수량, P(15)=공급단가, Q(16)=공급금액, S(18)=제조번호, T(19)=유효기간("YY-MM-DD")
+const INBOUND_STORAGE_KEY = 'stockout_dashboard_inbound_raw_v1';
+const INBOUND_MODES = [
+  { id:'포함', label:'포함' },
+  { id:'별도-합계액(내림)', label:'별도-합계액(내림)', base:'amt', round:'floor' },
+  { id:'별도-합계액(반올림)', label:'별도-합계액(반올림)', base:'amt', round:'round' },
+  { id:'별도-합계액(올림)', label:'별도-합계액(올림)', base:'amt', round:'ceil' },
+  { id:'별도-단가(내림)', label:'별도-단가(내림)', base:'unit', round:'floor' },
+  { id:'별도-단가(반올림)', label:'별도-단가(반올림)', base:'unit', round:'round' },
+  { id:'별도-단가(올림)', label:'별도-단가(올림)', base:'unit', round:'ceil' },
+];
+const INBOUND_COLUMNS = [
+  { key:'productCode', label:'제품코드', width:68 },
+  { key:'barcode', label:'상품코드', width:140 },
+  { key:'dealType', label:'거래유형', hideOnScreen:true },
+  { key:'damageType', label:'파손유무', hideOnScreen:true },
+  { key:'qty', label:'수량', num:true, width:56 },
+  { key:'unit', label:'매입단가', num:true, editable:true, width:88 },
+  { key:'amt', label:'실금액', num:true, editable:true, width:100 },
+  { key:'discount', label:'할인금액', width:76, hideOnScreen:true },
+  { key:'lotNo', label:'제조번호', width:94 },
+  { key:'expiry', label:'사용기한', width:84 },
+  { key:'margin', label:'마진', pct:true, width:70 },
+  { key:'productName', label:'표준상품명', width:160 },
+  { key:'maker', label:'다미스코드명', width:160 },
+  { key:'note', label:'구매비고', width:192 },
+  { key:'longout', label:'장기품절등록', width:84, hideOnScreen:true },
+];
+
+let inboundRawRows = [];      // 파싱된 원본 22열 행들
+let inboundComputed = [];     // 매칭 + 7가지 모드 계산까지 끝난 행들 (모드 선택 전)
+let inboundFinalRows = [];    // 자동 판별된 모드로 확정된, 화면에 보여주고 수정 가능한 행들
+let inboundSelectedVendor = null;   // {name, vat} — 배치의 대표 거래처 (첫 매칭 성공 행 기준)
+let inboundDecision = null;   // { mode, reason, diff }
+let inboundEditsMap = new Map(); // key: `${idx}:${field}` -> {productCode,barcode,field,before,after}
+
+// ---------- 매입전표 합계액 (공급가·부가세 직접 입력, 합계액은 자동 합산, 10줄 + 총합계) ----------
+const INBOUND_CALC_ROWS = 7;
+let inboundCalcData = Array.from({length: INBOUND_CALC_ROWS}, ()=>({ inbound:null, vat:null, total:null }));
+
+
+function recalcInboundCalcRow(i, field, value){
+  const row = inboundCalcData[i];
+  row[field] = value;
+  row.total = (row.inbound !== null && row.vat !== null) ? row.inbound + row.vat : null;
+}
+
+function inboundCalcReferenceTotal(){
+  let sum = 0, any = false;
+  inboundCalcData.forEach(r=>{ if(r.inbound!==null){ sum += r.inbound; any = true; } });
+  return any ? sum : null;
+}
+
+function inboundCalcReferenceGrandTotal(){
+  let sum = 0, any = false;
+  inboundCalcData.forEach(r=>{ if(r.total!==null){ sum += r.total; any = true; } });
+  return any ? sum : null;
+}
+
+function renderInboundCalcTotals(){
+  let sSum=0, vSum=0, tSum=0, any=false;
+  inboundCalcData.forEach(r=>{
+    if(r.inbound!==null || r.vat!==null){
+      sSum += r.inbound||0; vSum += r.vat||0; tSum += (r.total!==null ? r.total : ((r.inbound||0)+(r.vat||0)));
+      any = true;
+    }
+  });
+  const row = document.getElementById('inboundCalcTotalRow');
+  if(row){
+    row.children[1].textContent = any ? fmtCalcNum(sSum) : '-';
+    row.children[2].textContent = any ? fmtCalcNum(vSum) : '-';
+    row.children[3].textContent = any ? fmtCalcNum(tSum) : '-';
+  }
+}
+
+function renderInboundCalcTable(){
+  const body = document.getElementById('inboundCalcBody');
+  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:#eef4ff; padding:2px 4px; box-sizing:border-box;';
+  let html = '';
+  for(let i=0; i<INBOUND_CALC_ROWS; i++){
+    const r = inboundCalcData[i];
+    html += `<tr>
+      <td class="num">${i+1}</td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="inbound" value="${r.inbound!==null?fmtCalcNum(r.inbound):''}" style="${inputStyle}"></td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="vat" value="${r.vat!==null?fmtCalcNum(r.vat):''}" style="${inputStyle}"></td>
+      <td class="num">${r.total!==null ? fmtCalcNum(r.total) : '-'}</td>
+    </tr>`;
+  }
+  html += `<tr class="total-row" id="inboundCalcTotalRow"><td>총합계</td><td class="num">-</td><td class="num">-</td><td class="num">-</td></tr>`;
+  body.innerHTML = html;
+
+  body.querySelectorAll('input.calc-input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const i = Number(inp.dataset.i);
+      const field = inp.dataset.field;
+      const n = Number(String(inp.value).replace(/,/g,'').trim());
+      const val = (inp.value.trim()==='' || isNaN(n)) ? null : n;
+      recalcInboundCalcRow(i, field, val);
+      renderInboundCalcTable();
+      renderInboundCalcTotals();
+      // 방금 입력하던 칸에 포커스를 되돌려줍니다 (표 전체를 다시 그리므로).
+      const again = document.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
+      if(again){ again.focus(); const len = again.value.length; again.setSelectionRange(len, len); }
+    });
+  });
+  renderInboundCalcTotals();
+  // 계산기 값이 바뀌면 이미 계산된 결과가 있을 경우 자동 판별 모드를 다시 계산합니다.
+  if(inboundComputed.length) finalizeInboundMode();
+}
+
+
+// 붙여넣은 텍스트를 22열 행 배열로 분해합니다. 엑셀에서 복사하면 탭으로 구분되고,
+// CSV를 그대로 붙여넣으면 콤마(+따옴표)로 구분되므로 둘 다 처리합니다.
+function parseInboundPasteText(text){
+  const lines = text.split(/\r\n|\r|\n/).map(l=>l.replace(/\s+$/,'')).filter(l=>l.length>0);
+  // 붙여넣기 전체를 기준으로 구분자를 한 번만 정합니다 (엑셀 복사는 탭 구분).
+  // 특정 줄만 개별 판단하면, 셀 안에 줄바꿈이 섞여 밀린 줄이 콤마 규칙으로 잘못 쪼개져
+  // 그 다음 줄부터 전부 컬럼이 밀리는 문제가 생길 수 있어 전체 텍스트 기준으로 통일합니다.
+  const useTab = text.includes('\t');
+  let rows = lines.map(line=>{
+    if(useTab) return line.split('\t').map(v=>v.trim());
+    // 콤마 CSV (따옴표로 감싸져 있을 수 있음)
+    const out = [];
+    let cur = '', inQuotes = false;
+    for(let i=0; i<line.length; i++){
+      const ch = line[i];
+      if(ch === '"'){ inQuotes = !inQuotes; continue; }
+      if(ch === ',' && !inQuotes){ out.push(cur); cur=''; continue; }
+      cur += ch;
+    }
+    out.push(cur);
+    return out.map(v=>v.trim());
+  });
+  // 헤더 줄(첫 칸이 '공급업체')이 포함되어 있으면 건너뜁니다.
+  if(rows.length && String(rows[0][0]||'').trim() === '공급업체') rows = rows.slice(1);
+  return rows;
+}
+
+// "8.80675E+12" 같은 지수표기 문자열에서 유효자리수(가수 자릿수)를 세어줍니다.
+
+
+
+
+
+// 사용기한('YYYYMMDD')이 오늘로부터 몇 개월 남았는지 계산합니다 (달력 기준, 음수면 이미 지남).
+
+function computeInboundResults(){
+  const productIndex = buildProductBarcodeMap();
+  const vendorMap = buildVendorTaxMap();
+  inboundSelectedVendor = null;
+
+  inboundComputed = inboundRawRows.map(f=>{
+    const get = i => (f[i] !== undefined ? f[i] : '');
+    // 입고현황조회 형식(헤더 있는 A~W): B(1)=사업자등록번호(공급업체), K(10)=표준코드명칭, L(11)=표준코드,
+    // N(13)=공급수량, P(15)=공급단가, Q(16)=공급금액, S(18)=제조번호, T(19)=유효기간("YY-MM-DD")
+    const vendorTaxNo = String(get(1) || '').replace(/\D/g,'');
+    const barcodeRaw = String(get(11) || '').trim();
+    const qty = Number(get(13)) || 0;
+    const rawAmt = Number(String(get(16)||'').replace(/,/g,'')) || 0;
+    const rawUnit = Number(String(get(15)||'').replace(/,/g,'')) || 0;
+    const lotNoRaw = String(get(18) || '').trim();
+    const expiryRaw = String(get(19) || '').trim().replace(/-/g,'');
+    const lotNo = lotNoRaw ? lotNoRaw : '';
+    const expiry = expiryRaw ? ('20' + expiryRaw.padStart(6,'0')) : '';
+
+    const prod = lookupProductByBarcode(barcodeRaw, productIndex, get(10));
+    // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
+    const barcode = prod && prod.barcode ? prod.barcode : barcodeRaw;
+    const vend = vendorMap.get(vendorTaxNo) || null;
+    if(vend && !inboundSelectedVendor) inboundSelectedVendor = vend;
+    const generalPrice = prod ? Number(prod.price)||0 : 0;
+
+    const modes = {};
+    INBOUND_MODES.forEach(m=>{
+      let amt, unit;
+      if(m.id === '포함'){
+        amt = rawAmt;
+        unit = qty ? amt / qty : 0;
+      } else if(m.base === 'amt'){
+        amt = roundBy(m.round, rawAmt / 1.1);
+        unit = qty ? amt / qty : 0;
+      } else {
+        unit = roundBy(m.round, rawUnit / 1.1);
+        amt = unit * qty;
+      }
+      const compareBase = m.id === '포함' ? generalPrice : (generalPrice ? generalPrice/1.1 : 0);
+      const margin = compareBase ? ((compareBase - unit) / compareBase) : null;
+      modes[m.id] = { amt, unit, margin };
+    });
+
+    return {
+      productCode: prod ? prod.code : '',
+      barcode, dealType: 1, damageType: 1, qty, discount: '',
+      lotNo, expiry,
+      productName: get(10),
+      maker: prod ? prod.maker : '',
+      note: prod ? prod.note : '', longout: prod ? prod.longout : '',
+      generalPrice, modes
+    };
+  });
+
+  finalizeInboundMode();
+}
+
+// 거래처의 매입전표부가세(포함/별도)와 계산기의 공급가 합계를 참고해 7가지 중 하나를 자동으로 고릅니다.
+function decideInboundMode(){
+  const refTotal = inboundCalcReferenceTotal();
+  const vendorVatRaw = String((inboundSelectedVendor && inboundSelectedVendor.vat) || '').trim();
+
+  if(vendorVatRaw === '포함'){
+    return { mode:'포함', diff:0, reason:`거래처정보마스터DB의 매입전표부가세 값이 '포함'이라 포함 방식을 그대로 사용했어요.` };
+  }
+
+  const separateModes = INBOUND_MODES.filter(m=>m.id!=='포함');
+  if(refTotal === null){
+    return {
+      mode:'별도-합계액(반올림)', diff:null,
+      reason:'별도 방식 6가지 중 하나를 고르려면 왼쪽 간이 계산기에 세금계산서 공급가를 입력해주세요 — 아직 입력이 없어서 기본값인 별도-합계액(반올림)을 사용했어요.'
+    };
+  }
+  let best = null;
+  separateModes.forEach(m=>{
+    const sum = inboundComputed.reduce((s,r)=> s + (r.modes[m.id] ? r.modes[m.id].amt : 0), 0);
+    const diff = Math.abs(sum - refTotal);
+    if(!best || diff < best.diff) best = { mode:m.id, diff, sum };
+  });
+  const vendorNote = vendorVatRaw === '별도'
+    ? `거래처정보마스터DB의 매입전표부가세가 '별도'라 별도 6가지 중`
+    : `거래처정보마스터DB에서 부가세구분을 확인하지 못해 별도 6가지 중`;
+  let matchNote;
+  if(best.diff === 0) matchNote = '계산기 공급가 합계와 정확히 일치하는 방식을 찾았어요.';
+  else if(best.diff <= 50) matchNote = `계산기 공급가 합계와 ${best.diff.toLocaleString()}원 차이로 거의 일치하는 방식을 찾았어요.`;
+  else matchNote = `계산기 공급가 합계와 가장 가까운 방식을 찾았어요 (차이 ${best.diff.toLocaleString()}원 — 정확히 일치하는 방식은 없었어요).`;
+  return { mode: best.mode, diff: best.diff, reason: `${vendorNote} ${matchNote}` };
+}
+
+function finalizeInboundMode(){
+  if(!inboundComputed.length){ inboundFinalRows = []; inboundDecision = null; renderInboundModeInfo(); renderInboundTable(); renderInboundEditsList(); return; }
+  inboundDecision = decideInboundMode();
+  inboundEditsMap = new Map();
+  inboundFinalRows = inboundComputed.map((r, idx)=>{
+    const m = r.modes[inboundDecision.mode] || { amt:0, unit:0, margin:null };
+    return { ...r, unit:m.unit, amt:m.amt, margin:m.margin, _idx: idx, _orig: { unit:m.unit, amt:m.amt } };
+  });
+  reconcileInboundTotals();
+  renderInboundModeInfo();
+  renderInboundTable();
+  renderInboundEditsList();
+}
+
+// 매입전표 합계액(계산기)에 입력한 진짜 합계와 결과값 합계 사이에 반올림 등으로 몇십 원 이내
+// 오차가 나면, 금액이 큰(마진 영향이 상대적으로 작은) 품목부터 실금액을 1원 단위로 보정해서
+// 정확히 맞춰줍니다. 품목 하나가 흡수하는 보정액은 그 품목의 수량을 넘지 않도록 제한합니다
+// (매입단가가 ±1원을 크게 벗어나지 않게 하기 위함). 보정 내역은 비고/수정 내역에 남아요.
+function reconcileInboundTotals(){
+  if(!inboundFinalRows.length || !inboundDecision) return;
+  const isIncluded = inboundDecision.mode === '포함';
+  const target = isIncluded ? inboundCalcReferenceGrandTotal() : inboundCalcReferenceTotal();
+  if(target === null) return;
+  const currentSum = inboundFinalRows.reduce((s,r)=> s + (Number(r.amt)||0), 0);
+  let diff = Math.round(target - currentSum);
+  if(diff === 0) return;
+  const sign = diff > 0 ? 1 : -1;
+  let remaining = Math.abs(diff);
+  const candidates = [...inboundFinalRows].sort((a,b)=> (b.amt||0) - (a.amt||0));
+  for(const row of candidates){
+    if(remaining <= 0) break;
+    const qty = Number(row.qty) || 0;
+    if(qty <= 1) continue; // 수량이 1 이하면 '수량 미만'만큼 보정할 여지가 없어요
+    const maxAdj = qty - 1; // 보정액은 수량 미만이어야 함
+    const adj = Math.min(maxAdj, remaining);
+    if(adj <= 0) continue;
+    const before = row.amt;
+    row.amt = row.amt + sign*adj;
+    row.unit = qty ? row.amt / qty : row.unit;
+    remaining -= adj;
+    inboundEditsMap.set(`${row._idx}:amt`, {
+      productCode: row.productCode, barcode: row.barcode,
+      field: '실금액(오차보정)', before, after: row.amt
+    });
+  }
+}
+
+function renderInboundModeInfo(){
+  const el = document.getElementById('inboundModeInfo');
+  if(!inboundDecision){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const vendorPart = inboundSelectedVendor && inboundSelectedVendor.name ? `거래처: <b>${inboundSelectedVendor.name}</b> · ` : '';
+  const matched = inboundFinalRows.filter(r=>r.productCode).length;
+  const matchPart = inboundFinalRows.length
+    ? ` · 제품코드마스터DB 매칭: <b>${matched}/${inboundFinalRows.length}건</b>${matched < inboundFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
+    : '';
+  const reconciledCount = Array.from(inboundEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
+  const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
+  const diff = inboundDecision.diff;
+  const isBigDiff = diff !== null && diff !== undefined && Math.abs(diff) > 1000;
+  const warnPart = isBigDiff ? `<div style="color:var(--red); font-weight:800; margin-top:4px;">⚠ 매입전표 합계액과 결과값 차이가 커요 (${Math.abs(Math.round(diff)).toLocaleString()}원) — 계산기 입력값이나 붙여넣은 데이터를 다시 확인해주세요.</div>` : '';
+  el.innerHTML = `${vendorPart}선택된 방식: <b>${inboundDecision.mode}</b> — ${inboundDecision.reason}${matchPart}${reconcilePart}${warnPart}`;
+}
+
+let inboundColumnWidths = {}; // 사용자가 드래그로 조절한 컬럼 너비 (key: 컬럼 key 또는 'flag'/'editNote')
+const INBOUND_COLWIDTH_KEY = 'stockout_dashboard_inbound_colwidths_v1';
+
+async function loadInboundColumnWidths(){
+  try{
+    const res = await window.storage.get(INBOUND_COLWIDTH_KEY, true);
+    if(res && res.value) inboundColumnWidths = JSON.parse(res.value);
+  }catch(e){ /* 저장된 값 없음 */ }
+}
+async function saveInboundColumnWidths(){
+  try{ await window.storage.set(INBOUND_COLWIDTH_KEY, JSON.stringify(inboundColumnWidths), true); }catch(e){ /* best effort */ }
+}
+
+function inboundEditNoteFor(idx){
+  const parts = [];
+  inboundEditsMap.forEach((e, key)=>{
+    if(key.startsWith(idx + ':')){
+      const delta = Math.round(e.after) - Math.round(e.before);
+      const sign = delta > 0 ? '+' : '';
+      parts.push(`${e.field} ${sign}${delta.toLocaleString()}원`);
+    }
+  });
+  return parts.join(', ');
+}
+
+function renderInboundTable(){
+  const screenCols = INBOUND_COLUMNS.filter(c=>!c.hideOnScreen);
+  const allCols = [
+    { key:'flag', width:52 },
+    ...screenCols,
+    { key:'editNote', label:'비고', width:160 }
+  ];
+  const head = document.getElementById('head-inbound');
+  head.innerHTML = allCols.map(c=>{
+    const w = inboundColumnWidths[c.key] || c.width;
+    const label = c.key === 'productCode' ? `${c.label||''} <span style="color:var(--red); font-weight:800;">(입고현황조회 주의)</span>` : (c.label||'');
+    return `<th style="width:${w}px; position:relative;">${label}<span class="inbound-col-resize" data-col="${c.key}" style="position:absolute; right:0; top:0; width:6px; height:100%; cursor:col-resize;"></span></th>`;
+  }).join('');
+
+  head.querySelectorAll('.inbound-col-resize').forEach(handle=>{
+    handle.addEventListener('mousedown', (e)=>{
+      e.preventDefault();
+      const th = handle.closest('th');
+      const colKey = handle.dataset.col;
+      const startX = e.clientX;
+      const startWidth = th.getBoundingClientRect().width;
+      function onMove(ev){
+        const newWidth = Math.max(30, Math.round(startWidth + (ev.clientX - startX)));
+        th.style.width = newWidth + 'px';
+      }
+      function onUp(){
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        inboundColumnWidths[colKey] = parseInt(th.style.width, 10);
+        saveInboundColumnWidths();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  const rows = [...inboundFinalRows].sort((a,b)=>{
+    const rank = r=>{
+      const m = r.margin;
+      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m < 0.05 || m >= 0.15);
+      if(marginWarn) return 0;
+      const ml = monthsUntilExpiry(r.expiry);
+      if(ml !== null && ml < 9) return 1;
+      return 2;
+    };
+    return rank(a) - rank(b);
+  });
+  document.getElementById('count-inbound').textContent = `${rows.length.toLocaleString()}건`;
+
+  const sumEl = document.getElementById('inboundSumInfo');
+  if(inboundFinalRows.length){
+    const sum = inboundFinalRows.reduce((s,r)=> s + (Number(r.amt)||0), 0);
+    sumEl.style.display = 'block';
+    sumEl.textContent = `결과값 합계액: ${Math.round(sum).toLocaleString()}원`;
+  } else {
+    sumEl.style.display = 'none';
+  }
+
+  const body = document.getElementById('body-inbound');
+  body.innerHTML = rows.map(r=>{
+    const monthsLeft = monthsUntilExpiry(r.expiry);
+    const isSoon = monthsLeft !== null && monthsLeft < 9;
+    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin < 0.05 || r.margin >= 0.15);
+    const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
+    const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
+    const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
+    const mainCells = screenCols.map(c=>{
+      let v = r[c.key];
+      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*1000)/10).toLocaleString() + '%'; }
+      else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
+      else if(v===null || v===undefined) v = '';
+      const isExpiryWarn = c.key === 'expiry' && isSoon;
+      const cellStyle = (!isMarginWarn && isExpiryWarn) ? ' style="color:var(--red); font-weight:700;"' : '';
+      if(c.editable){
+        return `<td class="num editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}"${cellStyle}>${v}</td>`;
+      }
+      return `<td class="${c.num||c.pct?'num':''}"${cellStyle}>${v}</td>`;
+    }).join('');
+    const noteCell = `<td style="color:var(--ink-dim); font-size:12px;">${inboundEditNoteFor(r._idx)}</td>`;
+    return `<tr${rowStyle}>` + flagCell + mainCells + noteCell + '</tr>';
+  }).join('');
+
+  body.querySelectorAll('td[contenteditable]').forEach(td=>{
+    td.addEventListener('blur', ()=>{
+      const idx = Number(td.dataset.idx);
+      const field = td.dataset.field;
+      const row = inboundFinalRows.find(r=>r._idx===idx);
+      if(!row) return;
+      const n = Number(String(td.textContent).replace(/,/g,'').trim());
+      if(isNaN(n)) { td.textContent = Math.round(row[field]).toLocaleString(); return; }
+      row[field] = n;
+      td.classList.add('edited');
+      const orig = row._orig[field];
+      const key = `${idx}:${field}`;
+      if(n === orig){ inboundEditsMap.delete(key); }
+      else {
+        inboundEditsMap.set(key, {
+          productCode: row.productCode, barcode: row.barcode,
+          field: field === 'unit' ? '매입단가' : '실금액',
+          before: orig, after: n
+        });
+      }
+      renderInboundEditsList();
+      renderInboundTable();
+    });
+    td.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); td.blur(); } });
+  });
+}
+
+function renderInboundEditsList(){
+  const section = document.getElementById('inboundEditsSection');
+  const body = document.getElementById('inboundEditsBody');
+  if(inboundEditsMap.size === 0){ section.style.display = 'none'; body.innerHTML = ''; return; }
+  section.style.display = 'block';
+  body.innerHTML = Array.from(inboundEditsMap.values()).map(e=>`
+    <tr>
+      <td>${e.productCode || ''}</td>
+      <td>${e.barcode || ''}</td>
+      <td>${e.field}</td>
+      <td class="num">${Math.round(e.before).toLocaleString()}</td>
+      <td class="num">${Math.round(e.after).toLocaleString()}</td>
+    </tr>`).join('');
+}
+
+async function saveInboundRaw(){
+  try{ await window.storage.set(INBOUND_STORAGE_KEY, JSON.stringify(inboundRawRows), true); }catch(e){ /* best effort */ }
+}
+
+async function loadInboundRaw(){
+  try{
+    const res = await window.storage.get(INBOUND_STORAGE_KEY, true);
+    if(res && res.value){
+      inboundRawRows = JSON.parse(res.value);
+      document.getElementById('inboundPasteArea').value = inboundRawRows.map(r=>r.join('\t')).join('\n');
+    }
+  }catch(e){ /* nothing saved yet */ }
+}
+
+function updateInboundPasteInfo(){
+  const el = document.getElementById('inboundPasteInfo');
+  el.textContent = inboundRawRows.length ? `${inboundRawRows.length.toLocaleString()}행 붙여넣어짐 · 계산 완료` : '아직 붙여넣은 데이터가 없어요';
+}
+
+// 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
+// 다운로드 파일은 화면 표시 여부와 무관하게 항상 이 10개 컬럼을, 이 순서 그대로 내려줍니다.
+const INBOUND_EXPORT_KEY_ORDER = ['productCode','barcode','dealType','damageType','qty','unit','amt','discount','lotNo','expiry'];
+const INBOUND_EXPORT_COLUMNS = INBOUND_EXPORT_KEY_ORDER.map(k => INBOUND_COLUMNS.find(c=>c.key===k));
+
+function buildInboundExportRows(){
+  return inboundFinalRows.map(r=>{
+    const o = {};
+    INBOUND_EXPORT_COLUMNS.forEach(c=>{
+      let v = r[c.key];
+      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*1000)/10;
+      else if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
+      o[c.key] = (v===null||v===undefined) ? '' : v;
+    });
+    return o;
+  });
+}
+
+function inboundExportFileBaseName(){
+  const vendorName = (inboundSelectedVendor && inboundSelectedVendor.name) ? inboundSelectedVendor.name : '공급내역신고';
+  return vendorName.replace(/[\\/*?:[\]]/g,'');
+}
+
+async function exportInboundXlsx(){
+  if(!inboundFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
+  const rows = buildInboundExportRows();
+  const columns = INBOUND_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.0"%"' : undefined), center: c.num||c.pct }));
+  await downloadStyledXlsx({
+    sheetName: (inboundDecision ? inboundDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
+    fileName: inboundExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
+    columns, rows
+  });
+}
+
+function exportInboundXls(){
+  if(!inboundFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
+  const rows = buildInboundExportRows();
+  const aoa = [INBOUND_EXPORT_COLUMNS.map(c=>c.label)];
+  rows.forEach(o=>{ aoa.push(INBOUND_EXPORT_COLUMNS.map(c=>o[c.key])); });
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, (inboundDecision ? inboundDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  XLSX.writeFile(wb, inboundExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
+}
+
+// 엑셀에서 복사하면 일반 텍스트(clipboard 'text/plain') 말고 서식이 담긴 'text/html'도 함께 담깁니다.
+// 엑셀 HTML에는 셀이 숫자일 때 화면표시(지수표기)와 별개로 실제 값을 담은 속성(x:num 등)이 남아있는
+// 경우가 있어, 있으면 그 값을 우선 사용해 표준코드 같은 큰 숫자가 지수표기로 잘리는 걸 자동으로
+// 막아줍니다 (엑셀 버전에 따라 없을 수도 있고, 그럴 땐 그냥 평소처럼 붙여넣기가 진행돼요).
+
+function bindInboundTab(){
+  document.getElementById('inboundPasteArea').addEventListener('paste', (e)=>{
+    const html = e.clipboardData && e.clipboardData.getData('text/html');
+    if(!html) return; // text/html이 없으면 평소처럼 일반 텍스트 붙여넣기가 그대로 진행됩니다.
+    const rows = parseExcelHtmlTable(html);
+    if(rows && rows.length){
+      e.preventDefault();
+      document.getElementById('inboundPasteArea').value = rows.map(r=>r.join('\t')).join('\n');
+    }
+  });
+  document.getElementById('inboundApplyBtn').addEventListener('click', async ()=>{
+    const text = document.getElementById('inboundPasteArea').value;
+    inboundRawRows = parseInboundPasteText(text);
+    computeInboundResults();
+    updateInboundPasteInfo();
+    await saveInboundRaw();
+  });
+  document.getElementById('inboundClearBtn').addEventListener('click', async ()=>{
+    if(!confirm('붙여넣은 공급내역신고 데이터를 지울까요?')) return;
+    inboundRawRows = []; inboundComputed = []; inboundFinalRows = []; inboundDecision = null; inboundEditsMap = new Map();
+    document.getElementById('inboundPasteArea').value = '';
+    updateInboundPasteInfo();
+    renderInboundModeInfo();
+    renderInboundTable();
+    renderInboundEditsList();
+    try{ await window.storage.delete(INBOUND_STORAGE_KEY, true); }catch(e){}
+  });
+  document.getElementById('inboundExportXlsxBtn').addEventListener('click', exportInboundXlsx);
+  document.getElementById('inboundExportXlsBtn').addEventListener('click', exportInboundXls);
+}
+
+async function initInboundTab(){
+  bindInboundTab();
+  renderInboundCalcTable();
+  await loadInboundColumnWidths();
+  await loadInboundRaw();
+  if(inboundRawRows.length){
+    computeInboundResults();
+    updateInboundPasteInfo();
+  }
+}
+
 init();
 initUploadTabs().then(async ()=>{
   await loadStockHistory();
@@ -4206,6 +4862,7 @@ initUploadTabs().then(async ()=>{
   renderStockHistoryDamageYearFilter();
   renderStockDamageChart();
   await initSupplyTab();
+  await initInboundTab();
 });
 document.getElementById('stockHistoryYearFilter').addEventListener('change', renderStockChart);
 document.getElementById('stockDamageYearFilter').addEventListener('change', renderStockDamageChart);
