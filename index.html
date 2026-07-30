@@ -1041,23 +1041,44 @@
 
         <div class="sub-section">
           <div class="sub-section-title">반품신청서(소분-테스트중)</div>
-          <div class="foot-note" style="margin-bottom:8px;">조회할 코드 종류를 고르고, 코드·수량 두 열을 복사해서 아래 칸에 붙여넣으세요(헤더 없이, 탭 또는 콤마 구분) · 입력한 코드가 규격에 '소분'이 포함되어 있거나 소분 칸이 'Y'인 품목이면, 같은 약품코드를 쓰는 다른 품목들 중 소분이 아닌 것을 찾아서(제품코드마스터DB에 먼저 나오는 순서 기준) 그 표준코드로 자동 대체해요 · 이 메뉴는 아직 반품신청서 서식 출력(인쇄·PDF)까지는 연결되지 않은 테스트 버전이에요, 우선 대체 결과를 표·엑셀로 확인하는 용도예요.</div>
-          <div class="foot-row" style="gap:16px; margin-bottom:8px;">
-            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupCodeType" value="표준코드" checked> 표준코드로 조회</label>
-            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupCodeType" value="약품코드"> 약품코드로 조회</label>
+          <div class="foot-note" style="margin-bottom:8px;">아래 4가지 중 조회 방식을 고르세요 · <b>다미스자료 기준(완제품코드)</b>는 WH2060E_구매반품검사·승인결과 엑셀 파일을 그대로 업로드, <b>보험코드 기준</b> 두 가지는 코드·수량을 붙여넣기(급여코드=약품코드/비급여코드 둘 다 찾아봐요) · 완제품코드 조회에서 소분 품목이 걸리면, 같은 약품코드를 쓰는 소분이 아닌 품목(제품코드마스터DB에 먼저 나오는 순서)으로 자동 대체해요 · 소분코드 조회는 반대로 소분 품목만 찾아줘요 · <b>합산</b>은 다미스자료·보험코드(완제품코드) 두 조회의 결과를 합쳐서 같은 품목의 수량을 더해 보여줘요(소분코드 조회 결과는 포함 안 됨) · 이 메뉴는 아직 반품신청서 서식 출력(인쇄·PDF)까지는 연결되지 않은 테스트 버전이에요.</div>
+          <div class="foot-row" style="gap:16px; margin-bottom:8px; flex-wrap:wrap;">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="damis" checked> 다미스자료 기준(완제품코드)</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="ins_full"> 보험코드 기준(완제품코드)</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="ins_split"> 보험코드 기준(소분코드)</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="sum"> 합산(보험코드 기준(소분코드)제외)</label>
           </div>
-          <textarea id="plookupPasteArea" placeholder="코드[탭]수량 형식으로 한 줄에 하나씩 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:140px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
-          <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
-            <div id="plookupPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn danger" id="plookupClearBtn">지우기</button>
-              <button class="btn primary" id="plookupApplyBtn">💾 결과 계산</button>
+
+          <div id="plookupDamisArea">
+            <div class="foot-note" style="margin-bottom:8px;">엑셀 'WH2060E_구매반품검사&승인결과' 시트의 데이터를 그대로(헤더 포함해도, 없어도 됨) 복사해서 아래 칸에 붙여넣으세요.</div>
+            <textarea id="plookupDamisPasteArea" placeholder="WH2060E_구매반품검사&승인결과 데이터를 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:140px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+            <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
+              <div id="plookupDamisInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn danger" id="plookupDamisClearBtn">지우기</button>
+                <button class="btn primary" id="plookupDamisApplyBtn">💾 결과 계산</button>
+              </div>
             </div>
+          </div>
+
+          <div id="plookupInsArea" style="display:none;">
+            <textarea id="plookupPasteArea" placeholder="코드[탭]수량 형식으로 한 줄에 하나씩 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:140px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+            <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
+              <div id="plookupPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn danger" id="plookupClearBtn">지우기</button>
+                <button class="btn primary" id="plookupApplyBtn">💾 결과 계산</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="plookupSumArea" style="display:none;">
+            <div class="foot-note">다미스자료 기준(완제품코드)와 보험코드 기준(완제품코드)에 각각 데이터를 넣어두면, 여기서 자동으로 합산된 결과를 보여줘요.</div>
           </div>
         </div>
 
         <div class="sub-section">
-          <div class="sub-section-title">결과 (소분 품목 자동 대체)</div>
+          <div class="sub-section-title">결과</div>
           <div id="plookupInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
           <div class="toolbar">
             <span class="count-badge" id="count-plookup"></span>
@@ -1071,7 +1092,7 @@
               <tbody id="body-plookup"></tbody>
             </table>
           </div>
-          <div class="foot-note">매칭되지 않은 코드는 목록에 포함하지 않고 위 안내 문구에 건수로만 표시돼요 · 대체가 일어난 줄은 비고에 원래 표준코드가 함께 표시돼요.</div>
+          <div class="foot-note">매칭되지 않은 코드도 결과에 빨간색으로 표시돼요(제품코드마스터DB 업데이트가 필요하다는 뜻이에요) · 대체가 일어난 줄은 비고에 원래 표준코드가 함께 표시돼요.</div>
         </div>
 
       </div>
@@ -1196,6 +1217,21 @@
 </div>
 
 <div id="printArea"></div>
+
+<div id="damageManagerModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:10px; max-width:600px; width:90%; max-height:80vh; overflow:auto; padding:20px; box-shadow:var(--shadow-lg, 0 10px 40px rgba(0,0,0,0.2));">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div id="damageManagerModalTitle" style="font-weight:800; font-size:15px;"></div>
+      <button class="btn" id="damageManagerModalCloseBtn">닫기</button>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>거래처</th><th>당월파손재고</th></tr></thead>
+        <tbody id="damageManagerModalBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
@@ -1328,6 +1364,7 @@ const LIST_HEADERS = [
   {key:'paymentBasis', label:'결제기준일', editable:true},
   {key:'turn', label:'회전', editable:true},
   {key:'status', label:'상태', editable:false, isStatus:true},
+  {key:'monthStart', label:'월초발주', editable:false, isMonthStart:true},
 ];
 
 const MGR_HEADERS = [
@@ -1581,6 +1618,16 @@ function renderListTable(){
           </select>
         </td>`;
       }
+      if(h.isMonthStart){
+        const v = r.monthStart || '';
+        return `<td>
+          <select class="monthstart-select" data-idx="${idx}" data-key="monthStart">
+            <option value="" ${v===''?'selected':''}>-</option>
+            <option value="준비" ${v==='준비'?'selected':''}>준비</option>
+            <option value="완료" ${v==='완료'?'selected':''}>완료</option>
+          </select>
+        </td>`;
+      }
       if(h.key === 'client'){
         const tip = buildClientTip(r);
         const val = r.client ?? '';
@@ -1603,6 +1650,13 @@ function renderListTable(){
       const idx = Number(sel.dataset.idx);
       listData[idx].status = sel.value;
       renderKpis();
+      scheduleSave();
+    });
+  });
+  body.querySelectorAll('select.monthstart-select').forEach(sel=>{
+    sel.addEventListener('change', ()=>{
+      const idx = Number(sel.dataset.idx);
+      listData[idx].monthStart = sel.value;
       scheduleSave();
     });
   });
@@ -1824,9 +1878,9 @@ async function downloadStyledXlsx({ sheetName, fileName, columns, rows, statusKe
 async function exportListToXlsx(){
   const columns = LIST_HEADERS.map(h=>({
     key: h.key, label: h.label,
-    width: h.key==='client' ? 16 : (h.isStatus ? 12 : (h.num ? 11 : 12)),
+    width: h.key==='client' ? 16 : ((h.isStatus||h.isMonthStart) ? 12 : (h.num ? 11 : 12)),
     numFmt: h.num ? '#,##0' : undefined,
-    center: h.num || h.isStatus
+    center: h.num || h.isStatus || h.isMonthStart
   }));
   const rows = listData.map(r=>{
     const o = {};
@@ -2158,7 +2212,7 @@ async function handleFile(id, file){
     if(id === 'usage3m') recomputeFromUsage3m();
     if(id === 'ordermgr') { await syncOrdermgrToVendorMaster(); recomputeFromManager(); refreshStockViews(); }
     if(id === 'returnmgr') { await syncReturnmgrToVendorMaster(); refreshStockViews(); }
-    if(id === 'vendorMaster') { recomputeFromManager(); refreshStockViews(); }
+    if(id === 'vendorMaster') { if(ensureVendorMasterReturnNoteColumn()){ renderUploadTable('vendorMaster'); await saveUpload('vendorMaster'); } recomputeFromManager(); refreshStockViews(); }
     if(STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
   }catch(err){
     console.error('업로드 처리 실패:', err);
@@ -2303,7 +2357,7 @@ async function loadUploadFromStorage(id){
       if(id === 'pumjeoldata') recomputeFromPumjeoldata();
       if(id === 'finalorder') recomputeFromFinalOrder();
       if(id === 'usage3m') recomputeFromUsage3m();
-      if(id === 'vendorMaster') { recomputeFromManager(); refreshStockViews(); }
+      if(id === 'vendorMaster') { if(ensureVendorMasterReturnNoteColumn()){ renderUploadTable('vendorMaster'); await saveUpload('vendorMaster'); } recomputeFromManager(); refreshStockViews(); }
       if(STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
     }
   }catch(e){ /* nothing saved yet */ }
@@ -2627,7 +2681,7 @@ function findOrCreateListRow(client, code){
     row = {
       code: c || '', client: client || '', itemCount: 0, stockout: 0, noOrder: 0,
       expected: 0, noOrder2: 0, totalNoOrder: 0, lastOrderDate: '', region: '',
-      manager: '', paymentBasis: '', turn: '', status: '품절없음'
+      manager: '', paymentBasis: '', turn: '', status: '품절없음', monthStart: ''
     };
     listData.push(row);
   }
@@ -2896,6 +2950,20 @@ function findHeaderIndex(headers, ...candidates){
 
 // ---------- 품절 현황 목록: 발주담당자/배송지구분/결제기준일/회전은 마스터DB > 거래처정보마스터DB 값을 그대로 가져와 씁니다 ----------
 // (발주담당자 갱신 업로드는 거래처정보마스터DB의 해당 컬럼만 갱신하고, 목록은 항상 거래처정보마스터DB를 기준으로 다시 계산합니다.)
+// 거래처정보마스터DB에 '반품특이사항' 컬럼이 없으면(예전에 올린 파일이거나, 원본 파일에 그 컬럼이
+// 없는 경우) 매입특이사항 바로 뒤에 빈 값으로 자동 추가합니다. 한 번 추가되면 저장돼서 이후에는
+// 그대로 유지돼요.
+function ensureVendorMasterReturnNoteColumn(){
+  const st = uploadState['vendorMaster'];
+  if(!st || !st.headers) return false;
+  if(st.headers.includes('반품특이사항')) return false;
+  const idxPurchaseNote = st.headers.indexOf('매입특이사항');
+  const insertAt = idxPurchaseNote !== -1 ? idxPurchaseNote + 1 : st.headers.length;
+  st.headers.splice(insertAt, 0, '반품특이사항');
+  st.rows.forEach(r => r.splice(insertAt, 0, ''));
+  return true;
+}
+
 function recomputeFromManager(){
   const up = uploadState['vendorMaster'];
   if(!up) return;
@@ -3737,6 +3805,21 @@ function renderDamageViewMonthSelector(){
   if(months.includes(prevVal)) sel.value = prevVal;
 }
 
+function buildVendorReturnNoteMap(){
+  const map = new Map();
+  const vm = uploadState['vendorMaster'];
+  if(!vm) return map;
+  const headers = vm.headers;
+  const idxName = findHeaderIndex(headers, '매입처명', '거래처명', '거래처');
+  const idxNote = headers.indexOf('반품특이사항');
+  if(idxName === -1 || idxNote === -1) return map;
+  vm.rows.forEach(r=>{
+    const name = r[idxName];
+    if(name && !map.has(name)) map.set(name, r[idxNote] || '');
+  });
+  return map;
+}
+
 function renderDamageViewManagerFilterOptions(rows){
   const filterEl = document.getElementById('damageViewManagerFilter');
   if(!filterEl) return;
@@ -3744,6 +3827,23 @@ function renderDamageViewManagerFilterOptions(rows){
   const names = Array.from(new Set(rows.map(r => r.returnManager || '(미지정)'))).sort((a,b)=> a.localeCompare(b, 'ko'));
   filterEl.innerHTML = '<option value="">전체 담당자</option>' + names.map(n => `<option value="${n}">${n}</option>`).join('');
   if(names.includes(prevVal)) filterEl.value = prevVal;
+}
+
+function openDamageManagerDetail(manager, monthKey, rowsForMonth){
+  const rows = rowsForMonth || computeStockDataForMonth(monthKey);
+  const clientRows = rows.filter(r => (r.returnManager || '(미지정)') === manager)
+    .map(r => ({ client: r.client || r.code, damaged: Number(r.curDamaged) || 0 }))
+    .sort((a,b)=> b.damaged - a.damaged);
+  document.getElementById('damageManagerModalTitle').textContent = `${manager} 담당 거래처 (${monthKey}, ${clientRows.length.toLocaleString()}곳)`;
+  document.getElementById('damageManagerModalBody').innerHTML = clientRows.map(c=>`<tr><td>${c.client}</td><td class="num">${Math.round(c.damaged).toLocaleString()}</td></tr>`).join('');
+  document.getElementById('damageManagerModalOverlay').style.display = 'flex';
+}
+
+function bindDamageManagerModal(){
+  const overlay = document.getElementById('damageManagerModalOverlay');
+  const closeBtn = document.getElementById('damageManagerModalCloseBtn');
+  if(closeBtn) closeBtn.addEventListener('click', ()=>{ overlay.style.display = 'none'; });
+  if(overlay) overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.style.display = 'none'; });
 }
 
 function renderDamageView(){
@@ -3780,20 +3880,26 @@ function renderDamageView(){
       .map(e => ({ manager: e.manager, clientCount: e.clientSet.size, damaged: e.damaged }))
       .sort((a,b)=> b.damaged - a.damaged);
     if(q) result = result.filter(e => e.manager === q);
-    body.innerHTML = result.map(e => `<tr>
+    body.innerHTML = result.map(e => `<tr class="dbl-drill" data-manager="${e.manager}" style="cursor:pointer;" title="더블클릭하면 담당 거래처 목록을 볼 수 있어요">
       <td>${e.manager}</td>
       <td class="num">${e.clientCount.toLocaleString()}</td>
       <td class="num">${Math.round(e.damaged).toLocaleString()}</td>
     </tr>`).join('');
     countEl.textContent = `${result.length.toLocaleString()}명`;
+    body.querySelectorAll('tr.dbl-drill').forEach(tr=>{
+      tr.addEventListener('dblclick', ()=> openDamageManagerDetail(tr.dataset.manager, monthKey, rows));
+    });
   } else {
-    head.innerHTML = '<th>거래처</th><th>반품담당자</th><th>전월파손재고</th><th>당월파손재고</th><th>증감액</th><th>증감율</th>';
+    head.innerHTML = '<th>거래처</th><th>반품담당자</th><th>전월파손재고</th><th>당월파손재고</th><th>증감액</th><th>증감율</th><th>비고</th>';
+    const noteMap = buildVendorReturnNoteMap();
     let result = rows.map(r=>{
       const prevD = Number(r.prevDamaged) || 0;
       const curD = Number(r.curDamaged) || 0;
+      const clientName = r.client || r.code;
       return {
-        client: r.client || r.code, manager: r.returnManager || '(미지정)',
-        prevDamaged: prevD, curDamaged: curD, change: curD - prevD, changeRate: r.damagedChangeRate
+        client: clientName, manager: r.returnManager || '(미지정)',
+        prevDamaged: prevD, curDamaged: curD, change: curD - prevD, changeRate: r.damagedChangeRate,
+        note: noteMap.get(clientName) || ''
       };
     }).sort((a,b)=> Math.abs(b.change) - Math.abs(a.change));
     if(q) result = result.filter(e => e.manager === q);
@@ -3806,6 +3912,7 @@ function renderDamageView(){
         <td class="num">${Math.round(e.curDamaged).toLocaleString()}</td>
         <td class="num"${changeStyle}>${e.change > 0 ? '+' : ''}${Math.round(e.change).toLocaleString()}</td>
         <td class="num"${changeStyle}>${(Math.round((e.changeRate||0)*1000)/10).toLocaleString()}%</td>
+        <td>${e.note}</td>
       </tr>`;
     }).join('');
     countEl.textContent = `${result.length.toLocaleString()}건`;
@@ -3846,13 +3953,16 @@ async function exportDamageView(){
       rows: result
     });
   } else {
+    const noteMap = buildVendorReturnNoteMap();
     let result = rows.map(r=>{
       const prevD = Math.round(Number(r.prevDamaged) || 0);
       const curD = Math.round(Number(r.curDamaged) || 0);
+      const clientName = r.client || r.code;
       return {
-        client: r.client || r.code, manager: r.returnManager || '(미지정)',
+        client: clientName, manager: r.returnManager || '(미지정)',
         prevDamaged: prevD, curDamaged: curD, change: curD - prevD,
-        changeRate: Math.round((r.damagedChangeRate||0)*1000)/10
+        changeRate: Math.round((r.damagedChangeRate||0)*1000)/10,
+        note: noteMap.get(clientName) || ''
       };
     }).sort((a,b)=> Math.abs(b.change) - Math.abs(a.change));
     if(q) result = result.filter(e => e.manager === q);
@@ -3866,6 +3976,7 @@ async function exportDamageView(){
         { key:'curDamaged', label:'당월파손재고', width:16, numFmt:'#,##0', center:true },
         { key:'change', label:'증감액', width:14, numFmt:'#,##0', center:true },
         { key:'changeRate', label:'증감율(%)', width:12, numFmt:'0.0"%"', center:true },
+        { key:'note', label:'비고', width:20 },
       ],
       rows: result
     });
@@ -5264,10 +5375,14 @@ async function initInboundTab(){
 }
 
 // ================= 반품신청서(소분-테스트중) =================
-// 제품코드마스터DB에서 표준코드 또는 약품코드로 조회합니다. 조회된 품목이 규격에 '소분'이
-// 포함되거나 소분 컬럼이 'Y'이면, 같은 약품코드를 쓰는 다른 품목들 중 제품코드마스터DB에
-// 먼저 나오는(맨 위) 순서로 소분이 아닌 첫 품목을 찾아 그 표준코드로 자동 대체합니다.
+// 4가지 조회 방식을 지원합니다.
+//   다미스자료 기준(완제품코드): WH2060E_구매반품검사&승인결과 엑셀 업로드 → 표준코드+수량 추출
+//   보험코드 기준(완제품코드)/소분코드: 코드+수량 붙여넣기(급여코드=약품코드 또는 비급여코드로 매칭)
+//   합산(보험코드 기준(소분코드)제외): 위 다미스자료·보험코드(완제품코드) 결과를 같은 품목끼리 수량 합산
+// 소분 처리: 완제품코드 조회에서 소분 품목이 걸리면 같은 약품코드의 소분 아닌 품목(제품코드마스터DB에
+// 먼저 나오는 순서)으로 자동 대체하고, 소분코드 조회는 반대로 소분 품목을 찾아줍니다.
 const PLOOKUP_STORAGE_KEY = 'stockout_dashboard_plookup_raw_v1';
+const PLOOKUP_DAMIS_STORAGE_KEY = 'stockout_dashboard_plookup_damis_v1';
 const PLOOKUP_COLUMNS = [
   { key:'inputCode', label:'조회코드' },
   { key:'productCode', label:'제품코드' },
@@ -5277,22 +5392,30 @@ const PLOOKUP_COLUMNS = [
   { key:'maker', label:'제약사' },
   { key:'price', label:'일반가', num:true },
   { key:'stdCode', label:'표준코드' },
-  { key:'drugCode', label:'약품코드' },
+  { key:'insCode', label:'급여코드(약품코드)' },
+  { key:'nonInsCode', label:'비급여코드' },
   { key:'note', label:'비고' },
 ];
 
-let plookupRawRows = [];
+let plookupInsRawRows = [];   // 보험코드 붙여넣기: [코드, 수량] 쌍
+let plookupDamisRawRows = []; // 다미스자료 붙여넣기: WH2060E 원본 열 그대로(헤더 있어도/없어도 됨)
 let plookupResults = [];
 let plookupUnmatchedCount = 0;
 let plookupSubstitutedCount = 0;
 
+function plookupCurrentMode(){
+  const el = document.querySelector('input[name="plookupMode"]:checked');
+  return el ? el.value : 'damis';
+}
+
 function buildProductLookupMaps(){
   const pm = uploadState['productMaster'];
-  const std = new Map(), drugGroups = new Map();
-  if(!pm) return { std, drugGroups, headers:null };
+  const std = new Map(), insMap = new Map(), drugGroups = new Map();
+  if(!pm) return { std, insMap, drugGroups, headers:null };
   const headers = pm.headers;
   const idxStd = headers.indexOf('표준코드');
   const idxDrug = headers.indexOf('약품코드');
+  const idxNonIns = headers.indexOf('비급여코드');
   const barcodeCols = ['바코드1','바코드2','바코드3','바코드4','바코드5'].map(n=>headers.indexOf(n)).filter(i=>i!==-1);
   pm.rows.forEach(r=>{
     if(idxStd!==-1 && r[idxStd]!==null && r[idxStd]!==undefined && String(r[idxStd]).trim()!==''){
@@ -5308,11 +5431,16 @@ function buildProductLookupMaps(){
     });
     if(idxDrug!==-1 && r[idxDrug]!==null && r[idxDrug]!==undefined && String(r[idxDrug]).trim()!==''){
       const k = String(r[idxDrug]).trim();
+      if(!insMap.has(k)) insMap.set(k, r);
       if(!drugGroups.has(k)) drugGroups.set(k, []);
       drugGroups.get(k).push(r); // 제품코드마스터DB에 나온 순서 그대로 쌓입니다(맨 앞이 '상위').
     }
+    if(idxNonIns!==-1 && r[idxNonIns]!==null && r[idxNonIns]!==undefined && String(r[idxNonIns]).trim()!==''){
+      const k = String(r[idxNonIns]).trim();
+      if(!insMap.has(k)) insMap.set(k, r);
+    }
   });
-  return { std, drugGroups, headers };
+  return { std, insMap, drugGroups, headers };
 }
 
 function parsePlookupPasteText(text){
@@ -5330,7 +5458,7 @@ function plookupIsSplitRow(r, idxSpec, idxSplit){
   return spec.includes('소분') || splitVal === 'Y';
 }
 
-// 표준코드로 찾은 행이 소분이면, 같은 약품코드 그룹에서 소분이 아닌 맨 위 품목으로 대체합니다.
+// 초기 행이 소분이면, 같은 약품코드 그룹에서 소분이 아닌 맨 위 품목으로 대체합니다(완제품코드 조회용).
 function plookupResolveFromStdRow(initialRow, drugGroups, idxDrug, idxSpec, idxSplit){
   if(!plookupIsSplitRow(initialRow, idxSpec, idxSplit)) return { row: initialRow, substituted:false };
   const drugCode = idxDrug!==-1 ? String(initialRow[idxDrug]||'').trim() : '';
@@ -5339,23 +5467,58 @@ function plookupResolveFromStdRow(initialRow, drugGroups, idxDrug, idxSpec, idxS
   return alt ? { row: alt, substituted:true, originalRow: initialRow } : { row:null, substituted:false };
 }
 
-// 약품코드를 직접 입력한 경우, 그 그룹에서 소분이 아닌 맨 위 품목을 바로 찾습니다.
-function plookupResolveFromDrugCode(drugCode, drugGroups, idxSpec, idxSplit){
-  const group = drugGroups.get(drugCode) || [];
-  if(!group.length) return null;
-  const nonSplit = group.find(r => !plookupIsSplitRow(r, idxSpec, idxSplit));
-  if(!nonSplit) return null;
-  const substituted = group[0] !== nonSplit;
-  return { row: nonSplit, substituted, originalRow: substituted ? group[0] : null };
+// 초기 행이 소분이 아니면, 같은 약품코드 그룹에서 소분인 맨 위 품목을 찾습니다(소분코드 조회용).
+function plookupResolveSplitVariant(initialRow, drugGroups, idxDrug, idxSpec, idxSplit){
+  if(plookupIsSplitRow(initialRow, idxSpec, idxSplit)) return { row: initialRow, substituted:false };
+  const drugCode = idxDrug!==-1 ? String(initialRow[idxDrug]||'').trim() : '';
+  const group = drugCode ? (drugGroups.get(drugCode) || []) : [];
+  const alt = group.find(r => plookupIsSplitRow(r, idxSpec, idxSplit));
+  return alt ? { row: alt, substituted:true, originalRow: initialRow } : { row:null, substituted:false };
 }
 
-function computePlookupResults(){
-  const { std, drugGroups, headers } = buildProductLookupMaps();
-  plookupResults = [];
-  plookupUnmatchedCount = 0;
-  plookupSubstitutedCount = 0;
-  if(!headers) return;
+// 붙여넣은 다미스자료의 첫 줄이 헤더(표준코드가 텍스트로 들어있음)인지 확인해서 열 위치를 찾고,
+// 헤더가 없으면 WH2060E_구매반품검사&승인결과의 표준 열 위치(수량=13번째, 표준코드=18번째)로 처리합니다.
+function detectDamisColumnIndices(rawRows){
+  if(!rawRows.length) return { idxStd:17, idxQty:12, dataRows: rawRows };
+  const first = rawRows[0].map(v=>String(v||'').trim());
+  if(first.includes('표준코드')){
+    return { idxStd: first.indexOf('표준코드'), idxQty: first.indexOf('수량'), dataRows: rawRows.slice(1) };
+  }
+  return { idxStd:17, idxQty:12, dataRows: rawRows };
+}
 
+// 같은 표준코드(품목)로 결과가 여러 줄 나오면 수량을 합산해서 한 줄로 합칩니다.
+function mergePlookupResultsByCode(results){
+  const merged = new Map();
+  results.forEach(r=>{
+    const key = r.stdCode || r.productCode || r.inputCode;
+    if(!merged.has(key)){
+      merged.set(key, { ...r, qty: Number(r.qty)||0, _inputCodes: [r.inputCode] });
+    } else {
+      const e = merged.get(key);
+      e.qty += Number(r.qty)||0;
+      if(!e._inputCodes.includes(r.inputCode)) e._inputCodes.push(r.inputCode);
+    }
+  });
+  return Array.from(merged.values()).map(e=>{
+    const inputCode = e._inputCodes.length > 1 ? e._inputCodes.join(', ') : e._inputCodes[0];
+    const { _inputCodes, ...rest } = e;
+    return { ...rest, inputCode };
+  });
+}
+
+// 매칭 안 된 코드도 결과에 표시해서, 제품코드마스터DB를 업데이트해야 하는지 바로 알 수 있게 합니다.
+function plookupUnmatchedRow(inputCode, qty){
+  return {
+    inputCode, productCode: '', productName: '', spec: '', qty, maker: '', price: '',
+    stdCode: '', insCode: '', nonInsCode: '', note: '⚠ 매칭 안 됨 (제품코드마스터DB 확인 필요)'
+  };
+}
+
+function computeDamisResults(){
+  const { std, drugGroups, headers } = buildProductLookupMaps();
+  const out = { results: [], unmatched: 0, substituted: 0 };
+  if(!headers) return out;
   const idxCode = headers.indexOf('코드');
   const idxMaker = headers.indexOf('제약사');
   const idxName = headers.indexOf('상품명');
@@ -5364,52 +5527,123 @@ function computePlookupResults(){
   const idxPrice = headers.indexOf('일반가');
   const idxStd = headers.indexOf('표준코드');
   const idxDrug = headers.indexOf('약품코드');
+  const idxNonIns = headers.indexOf('비급여코드');
 
-  const codeTypeEl = document.querySelector('input[name="plookupCodeType"]:checked');
-  const codeType = codeTypeEl ? codeTypeEl.value : '표준코드';
+  const { idxStd: colStd, idxQty: colQty, dataRows } = detectDamisColumnIndices(plookupDamisRawRows);
+  if(colStd === -1) return out;
 
-  plookupRawRows.forEach(f=>{
-    const inputCode = String(f[0] || '').trim();
-    const qty = f[1] !== undefined ? Number(String(f[1]).replace(/,/g,'')) || 0 : '';
+  dataRows.forEach(f=>{
+    const inputCode = String(f[colStd] || '').trim();
     if(!inputCode) return;
-
-    let resolved;
-    if(codeType === '약품코드'){
-      resolved = plookupResolveFromDrugCode(inputCode, drugGroups, idxSpec, idxSplit);
-    } else {
-      const initialRow = std.get(inputCode);
-      if(!initialRow){ plookupUnmatchedCount++; return; }
-      resolved = plookupResolveFromStdRow(initialRow, drugGroups, idxDrug, idxSpec, idxSplit);
-    }
-    if(!resolved || !resolved.row){ plookupUnmatchedCount++; return; }
-
+    const qty = colQty!==-1 ? (Number(String(f[colQty]||'').replace(/,/g,''))||0) : 0;
+    const initialRow = std.get(inputCode);
+    if(!initialRow){ out.unmatched++; out.results.push(plookupUnmatchedRow(inputCode, qty)); return; }
+    const resolved = plookupResolveFromStdRow(initialRow, drugGroups, idxDrug, idxSpec, idxSplit);
+    if(!resolved || !resolved.row){ out.unmatched++; out.results.push(plookupUnmatchedRow(inputCode, qty)); return; }
     const r = resolved.row;
     let note = '';
     if(resolved.substituted){
-      plookupSubstitutedCount++;
+      out.substituted++;
       const origStd = resolved.originalRow && idxStd!==-1 ? resolved.originalRow[idxStd] : inputCode;
       note = `소분 제외로 대체됨 (원래 표준코드: ${origStd})`;
     }
-    plookupResults.push({
-      inputCode,
-      productCode: idxCode!==-1 ? r[idxCode] : '',
-      productName: idxName!==-1 ? r[idxName] : '',
-      spec: idxSpec!==-1 ? r[idxSpec] : '',
-      qty,
-      maker: idxMaker!==-1 ? r[idxMaker] : '',
-      price: idxPrice!==-1 ? r[idxPrice] : '',
-      stdCode: idxStd!==-1 ? r[idxStd] : '',
-      drugCode: idxDrug!==-1 ? r[idxDrug] : '',
-      note
+    out.results.push({
+      inputCode, productCode: idxCode!==-1?r[idxCode]:'', productName: idxName!==-1?r[idxName]:'',
+      spec: idxSpec!==-1?r[idxSpec]:'', qty, maker: idxMaker!==-1?r[idxMaker]:'',
+      price: idxPrice!==-1?r[idxPrice]:'', stdCode: idxStd!==-1?r[idxStd]:'',
+      insCode: idxDrug!==-1?r[idxDrug]:'', nonInsCode: idxNonIns!==-1?r[idxNonIns]:'', note
     });
   });
+  out.results = mergePlookupResultsByCode(out.results);
+  return out;
+}
+
+function computeInsResults(splitMode){
+  const { insMap, drugGroups, headers } = buildProductLookupMaps();
+  const out = { results: [], unmatched: 0, substituted: 0 };
+  if(!headers) return out;
+  const idxCode = headers.indexOf('코드');
+  const idxMaker = headers.indexOf('제약사');
+  const idxName = headers.indexOf('상품명');
+  const idxSpec = headers.indexOf('규격');
+  const idxSplit = headers.indexOf('소분');
+  const idxPrice = headers.indexOf('일반가');
+  const idxStd = headers.indexOf('표준코드');
+  const idxDrug = headers.indexOf('약품코드');
+  const idxNonIns = headers.indexOf('비급여코드');
+
+  plookupInsRawRows.forEach(f=>{
+    const inputCode = String(f[0]||'').trim();
+    const qty = f[1]!==undefined ? Number(String(f[1]).replace(/,/g,''))||0 : '';
+    if(!inputCode) return;
+    const initialRow = insMap.get(inputCode);
+    if(!initialRow){ out.unmatched++; out.results.push(plookupUnmatchedRow(inputCode, qty)); return; }
+    const resolved = splitMode
+      ? plookupResolveSplitVariant(initialRow, drugGroups, idxDrug, idxSpec, idxSplit)
+      : plookupResolveFromStdRow(initialRow, drugGroups, idxDrug, idxSpec, idxSplit);
+    if(!resolved || !resolved.row){ out.unmatched++; out.results.push(plookupUnmatchedRow(inputCode, qty)); return; }
+    const r = resolved.row;
+    let note = '';
+    if(resolved.substituted){
+      out.substituted++;
+      const origStd = resolved.originalRow && idxStd!==-1 ? resolved.originalRow[idxStd] : '';
+      note = splitMode
+        ? `소분코드로 대체됨 (원래 표준코드: ${origStd})`
+        : `소분 제외로 대체됨 (원래 표준코드: ${origStd})`;
+    }
+    out.results.push({
+      inputCode, productCode: idxCode!==-1?r[idxCode]:'', productName: idxName!==-1?r[idxName]:'',
+      spec: idxSpec!==-1?r[idxSpec]:'', qty, maker: idxMaker!==-1?r[idxMaker]:'',
+      price: idxPrice!==-1?r[idxPrice]:'', stdCode: idxStd!==-1?r[idxStd]:'',
+      insCode: idxDrug!==-1?r[idxDrug]:'', nonInsCode: idxNonIns!==-1?r[idxNonIns]:'', note
+    });
+  });
+  out.results = mergePlookupResultsByCode(out.results);
+  return out;
+}
+
+function computeSumResults(){
+  const damis = computeDamisResults();
+  const insFull = computeInsResults(false);
+  const merged = new Map();
+  [...damis.results, ...insFull.results].forEach(r=>{
+    const key = r.stdCode || r.productCode || r.inputCode;
+    if(!merged.has(key)){
+      merged.set(key, { ...r, qty: Number(r.qty)||0, inputCode: '(합산)' });
+    } else {
+      merged.get(key).qty += Number(r.qty)||0;
+    }
+  });
+  return { results: Array.from(merged.values()), unmatched: damis.unmatched + insFull.unmatched, substituted: damis.substituted + insFull.substituted };
+}
+
+function computePlookupResults(){
+  const mode = plookupCurrentMode();
+  let out;
+  if(mode === 'damis') out = computeDamisResults();
+  else if(mode === 'ins_full') out = computeInsResults(false);
+  else if(mode === 'ins_split') out = computeInsResults(true);
+  else out = computeSumResults();
+  plookupResults = out.results;
+  plookupUnmatchedCount = out.unmatched;
+  plookupSubstitutedCount = out.substituted;
+}
+
+function updatePlookupModeVisibility(){
+  const mode = plookupCurrentMode();
+  document.getElementById('plookupDamisArea').style.display = mode==='damis' ? 'block' : 'none';
+  document.getElementById('plookupInsArea').style.display = (mode==='ins_full'||mode==='ins_split') ? 'block' : 'none';
+  document.getElementById('plookupSumArea').style.display = mode==='sum' ? 'block' : 'none';
 }
 
 function renderPlookupInfo(){
   const el = document.getElementById('plookupInfo');
-  if(!plookupRawRows.length){ el.style.display = 'none'; return; }
+  const mode = plookupCurrentMode();
+  const hasAnyInput = plookupDamisRawRows.length || plookupInsRawRows.length;
+  if(!hasAnyInput){ el.style.display = 'none'; return; }
   el.style.display = 'block';
-  el.innerHTML = `입력 <b>${plookupRawRows.length.toLocaleString()}건</b> · 결과 <b>${plookupResults.length.toLocaleString()}건</b> · 소분 대체 <b>${plookupSubstitutedCount.toLocaleString()}건</b> · 매칭 안 됨 <b>${plookupUnmatchedCount.toLocaleString()}건</b>`;
+  const inputPart = mode==='sum' ? '' : `입력 <b>${(mode==='damis'?plookupDamisRawRows.length:plookupInsRawRows.length).toLocaleString()}건</b> · `;
+  el.innerHTML = `${inputPart}결과 <b>${plookupResults.length.toLocaleString()}건</b> · 소분 대체 <b>${plookupSubstitutedCount.toLocaleString()}건</b> · 매칭 안 됨 <b>${plookupUnmatchedCount.toLocaleString()}건</b>`;
 }
 
 function renderPlookupTable(){
@@ -5419,7 +5653,9 @@ function renderPlookupTable(){
 
   const body = document.getElementById('body-plookup');
   body.innerHTML = plookupResults.map(r=>{
-    return '<tr>' + PLOOKUP_COLUMNS.map(c=>{
+    const isUnmatched = typeof r.note === 'string' && r.note.startsWith('⚠');
+    const rowStyle = isUnmatched ? ' style="color:var(--red);"' : '';
+    return `<tr${rowStyle}>` + PLOOKUP_COLUMNS.map(c=>{
       let v = r[c.key];
       if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
       else if(v===null || v===undefined) v = '';
@@ -5429,21 +5665,38 @@ function renderPlookupTable(){
 }
 
 async function savePlookupRaw(){
-  try{ await window.storage.set(PLOOKUP_STORAGE_KEY, JSON.stringify(plookupRawRows), true); }catch(e){}
+  try{ await window.storage.set(PLOOKUP_STORAGE_KEY, JSON.stringify(plookupInsRawRows), true); }catch(e){}
 }
 async function loadPlookupRaw(){
   try{
     const res = await window.storage.get(PLOOKUP_STORAGE_KEY, true);
     if(res && res.value){
-      plookupRawRows = JSON.parse(res.value);
-      document.getElementById('plookupPasteArea').value = plookupRawRows.map(r=>r.join('\t')).join('\n');
+      plookupInsRawRows = JSON.parse(res.value);
+      document.getElementById('plookupPasteArea').value = plookupInsRawRows.map(r=>r.join('\t')).join('\n');
+    }
+  }catch(e){}
+}
+async function savePlookupDamisRows(){
+  try{ await window.storage.set(PLOOKUP_DAMIS_STORAGE_KEY, JSON.stringify(plookupDamisRawRows), true); }catch(e){}
+}
+async function loadPlookupDamisRows(){
+  try{
+    const res = await window.storage.get(PLOOKUP_DAMIS_STORAGE_KEY, true);
+    if(res && res.value){
+      plookupDamisRawRows = JSON.parse(res.value);
+      document.getElementById('plookupDamisPasteArea').value = plookupDamisRawRows.map(r=>r.join('\t')).join('\n');
     }
   }catch(e){}
 }
 function updatePlookupPasteInfo(){
   const el = document.getElementById('plookupPasteInfo');
-  el.textContent = plookupRawRows.length ? `${plookupRawRows.length.toLocaleString()}행 붙여넣어짐 · 계산 완료` : '아직 붙여넣은 데이터가 없어요';
+  el.textContent = plookupInsRawRows.length ? `${plookupInsRawRows.length.toLocaleString()}행 붙여넣어짐 · 계산 완료` : '아직 붙여넣은 데이터가 없어요';
 }
+function updatePlookupDamisInfo(){
+  const el = document.getElementById('plookupDamisInfo');
+  el.textContent = plookupDamisRawRows.length ? `${plookupDamisRawRows.length.toLocaleString()}행 붙여넣어짐 · 계산 완료` : '아직 붙여넣은 데이터가 없어요';
+}
+
 
 function buildPlookupExportRows(){
   return plookupResults.map(r=>{
@@ -5457,7 +5710,7 @@ function buildPlookupExportRows(){
   });
 }
 async function exportPlookupXlsx(){
-  if(!plookupResults.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
+  if(!plookupResults.length){ alert('먼저 데이터를 넣고 결과를 계산해주세요.'); return; }
   const rows = buildPlookupExportRows();
   const columns = PLOOKUP_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : undefined, center: c.num }));
   await downloadStyledXlsx({
@@ -5467,7 +5720,7 @@ async function exportPlookupXlsx(){
   });
 }
 function exportPlookupXls(){
-  if(!plookupResults.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
+  if(!plookupResults.length){ alert('먼저 데이터를 넣고 결과를 계산해주세요.'); return; }
   const rows = buildPlookupExportRows();
   const aoa = [PLOOKUP_COLUMNS.map(c=>c.label)];
   rows.forEach(o=>{ aoa.push(PLOOKUP_COLUMNS.map(c=>o[c.key])); });
@@ -5480,7 +5733,7 @@ function exportPlookupXls(){
 function bindPlookupTab(){
   document.getElementById('plookupApplyBtn').addEventListener('click', async ()=>{
     const text = document.getElementById('plookupPasteArea').value;
-    plookupRawRows = parsePlookupPasteText(text);
+    plookupInsRawRows = parsePlookupPasteText(text);
     computePlookupResults();
     updatePlookupPasteInfo();
     renderPlookupInfo();
@@ -5489,16 +5742,36 @@ function bindPlookupTab(){
   });
   document.getElementById('plookupClearBtn').addEventListener('click', async ()=>{
     if(!confirm('붙여넣은 데이터를 지울까요?')) return;
-    plookupRawRows = []; plookupResults = []; plookupUnmatchedCount = 0; plookupSubstitutedCount = 0;
+    plookupInsRawRows = [];
     document.getElementById('plookupPasteArea').value = '';
     updatePlookupPasteInfo();
+    computePlookupResults();
     renderPlookupInfo();
     renderPlookupTable();
     try{ await window.storage.delete(PLOOKUP_STORAGE_KEY, true); }catch(e){}
   });
-  document.querySelectorAll('input[name="plookupCodeType"]').forEach(r=>{
+  document.getElementById('plookupDamisApplyBtn').addEventListener('click', async ()=>{
+    const text = document.getElementById('plookupDamisPasteArea').value;
+    plookupDamisRawRows = parsePlookupPasteText(text);
+    computePlookupResults();
+    updatePlookupDamisInfo();
+    renderPlookupInfo();
+    renderPlookupTable();
+    await savePlookupDamisRows();
+  });
+  document.getElementById('plookupDamisClearBtn').addEventListener('click', async ()=>{
+    if(!confirm('붙여넣은 다미스자료 데이터를 지울까요?')) return;
+    plookupDamisRawRows = [];
+    document.getElementById('plookupDamisPasteArea').value = '';
+    updatePlookupDamisInfo();
+    computePlookupResults();
+    renderPlookupInfo();
+    renderPlookupTable();
+    try{ await window.storage.delete(PLOOKUP_DAMIS_STORAGE_KEY, true); }catch(e){}
+  });
+  document.querySelectorAll('input[name="plookupMode"]').forEach(r=>{
     r.addEventListener('change', async ()=>{
-      if(!plookupRawRows.length) return;
+      updatePlookupModeVisibility();
       computePlookupResults();
       renderPlookupInfo();
       renderPlookupTable();
@@ -5510,11 +5783,12 @@ function bindPlookupTab(){
 
 async function initPlookupTab(){
   bindPlookupTab();
+  updatePlookupModeVisibility();
   await loadPlookupRaw();
-  if(plookupRawRows.length){
-    computePlookupResults();
-    updatePlookupPasteInfo();
-  }
+  await loadPlookupDamisRows();
+  updatePlookupPasteInfo();
+  updatePlookupDamisInfo();
+  computePlookupResults();
   renderPlookupInfo();
   renderPlookupTable();
 }
@@ -5538,6 +5812,7 @@ initUploadTabs().then(async ()=>{
   renderStockDamageChart();
   renderStockDamageByManagerChart();
   bindDamageView();
+  bindDamageManagerModal();
   renderDamageViewMonthSelector();
   renderDamageView();
   await initSupplyTab();
