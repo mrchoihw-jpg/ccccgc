@@ -1119,7 +1119,7 @@
               <tbody id="body-supply"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요 · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="supplyEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1176,7 +1176,7 @@
               <tbody id="body-inbound"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요 · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="inboundEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -4105,9 +4105,17 @@ function buildProductBarcodeMap(){
   const idxNote = headers.indexOf('구매비고');
   const idxPrice = headers.indexOf('일반가');
   const idxStd = headers.indexOf('표준코드');
+  const idxSplit = headers.indexOf('소분');
+  const idxBanDate = headers.indexOf('구매금지일');
   const barcodeCols = ['표준코드','바코드1','바코드2','바코드3','바코드4','바코드5']
     .map(name => headers.indexOf(name)).filter(i => i !== -1);
   pm.rows.forEach(r=>{
+    // 소분(M열)이 'Y'이거나 구매금지일(Y열)에 값이 있는 품목은 공급내역신고/입고현황조회의
+    // 제품코드 조회 대상에서 제외합니다(표준코드/바코드로 찾아도 매칭되지 않게 함).
+    const isSplit = idxSplit !== -1 && String(r[idxSplit] || '').trim().toUpperCase() === 'Y';
+    const isBanned = idxBanDate !== -1 && String(r[idxBanDate] || '').trim() !== '';
+    if(isSplit || isBanned) return;
+
     const canonicalBarcode = idxStd!==-1 && r[idxStd] ? String(r[idxStd]).trim()
       : (barcodeCols.map(ci=>r[ci]).find(v=>v!==null && v!==undefined && String(v).trim()!=='') || '');
     const info = {
