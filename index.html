@@ -1084,9 +1084,10 @@
             <div style="flex:1 1 0; min-width:280px;">
               <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입전표 합계액</div>
               <table id="supplyCalcTable">
-                <thead><tr><th>구분</th><th>공급가</th><th>부가세</th><th>합계액</th></tr></thead>
+                <thead><tr><th>구분</th><th>공급가</th><th>부가세</th><th>합계액 <span style="color:var(--red);">◀입력</span></th></tr></thead>
                 <tbody id="supplyCalcBody"></tbody>
               </table>
+              <div id="supplyCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
               <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
@@ -1140,9 +1141,10 @@
             <div style="flex:1 1 0; min-width:280px;">
               <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입전표 합계액</div>
               <table id="inboundCalcTable">
-                <thead><tr><th>구분</th><th>공급가</th><th>부가세</th><th>합계액</th></tr></thead>
+                <thead><tr><th>구분</th><th>공급가</th><th>부가세</th><th>합계액 <span style="color:var(--red);">◀입력</span></th></tr></thead>
                 <tbody id="inboundCalcBody"></tbody>
               </table>
+              <div id="inboundCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
               <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
@@ -3935,7 +3937,7 @@ let supplySelectedVendor = null;   // {name, vat} — 배치의 대표 거래처
 let supplyDecision = null;   // { mode, reason, diff }
 let supplyEditsMap = new Map(); // key: `${idx}:${field}` -> {productCode,barcode,field,before,after}
 
-// ---------- 매입전표 합계액 (공급가·부가세 직접 입력, 합계액은 자동 합산, 10줄 + 총합계) ----------
+// ---------- 매입전표 합계액 (합계액을 우선 입력하면 공급가·부가세가 자동 계산되고, 세 칸 모두 세부조정 가능, 7줄 + 총합계) ----------
 const SUPPLY_CALC_ROWS = 7;
 let supplyCalcData = Array.from({length: SUPPLY_CALC_ROWS}, ()=>({ supply:null, vat:null, total:null }));
 
@@ -3943,10 +3945,24 @@ function fmtCalcNum(v){
   return (v===null || v===undefined || isNaN(v)) ? '' : Math.round(v).toLocaleString();
 }
 
+// 합계액을 기준으로 공급가·부가세를 자동 계산합니다(÷1.1). 공급가나 부가세를 직접 고치면(세부조정),
+// 합계액이 이미 있으면 그 합계액을 고정한 채 나머지 한 쪽을 다시 맞추고, 합계액이 아직 없으면
+// 예전처럼 10% 부가세로 계산해서 합계액을 새로 만듭니다.
 function recalcSupplyCalcRow(i, field, value){
   const row = supplyCalcData[i];
   row[field] = value;
-  row.total = (row.supply !== null && row.vat !== null) ? row.supply + row.vat : null;
+  if(field === 'total'){
+    if(value === null){ row.supply = null; row.vat = null; }
+    else{ row.supply = Math.round(value / 1.1); row.vat = value - row.supply; }
+  } else if(field === 'supply'){
+    if(value === null){ row.vat = null; if(row.total === null) row.vat = null; }
+    else if(row.total !== null){ row.vat = row.total - value; }
+    else { row.vat = Math.round(value * 0.1); row.total = value + row.vat; }
+  } else if(field === 'vat'){
+    if(value === null){ row.supply = null; }
+    else if(row.total !== null){ row.supply = row.total - value; }
+    else { row.supply = Math.round(value * 10); row.total = value + row.supply; }
+  }
 }
 
 function supplyCalcReferenceTotal(){
@@ -3975,11 +3991,29 @@ function renderSupplyCalcTotals(){
     row.children[2].textContent = any ? fmtCalcNum(vSum) : '-';
     row.children[3].textContent = any ? fmtCalcNum(tSum) : '-';
   }
+  // 부가세가 공급가의 10%를 초과하는 줄이 있으면 경고를 띄웁니다.
+  const warnEl = document.getElementById('supplyCalcWarning');
+  if(warnEl){
+    const flagged = [];
+    supplyCalcData.forEach((r,i)=>{
+      if(r.supply && r.vat!==null && r.supply > 0){
+        const ratio = r.vat / r.supply;
+        if(ratio > 0.101) flagged.push(`${i+1}행(${(ratio*100).toFixed(1)}%)`);
+      }
+    });
+    if(flagged.length){
+      warnEl.style.display = 'block';
+      warnEl.textContent = `⚠ 부가세가 공급가의 10%를 초과하는 줄이 있어요: ${flagged.join(', ')} — 값을 확인해주세요.`;
+    } else {
+      warnEl.style.display = 'none';
+    }
+  }
 }
 
 function renderSupplyCalcTable(){
   const body = document.getElementById('supplyCalcBody');
   const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:#eef4ff; padding:2px 4px; box-sizing:border-box;';
+  const totalInputStyle = 'width:100%; border:2px solid var(--red); border-radius:4px; text-align:right; font:inherit; font-weight:800; background:#fff3f0; padding:2px 4px; box-sizing:border-box;';
   let html = '';
   for(let i=0; i<SUPPLY_CALC_ROWS; i++){
     const r = supplyCalcData[i];
@@ -3987,7 +4021,7 @@ function renderSupplyCalcTable(){
       <td class="num">${i+1}</td>
       <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="supply" value="${r.supply!==null?fmtCalcNum(r.supply):''}" style="${inputStyle}"></td>
       <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="vat" value="${r.vat!==null?fmtCalcNum(r.vat):''}" style="${inputStyle}"></td>
-      <td class="num">${r.total!==null ? fmtCalcNum(r.total) : '-'}</td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="total" value="${r.total!==null?fmtCalcNum(r.total):''}" style="${totalInputStyle}"></td>
     </tr>`;
   }
   html += `<tr class="total-row" id="supplyCalcTotalRow"><td>총합계</td><td class="num">-</td><td class="num">-</td><td class="num">-</td></tr>`;
@@ -4001,9 +4035,9 @@ function renderSupplyCalcTable(){
       const val = (inp.value.trim()==='' || isNaN(n)) ? null : n;
       recalcSupplyCalcRow(i, field, val);
       renderSupplyCalcTable();
-      renderSupplyCalcTotals();
-      // 방금 입력하던 칸에 포커스를 되돌려줍니다 (표 전체를 다시 그리므로).
-      const again = document.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
+      renderInboundCalcTable();
+      // 방금 입력하던 칸에 포커스를 되돌려줍니다 (이 표 안에서만 찾아서, 다른 탭의 표로 포커스가 튀지 않게 합니다).
+      const again = body.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
       if(again){ again.focus(); const len = again.value.length; again.setSelectionRange(len, len); }
     });
   });
@@ -4415,7 +4449,7 @@ function renderSupplyTable(){
     const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
     const mainCells = screenCols.map(c=>{
       let v = r[c.key];
-      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*1000)/10).toLocaleString() + '%'; }
+      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*10000)/100).toLocaleString() + '%'; }
       else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
       else if(v===null || v===undefined) v = '';
       const isExpiryWarn = c.key === 'expiry' && isSoon;
@@ -4500,7 +4534,7 @@ function buildSupplyExportRows(){
     const o = {};
     SUPPLY_EXPORT_COLUMNS.forEach(c=>{
       let v = r[c.key];
-      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*1000)/10;
+      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*10000)/100;
       else if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
       o[c.key] = (v===null||v===undefined) ? '' : v;
     });
@@ -4516,7 +4550,7 @@ function supplyExportFileBaseName(){
 async function exportSupplyXlsx(){
   if(!supplyFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
   const rows = buildSupplyExportRows();
-  const columns = SUPPLY_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.0"%"' : undefined), center: c.num||c.pct }));
+  const columns = SUPPLY_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.00"%"' : undefined), center: c.num||c.pct }));
   await downloadStyledXlsx({
     sheetName: (supplyDecision ? supplyDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
     fileName: supplyExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
@@ -4642,34 +4676,17 @@ let inboundSelectedVendor = null;   // {name, vat} — 배치의 대표 거래�
 let inboundDecision = null;   // { mode, reason, diff }
 let inboundEditsMap = new Map(); // key: `${idx}:${field}` -> {productCode,barcode,field,before,after}
 
-// ---------- 매입전표 합계액 (공급가·부가세 직접 입력, 합계액은 자동 합산, 10줄 + 총합계) ----------
-const INBOUND_CALC_ROWS = 7;
-let inboundCalcData = Array.from({length: INBOUND_CALC_ROWS}, ()=>({ inbound:null, vat:null, total:null }));
-
-
-function recalcInboundCalcRow(i, field, value){
-  const row = inboundCalcData[i];
-  row[field] = value;
-  row.total = (row.inbound !== null && row.vat !== null) ? row.inbound + row.vat : null;
-}
-
-function inboundCalcReferenceTotal(){
-  let sum = 0, any = false;
-  inboundCalcData.forEach(r=>{ if(r.inbound!==null){ sum += r.inbound; any = true; } });
-  return any ? sum : null;
-}
-
-function inboundCalcReferenceGrandTotal(){
-  let sum = 0, any = false;
-  inboundCalcData.forEach(r=>{ if(r.total!==null){ sum += r.total; any = true; } });
-  return any ? sum : null;
-}
+// ---------- 매입전표 합계액: 공급내역신고 · 입고현황조회 두 메뉴가 완전히 같은 데이터(supplyCalcData)를 공유합니다 ----------
+// 한쪽에 입력하면 다른 쪽 표도 즉시 함께 갱신되도록, 별도의 데이터 배열을 두지 않고
+// supplyCalcData/recalcSupplyCalcRow를 그대로 재사용합니다.
+function inboundCalcReferenceTotal(){ return supplyCalcReferenceTotal(); }
+function inboundCalcReferenceGrandTotal(){ return supplyCalcReferenceGrandTotal(); }
 
 function renderInboundCalcTotals(){
   let sSum=0, vSum=0, tSum=0, any=false;
-  inboundCalcData.forEach(r=>{
-    if(r.inbound!==null || r.vat!==null){
-      sSum += r.inbound||0; vSum += r.vat||0; tSum += (r.total!==null ? r.total : ((r.inbound||0)+(r.vat||0)));
+  supplyCalcData.forEach(r=>{
+    if(r.supply!==null || r.vat!==null){
+      sSum += r.supply||0; vSum += r.vat||0; tSum += (r.total!==null ? r.total : ((r.supply||0)+(r.vat||0)));
       any = true;
     }
   });
@@ -4679,19 +4696,37 @@ function renderInboundCalcTotals(){
     row.children[2].textContent = any ? fmtCalcNum(vSum) : '-';
     row.children[3].textContent = any ? fmtCalcNum(tSum) : '-';
   }
+  const warnEl = document.getElementById('inboundCalcWarning');
+  if(warnEl){
+    const flagged = [];
+    supplyCalcData.forEach((r,i)=>{
+      if(r.supply && r.vat!==null && r.supply > 0){
+        const ratio = r.vat / r.supply;
+        if(ratio > 0.101) flagged.push(`${i+1}행(${(ratio*100).toFixed(1)}%)`);
+      }
+    });
+    if(flagged.length){
+      warnEl.style.display = 'block';
+      warnEl.textContent = `⚠ 부가세가 공급가의 10%를 초과하는 줄이 있어요: ${flagged.join(', ')} — 값을 확인해주세요.`;
+    } else {
+      warnEl.style.display = 'none';
+    }
+  }
 }
 
 function renderInboundCalcTable(){
   const body = document.getElementById('inboundCalcBody');
+  if(!body) return;
   const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:#eef4ff; padding:2px 4px; box-sizing:border-box;';
+  const totalInputStyle = 'width:100%; border:2px solid var(--red); border-radius:4px; text-align:right; font:inherit; font-weight:800; background:#fff3f0; padding:2px 4px; box-sizing:border-box;';
   let html = '';
-  for(let i=0; i<INBOUND_CALC_ROWS; i++){
-    const r = inboundCalcData[i];
+  for(let i=0; i<SUPPLY_CALC_ROWS; i++){
+    const r = supplyCalcData[i];
     html += `<tr>
       <td class="num">${i+1}</td>
-      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="inbound" value="${r.inbound!==null?fmtCalcNum(r.inbound):''}" style="${inputStyle}"></td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="supply" value="${r.supply!==null?fmtCalcNum(r.supply):''}" style="${inputStyle}"></td>
       <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="vat" value="${r.vat!==null?fmtCalcNum(r.vat):''}" style="${inputStyle}"></td>
-      <td class="num">${r.total!==null ? fmtCalcNum(r.total) : '-'}</td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="total" value="${r.total!==null?fmtCalcNum(r.total):''}" style="${totalInputStyle}"></td>
     </tr>`;
   }
   html += `<tr class="total-row" id="inboundCalcTotalRow"><td>총합계</td><td class="num">-</td><td class="num">-</td><td class="num">-</td></tr>`;
@@ -4703,11 +4738,11 @@ function renderInboundCalcTable(){
       const field = inp.dataset.field;
       const n = Number(String(inp.value).replace(/,/g,'').trim());
       const val = (inp.value.trim()==='' || isNaN(n)) ? null : n;
-      recalcInboundCalcRow(i, field, val);
+      recalcSupplyCalcRow(i, field, val);
       renderInboundCalcTable();
-      renderInboundCalcTotals();
-      // 방금 입력하던 칸에 포커스를 되돌려줍니다 (표 전체를 다시 그리므로).
-      const again = document.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
+      renderSupplyCalcTable();
+      // 방금 입력하던 칸에 포커스를 되돌려줍니다 (이 표 안에서만 찾아서, 다른 탭의 표로 포커스가 튀지 않게 합니다).
+      const again = body.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
       if(again){ again.focus(); const len = again.value.length; again.setSelectionRange(len, len); }
     });
   });
@@ -4999,7 +5034,7 @@ function renderInboundTable(){
     const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
     const mainCells = screenCols.map(c=>{
       let v = r[c.key];
-      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*1000)/10).toLocaleString() + '%'; }
+      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*10000)/100).toLocaleString() + '%'; }
       else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
       else if(v===null || v===undefined) v = '';
       const isExpiryWarn = c.key === 'expiry' && isSoon;
@@ -5084,7 +5119,7 @@ function buildInboundExportRows(){
     const o = {};
     INBOUND_EXPORT_COLUMNS.forEach(c=>{
       let v = r[c.key];
-      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*1000)/10;
+      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*10000)/100;
       else if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
       o[c.key] = (v===null||v===undefined) ? '' : v;
     });
@@ -5100,7 +5135,7 @@ function inboundExportFileBaseName(){
 async function exportInboundXlsx(){
   if(!inboundFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
   const rows = buildInboundExportRows();
-  const columns = INBOUND_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.0"%"' : undefined), center: c.num||c.pct }));
+  const columns = INBOUND_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.00"%"' : undefined), center: c.num||c.pct }));
   await downloadStyledXlsx({
     sheetName: (inboundDecision ? inboundDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
     fileName: inboundExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
