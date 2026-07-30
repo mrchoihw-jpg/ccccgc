@@ -773,13 +773,43 @@
       <!-- 파손재고현황 TAB (재고 및 반품): 재고현황에 쌓인 월별 스냅샷을 바탕으로 파손재고액의 전월 대비 증감율을 보여줍니다 -->
       <div class="panel" id="panel-stockdamage">
         <div class="sub-section">
-          <div class="sub-section-title">월별 파손재고 증감율</div>
           <div class="toolbar">
             <select id="stockDamageYearFilter"><option value="">전체 연도</option></select>
             <span class="count-badge" id="count-stockDamageYear"></span>
           </div>
-          <div id="stockDamageChartContainer" class="chart-box"></div>
-          <div class="foot-note">재고현황 탭에 쌓인 월별 파손재고액 스냅샷을 <b>금액(원) 막대그래프</b>로 보여줘요 (엑셀 원본 그대로 원 단위로 계산해서 적은 금액 차이도 정확히 반영돼요) · 작은 변동도 잘 보이도록 <b>y축이 0이 아니라 실제 데이터 범위에 맞춰 확대</b>되어 있어요(막대 높이 간 차이를 과장 없이 보여주기 위한 것으로, 절대값은 각 막대·툴팁의 숫자를 참고하세요) · 막대 아래 각 월 라벨 밑에 <b>전월 대비 증감율(%)</b>을 별도로 표기해요(주황=증가, 초록=감소) · 막대에 마우스를 올리면 그 달의 정확한 금액과 증감율을 함께 볼 수 있어요 · 가장 이른 달은 비교할 전월이 없어 증감율이 '—'로 표시돼요.</div>
+          <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="flex:1 1 0; min-width:260px;">
+              <div class="sub-section-title" style="font-size:14px;">총 파손금액</div>
+              <div id="stockDamageChartContainer" class="chart-box"></div>
+            </div>
+            <div style="flex:1 1 0; min-width:260px;">
+              <div class="sub-section-title" style="font-size:14px;">담당자별 파손금액</div>
+              <div id="stockDamageByManagerChartContainer" class="chart-box"></div>
+            </div>
+          </div>
+          <div class="foot-note">재고현황 탭에 쌓인 월별 파손재고액 스냅샷을 <b>금액(천원) 막대그래프</b>로 보여줘요(계산은 원 단위 그대로, 표시만 천원) · 작은 변동도 잘 보이도록 <b>y축이 0이 아니라 실제 데이터 범위에 맞춰 확대</b>되어 있어요 · 막대 위 숫자는 <b>전월 대비 증감율(%)</b>이에요(주황=증가, 초록=감소) · 막대에 마우스를 올리면 정확한 금액과 증감율을 함께 볼 수 있어요 · 가장 이른 달은 비교할 전월이 없어 증감율이 '—'로 표시돼요 · 오른쪽 <b>담당자별 파손금액</b>은 가장 최근 저장된 달 기준, 지정된 8명 외 담당자는 모두 '기타'로 묶어서 전월·당월 금액과 증감율을 보여줘요.</div>
+        </div>
+
+        <div class="sub-section">
+          <div class="sub-section-title">반품담당자·거래처별 파손현황</div>
+          <div class="toolbar">
+            <select id="damageViewMode">
+              <option value="manager">반품담당자별 담당거래처수·파손재고금액</option>
+              <option value="client">거래처별 파손금액 증감현황</option>
+            </select>
+            <select id="damageViewMonth"></select>
+            <select id="damageViewManagerFilter"><option value="">전체 담당자</option></select>
+            <span class="count-badge" id="count-damageView"></span>
+            <div class="spacer"></div>
+            <button class="btn" id="damageViewExportBtn">⬇ Excel 다운로드</button>
+          </div>
+          <div class="table-scroll">
+            <table id="table-damageView">
+              <thead><tr id="head-damageView"></tr></thead>
+              <tbody id="body-damageView"></tbody>
+            </table>
+          </div>
+          <div class="foot-note" id="damageViewFootNote">재고 및 파손재고현황에 쌓인 월별 스냅샷 기준으로 계산해요 · <b>반품담당자별</b>은 그 달 기준 담당 거래처 수와 당월파손재고 합계를, <b>거래처별</b>은 거래처별 전월·당월 파손재고와 증감액·증감율을 보여줘요 · 담당자가 없는 거래처는 '(미지정)'으로 묶여요.</div>
         </div>
       </div>
 
@@ -3085,6 +3115,8 @@ async function saveMonthlyStockSnapshot(id, monthKey, state){
     if(!stockMonthlyIndex[monthKey].includes(id)) stockMonthlyIndex[monthKey].push(id);
     await storageSetWithRetry(STOCK_MONTHLY_INDEX_KEY, JSON.stringify(stockMonthlyIndex), true);
     renderStockQuerySelectors();
+    renderDamageViewMonthSelector(); renderDamageView();
+    renderStockDamageByManagerChart();
   }catch(e){ console.error('월별 재고 스냅샷 저장 실패:', e); }
 }
 
@@ -3118,6 +3150,8 @@ async function loadMonthlyStockArchive(){
     }
   }
   renderStockQuerySelectors();
+  renderDamageViewMonthSelector(); renderDamageView();
+  renderStockDamageByManagerChart();
 }
 
 // curKey를 당월로, 바로 전달(curKey - 1개월, 또는 명시적으로 넘긴 prevKey)을 전월로 삼아 표 데이터를 계산합니다.
@@ -3325,6 +3359,7 @@ function upsertStockHistorySnapshot(){
   renderStockChart();
   renderStockHistoryDamageYearFilter();
   renderStockDamageChart();
+  renderStockDamageByManagerChart();
 }
 
 // 예전 버전에서는 재고 계산에 실수로 ÷1000이 들어가 있던 시절이 있어서, 그때 저장된 월별 스냅샷은
@@ -3543,10 +3578,10 @@ function renderStockDamageChart(){
   }
 
   // 값들의 차이가 전체 금액에 비해 작을 때도 눈에 띄게 보이도록, y축을 0부터 시작하지 않고
-  // 실제 데이터 범위에 맞춰 확대해서 보여줍니다(값 자체는 원 단위 그대로 정확하게 사용).
+  // 실제 데이터 범위에 맞춰 확대해서 보여줍니다(값 자체는 원 단위 그대로 정확하게 사용, 표시만 천원 단위).
   const BAR_COLOR = '#eab308'; // 막대 색: 노란색
   const INC_COLOR = '#c1791b', DEC_COLOR = '#16a34a'; // 증가/감소 표시용 색 (주황/초록)은 그대로 유지
-  const w = 820, h = 360, padL = 92, padR = 20, padT = 20, padB = 62;
+  const w = 820, h = 360, padL = 20, padR = 20, padT = 46, padB = 42;
   const chartW = w - padL - padR, chartH = h - padT - padB;
   const rawVals = data.map(x=>x.damaged||0);
   const rawMin = Math.min(...rawVals), rawMax = Math.max(...rawVals);
@@ -3569,7 +3604,6 @@ function renderStockDamageChart(){
     const val = axisMin + range*i/4;
     const y = valToY(val);
     grid += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${w-padR}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"></line>`;
-    grid += `<text x="${padL-8}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--ink-faint)">${Math.round(val).toLocaleString()}</text>`;
   }
 
   let bars = '';
@@ -3583,10 +3617,12 @@ function renderStockDamageChart(){
     const rateColor = entry.rate === null ? 'var(--ink-faint)' : (entry.rate >= 0 ? INC_COLOR : DEC_COLOR);
     const valTxt = Math.round(entry.damaged).toLocaleString() + ' 원';
     const detailTxt = entry.rate === null ? valTxt : `${valTxt} · 전월대비 ${rateTxt}`;
+    const kwonTxt = Math.round(entry.damaged/1000).toLocaleString() + '천원';
     bars += `<rect class="chart-bar" data-tt-month="${entry.month}" data-tt-label="파손재고액" data-tt-color="${BAR_COLOR}" data-tt-val="${detailTxt}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${BAR_COLOR}" rx="3"></rect>`;
-    // 월 라벨 + 그 아래 별도 줄에 전월 대비 증감율 표기
+    // 막대 위: 금액(천원) + 전월 대비 증감율, 막대 아래: 월 라벨만
+    bars += `<text x="${xBase.toFixed(1)}" y="${(y-20).toFixed(1)}" text-anchor="middle" font-size="10.5" fill="var(--ink)">${kwonTxt}</text>`;
+    bars += `<text x="${xBase.toFixed(1)}" y="${(y-7).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="800" fill="${rateColor}">${rateTxt}</text>`;
     bars += `<text x="${xBase.toFixed(1)}" y="${padT+chartH+18}" text-anchor="middle" font-size="11" fill="var(--ink-dim)">${entry.month}</text>`;
-    bars += `<text x="${xBase.toFixed(1)}" y="${padT+chartH+35}" text-anchor="middle" font-size="11" font-weight="800" fill="${rateColor}">${rateTxt}</text>`;
   });
 
   el.innerHTML = `
@@ -3595,17 +3631,262 @@ function renderStockDamageChart(){
       ${bars}
     </svg>
     <div class="chart-legend">
-      <span><span class="sw" style="background:${BAR_COLOR};"></span>파손재고액(원)</span>
-      <span><span class="sw" style="background:${INC_COLOR};border-radius:50%;width:8px;height:8px;"></span>월별 라벨 주황 = 전월 대비 증가</span>
-      <span><span class="sw" style="background:${DEC_COLOR};border-radius:50%;width:8px;height:8px;"></span>월별 라벨 초록 = 전월 대비 감소</span>
+      <span><span class="sw" style="background:${BAR_COLOR};"></span>파손재고액</span>
+      <span><span class="sw" style="background:${INC_COLOR};border-radius:50%;width:8px;height:8px;"></span>증가</span>
+      <span><span class="sw" style="background:${DEC_COLOR};border-radius:50%;width:8px;height:8px;"></span>감소</span>
     </div>`;
   attachChartTooltip(el);
+}
+
+// 반품담당자별 파손증감율(가장 최근 저장된 달 기준, 전월 대비): 담당 거래처들의 전월/당월 파손재고를
+// 합산해서 담당자 단위로 증감율을 계산해 막대그래프로 보여줍니다.
+const STOCK_DAMAGE_NAMED_MANAGERS = ['이상연','김은경','서호진','최형욱','전송이','유아름','예상화','김동재'];
+
+function renderStockDamageByManagerChart(){
+  const el = document.getElementById('stockDamageByManagerChartContainer');
+  if(!el) return;
+  const monthKey = getLatestArchivedStockMonth();
+  if(!monthKey){
+    el.innerHTML = '<div class="foot-note">아직 저장된 월별 스냅샷이 없어요.</div>';
+    return;
+  }
+  const rows = computeStockDataForMonth(monthKey);
+  const map = new Map();
+  STOCK_DAMAGE_NAMED_MANAGERS.forEach(name => map.set(name, { manager: name, prev: 0, cur: 0 }));
+  map.set('기타', { manager: '기타', prev: 0, cur: 0 });
+  rows.forEach(r=>{
+    const mgrRaw = r.returnManager || '';
+    const mgr = STOCK_DAMAGE_NAMED_MANAGERS.includes(mgrRaw) ? mgrRaw : '기타';
+    const e = map.get(mgr);
+    e.prev += Number(r.prevDamaged) || 0;
+    e.cur += Number(r.curDamaged) || 0;
+  });
+  const data = Array.from(map.values()).map(e=>{
+    const rate = e.cur ? (1 - (e.prev / e.cur)) * 100 : 0;
+    return { manager: e.manager, prev: e.prev, cur: e.cur, rate };
+  });
+  // 지정된 담당자 순서 그대로, 기타는 맨 끝에
+  const order = [...STOCK_DAMAGE_NAMED_MANAGERS, '기타'];
+  data.sort((a,b)=> order.indexOf(a.manager) - order.indexOf(b.manager));
+
+  const PREV_COLOR = '#9fb3d9', CUR_COLOR = '#2f5fd6';
+  const INC_COLOR = '#c1791b', DEC_COLOR = '#16a34a';
+  const w = 820, h = 360, padL = 20, padR = 20, padT = 46, padB = 42;
+  const chartW = w - padL - padR, chartH = h - padT - padB;
+  const rawVals = data.flatMap(x=>[x.prev, x.cur]);
+  const rawMax = Math.max(1, ...rawVals);
+  const axisMax = rawMax * 1.15;
+
+  const n = data.length;
+  const slot = chartW / n;
+  const pairW = Math.min(70, slot * 0.62);
+  const barW = pairW / 2;
+
+  let grid = '';
+  const gridLines = 4;
+  for(let i=0; i<=gridLines; i++){
+    const val = axisMax * i/gridLines;
+    const y = padT + chartH * (1 - i/gridLines);
+    grid += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${w-padR}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"></line>`;
+  }
+
+  let bars = '', labels = '';
+  data.forEach((d, i)=>{
+    const groupX = padL + slot*i + (slot-pairW)/2;
+    const prevH = Math.max(0, chartH * (d.prev/axisMax));
+    const curH = Math.max(0, chartH * (d.cur/axisMax));
+    const prevY = padT + chartH - prevH;
+    const curY = padT + chartH - curH;
+    bars += `<rect class="chart-bar" data-tt-month="${d.manager}" data-tt-label="전월파손재고" data-tt-color="${PREV_COLOR}" data-tt-val="${Math.round(d.prev).toLocaleString()}원" x="${groupX.toFixed(1)}" y="${prevY.toFixed(1)}" width="${barW.toFixed(1)}" height="${prevH.toFixed(1)}" fill="${PREV_COLOR}" rx="2"></rect>`;
+    bars += `<rect class="chart-bar" data-tt-month="${d.manager}" data-tt-label="당월파손재고" data-tt-color="${CUR_COLOR}" data-tt-val="${Math.round(d.cur).toLocaleString()}원" x="${(groupX+barW).toFixed(1)}" y="${curY.toFixed(1)}" width="${barW.toFixed(1)}" height="${curH.toFixed(1)}" fill="${CUR_COLOR}" rx="2"></rect>`;
+    const rateColor = d.rate >= 0 ? INC_COLOR : DEC_COLOR;
+    const topY = Math.min(prevY, curY);
+    const kwonTxt = Math.round(d.cur/1000).toLocaleString() + '천원';
+    labels += `<text x="${(groupX+pairW/2).toFixed(1)}" y="${(topY-21).toFixed(1)}" text-anchor="middle" font-size="10.5" fill="var(--ink)">${kwonTxt}</text>`;
+    labels += `<text x="${(groupX+pairW/2).toFixed(1)}" y="${(topY-8).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="800" fill="${rateColor}">${d.rate>=0?'+':''}${d.rate.toFixed(1)}%</text>`;
+    const labelX = padL + slot*i + slot/2;
+    labels += `<text x="${labelX.toFixed(1)}" y="${(h-padB+20).toFixed(1)}" text-anchor="middle" font-size="11.5" fill="var(--ink)">${d.manager}</text>`;
+  });
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; max-width:1400px; display:block;">
+      ${grid}
+      ${bars}
+      ${labels}
+    </svg>
+    <div class="chart-legend" style="margin-top:6px;">
+      <span><span class="sw" style="background:${PREV_COLOR};"></span>전월 파손재고(원)</span>
+      <span><span class="sw" style="background:${CUR_COLOR};"></span>당월 파손재고(원)</span>
+      <span><span class="sw" style="background:${INC_COLOR};border-radius:50%;width:8px;height:8px;"></span>증감율 증가</span>
+      <span><span class="sw" style="background:${DEC_COLOR};border-radius:50%;width:8px;height:8px;"></span>증감율 감소</span>
+    </div>`;
+  attachChartTooltip(el);
+}
+
+
+// 재고 및 파손재고현황과 같은 buildStockDataFrom 계산 로직을 그대로 재사용해서, 고른 달의
+// 거래처별 당월/전월 파손재고를 반품담당자별로 묶거나 거래처별로 나열해 보여줍니다.
+function renderDamageViewMonthSelector(){
+  const sel = document.getElementById('damageViewMonth');
+  if(!sel) return;
+  const prevVal = sel.value;
+  const months = getArchivedStockMonths(); // 최신순
+  sel.innerHTML = months.map(m => `<option value="${m}">${m} (당월 기준)</option>`).join('');
+  if(months.includes(prevVal)) sel.value = prevVal;
+}
+
+function renderDamageViewManagerFilterOptions(rows){
+  const filterEl = document.getElementById('damageViewManagerFilter');
+  if(!filterEl) return;
+  const prevVal = filterEl.value;
+  const names = Array.from(new Set(rows.map(r => r.returnManager || '(미지정)'))).sort((a,b)=> a.localeCompare(b, 'ko'));
+  filterEl.innerHTML = '<option value="">전체 담당자</option>' + names.map(n => `<option value="${n}">${n}</option>`).join('');
+  if(names.includes(prevVal)) filterEl.value = prevVal;
+}
+
+function renderDamageView(){
+  const modeEl = document.getElementById('damageViewMode');
+  const monthEl = document.getElementById('damageViewMonth');
+  const filterEl = document.getElementById('damageViewManagerFilter');
+  const head = document.getElementById('head-damageView');
+  const body = document.getElementById('body-damageView');
+  const countEl = document.getElementById('count-damageView');
+  if(!modeEl || !monthEl || !head || !body) return;
+
+  const monthKey = monthEl.value || getLatestArchivedStockMonth();
+  if(!monthKey){
+    head.innerHTML = ''; body.innerHTML = '';
+    countEl.textContent = '';
+    return;
+  }
+  const rows = computeStockDataForMonth(monthKey);
+  renderDamageViewManagerFilterOptions(rows);
+  const mode = modeEl.value;
+  const q = filterEl ? filterEl.value : '';
+
+  if(mode === 'manager'){
+    head.innerHTML = '<th>반품담당자</th><th>담당거래처수</th><th>당월파손재고금액</th>';
+    const map = new Map();
+    rows.forEach(r=>{
+      const mgr = r.returnManager || '(미지정)';
+      if(!map.has(mgr)) map.set(mgr, { manager: mgr, clientSet: new Set(), damaged: 0 });
+      const e = map.get(mgr);
+      e.clientSet.add(r.client || r.code);
+      e.damaged += Number(r.curDamaged) || 0;
+    });
+    let result = Array.from(map.values())
+      .map(e => ({ manager: e.manager, clientCount: e.clientSet.size, damaged: e.damaged }))
+      .sort((a,b)=> b.damaged - a.damaged);
+    if(q) result = result.filter(e => e.manager === q);
+    body.innerHTML = result.map(e => `<tr>
+      <td>${e.manager}</td>
+      <td class="num">${e.clientCount.toLocaleString()}</td>
+      <td class="num">${Math.round(e.damaged).toLocaleString()}</td>
+    </tr>`).join('');
+    countEl.textContent = `${result.length.toLocaleString()}명`;
+  } else {
+    head.innerHTML = '<th>거래처</th><th>반품담당자</th><th>전월파손재고</th><th>당월파손재고</th><th>증감액</th><th>증감율</th>';
+    let result = rows.map(r=>{
+      const prevD = Number(r.prevDamaged) || 0;
+      const curD = Number(r.curDamaged) || 0;
+      return {
+        client: r.client || r.code, manager: r.returnManager || '(미지정)',
+        prevDamaged: prevD, curDamaged: curD, change: curD - prevD, changeRate: r.damagedChangeRate
+      };
+    }).sort((a,b)=> Math.abs(b.change) - Math.abs(a.change));
+    if(q) result = result.filter(e => e.manager === q);
+    body.innerHTML = result.map(e=>{
+      const changeStyle = e.change > 0 ? ' style="color:var(--red);"' : (e.change < 0 ? ' style="color:var(--teal-ink);"' : '');
+      return `<tr>
+        <td>${e.client}</td>
+        <td>${e.manager}</td>
+        <td class="num">${Math.round(e.prevDamaged).toLocaleString()}</td>
+        <td class="num">${Math.round(e.curDamaged).toLocaleString()}</td>
+        <td class="num"${changeStyle}>${e.change > 0 ? '+' : ''}${Math.round(e.change).toLocaleString()}</td>
+        <td class="num"${changeStyle}>${(Math.round((e.changeRate||0)*1000)/10).toLocaleString()}%</td>
+      </tr>`;
+    }).join('');
+    countEl.textContent = `${result.length.toLocaleString()}건`;
+  }
+}
+
+async function exportDamageView(){
+  const modeEl = document.getElementById('damageViewMode');
+  const monthEl = document.getElementById('damageViewMonth');
+  const filterEl = document.getElementById('damageViewManagerFilter');
+  const monthKey = monthEl.value || getLatestArchivedStockMonth();
+  if(!monthKey){ alert('조회할 월별 스냅샷이 없어요.'); return; }
+  const rows = computeStockDataForMonth(monthKey);
+  const mode = modeEl.value;
+  const q = filterEl ? filterEl.value : '';
+
+  if(mode === 'manager'){
+    const map = new Map();
+    rows.forEach(r=>{
+      const mgr = r.returnManager || '(미지정)';
+      if(!map.has(mgr)) map.set(mgr, { manager: mgr, clientSet: new Set(), damaged: 0 });
+      const e = map.get(mgr);
+      e.clientSet.add(r.client || r.code);
+      e.damaged += Number(r.curDamaged) || 0;
+    });
+    let result = Array.from(map.values())
+      .map(e => ({ manager: e.manager, clientCount: e.clientSet.size, damaged: Math.round(e.damaged) }))
+      .sort((a,b)=> b.damaged - a.damaged);
+    if(q) result = result.filter(e => e.manager === q);
+    await downloadStyledXlsx({
+      sheetName: '반품담당자별_파손현황',
+      fileName: `반품담당자별_파손현황_${monthKey}.xlsx`,
+      columns: [
+        { key:'manager', label:'반품담당자', width:16 },
+        { key:'clientCount', label:'담당거래처수', width:14, numFmt:'#,##0', center:true },
+        { key:'damaged', label:'당월파손재고금액', width:18, numFmt:'#,##0', center:true },
+      ],
+      rows: result
+    });
+  } else {
+    let result = rows.map(r=>{
+      const prevD = Math.round(Number(r.prevDamaged) || 0);
+      const curD = Math.round(Number(r.curDamaged) || 0);
+      return {
+        client: r.client || r.code, manager: r.returnManager || '(미지정)',
+        prevDamaged: prevD, curDamaged: curD, change: curD - prevD,
+        changeRate: Math.round((r.damagedChangeRate||0)*1000)/10
+      };
+    }).sort((a,b)=> Math.abs(b.change) - Math.abs(a.change));
+    if(q) result = result.filter(e => e.manager === q);
+    await downloadStyledXlsx({
+      sheetName: '거래처별_파손금액증감',
+      fileName: `거래처별_파손금액증감_${monthKey}.xlsx`,
+      columns: [
+        { key:'client', label:'거래처', width:18 },
+        { key:'manager', label:'반품담당자', width:14 },
+        { key:'prevDamaged', label:'전월파손재고', width:16, numFmt:'#,##0', center:true },
+        { key:'curDamaged', label:'당월파손재고', width:16, numFmt:'#,##0', center:true },
+        { key:'change', label:'증감액', width:14, numFmt:'#,##0', center:true },
+        { key:'changeRate', label:'증감율(%)', width:12, numFmt:'0.0"%"', center:true },
+      ],
+      rows: result
+    });
+  }
+}
+
+function bindDamageView(){
+  const modeEl = document.getElementById('damageViewMode');
+  const monthEl = document.getElementById('damageViewMonth');
+  const filterEl = document.getElementById('damageViewManagerFilter');
+  const exportBtn = document.getElementById('damageViewExportBtn');
+  if(modeEl) modeEl.addEventListener('change', renderDamageView);
+  if(monthEl) monthEl.addEventListener('change', renderDamageView);
+  if(filterEl) filterEl.addEventListener('change', renderDamageView);
+  if(exportBtn) exportBtn.addEventListener('click', exportDamageView);
 }
 
 // 재고 관련 업로드가 바뀔 때마다 표·KPI·그래프를 한 번에 갱신합니다.
 function refreshStockViews(){
   rebuildStockData(); // 내부에서 stockTableMonthData 캐시도 초기화합니다
   renderStockQuerySelectors();
+  renderDamageViewMonthSelector(); renderDamageView();
+  renderStockDamageByManagerChart();
   buildStockFilterOptions();
   renderStockTable();
   renderStockKpis();
@@ -5118,6 +5399,10 @@ initUploadTabs().then(async ()=>{
   renderStockChart();
   renderStockHistoryDamageYearFilter();
   renderStockDamageChart();
+  renderStockDamageByManagerChart();
+  bindDamageView();
+  renderDamageViewMonthSelector();
+  renderDamageView();
   await initSupplyTab();
   await initInboundTab();
   await initPlookupTab();
