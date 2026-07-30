@@ -582,14 +582,14 @@
           <div class="tabs-group-title"><span class="dot" style="background:#6a3fa0;"></span>마스터DB</div>
           <div class="tabs">
             <div class="tab" data-tab="masterdb"><span class="tab-ic">🗄️</span>마스터DB</div>
-            <div class="tab" data-tab="productlookup"><span class="tab-ic">🔎</span>제품조회</div>
           </div>
         </div>
         <div class="section-block accent-supply">
-          <div class="tabs-group-title"><span class="dot" style="background:#1a8f6b;"></span>공급내역신고</div>
+          <div class="tabs-group-title"><span class="dot" style="background:#1a8f6b;"></span>테스트중</div>
           <div class="tabs">
-            <div class="tab" data-tab="supply"><span class="tab-ic">🧾</span>공급내역신고</div>
-            <div class="tab" data-tab="inbound"><span class="tab-ic">🧪</span>입고현황조회(테스트)</div>
+            <div class="tab" data-tab="supply"><span class="tab-ic">🧾</span>공급내역신고(테스트중)</div>
+            <div class="tab" data-tab="inbound"><span class="tab-ic">🧪</span>입고현황조회(테스트중)</div>
+            <div class="tab" data-tab="productlookup"><span class="tab-ic">↩️</span>반품신청서(소분-테스트중)</div>
           </div>
         </div>
       </div>
@@ -1036,12 +1036,12 @@
 
       </div>
 
-      <!-- 제품조회 TAB: 표준코드/약품코드+수량을 붙여넣으면 제품코드마스터DB에서 조회하고, 소분 품목은 제외한 목록을 내려받습니다 -->
+      <!-- 반품신청서(소분-테스트중) TAB: 표준코드/약품코드+수량을 붙여넣으면 제품코드마스터DB에서 조회하고, 소분 품목은 같은 약품코드의 다른 품목으로 자동 대체합니다 -->
       <div class="panel" id="panel-productlookup">
 
         <div class="sub-section">
-          <div class="sub-section-title">제품조회</div>
-          <div class="foot-note" style="margin-bottom:8px;">제품코드마스터DB에서 조회할 코드 종류를 고르고, 코드·수량 두 열을 복사해서 아래 칸에 붙여넣으세요(헤더 없이, 탭 또는 콤마 구분) · 규격에 '소분'이 포함되어 있거나 소분 칸이 'Y'로 체크된 품목은 결과에서 자동으로 빠져요.</div>
+          <div class="sub-section-title">반품신청서(소분-테스트중)</div>
+          <div class="foot-note" style="margin-bottom:8px;">조회할 코드 종류를 고르고, 코드·수량 두 열을 복사해서 아래 칸에 붙여넣으세요(헤더 없이, 탭 또는 콤마 구분) · 입력한 코드가 규격에 '소분'이 포함되어 있거나 소분 칸이 'Y'인 품목이면, 같은 약품코드를 쓰는 다른 품목들 중 소분이 아닌 것을 찾아서(제품코드마스터DB에 먼저 나오는 순서 기준) 그 표준코드로 자동 대체해요 · 이 메뉴는 아직 반품신청서 서식 출력(인쇄·PDF)까지는 연결되지 않은 테스트 버전이에요, 우선 대체 결과를 표·엑셀로 확인하는 용도예요.</div>
           <div class="foot-row" style="gap:16px; margin-bottom:8px;">
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupCodeType" value="표준코드" checked> 표준코드로 조회</label>
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupCodeType" value="약품코드"> 약품코드로 조회</label>
@@ -1057,7 +1057,7 @@
         </div>
 
         <div class="sub-section">
-          <div class="sub-section-title">결과 (소분 품목 제외)</div>
+          <div class="sub-section-title">결과 (소분 품목 자동 대체)</div>
           <div id="plookupInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
           <div class="toolbar">
             <span class="count-badge" id="count-plookup"></span>
@@ -1071,7 +1071,7 @@
               <tbody id="body-plookup"></tbody>
             </table>
           </div>
-          <div class="foot-note">매칭되지 않은 코드는 목록에 포함하지 않고 위 안내 문구에 건수로만 표시돼요.</div>
+          <div class="foot-note">매칭되지 않은 코드는 목록에 포함하지 않고 위 안내 문구에 건수로만 표시돼요 · 대체가 일어난 줄은 비고에 원래 표준코드가 함께 표시돼요.</div>
         </div>
 
       </div>
@@ -1119,7 +1119,7 @@
               <tbody id="body-supply"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="supplyEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1176,7 +1176,7 @@
               <tbody id="body-inbound"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="inboundEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -3921,8 +3921,8 @@ const SUPPLY_COLUMNS = [
   { key:'unit', label:'매입단가', num:true, editable:true, width:88 },
   { key:'amt', label:'실금액', num:true, editable:true, width:100 },
   { key:'discount', label:'할인금액', width:76, hideOnScreen:true },
-  { key:'lotNo', label:'제조번호', width:94 },
-  { key:'expiry', label:'사용기한', width:84 },
+  { key:'lotNo', label:'제조번호', width:94, textEditable:true },
+  { key:'expiry', label:'사용기한', width:84, textEditable:true },
   { key:'margin', label:'마진', pct:true, width:70 },
   { key:'productName', label:'표준상품명', width:160 },
   { key:'maker', label:'다미스코드명', width:160 },
@@ -4273,8 +4273,11 @@ function decideSupplyMode(){
   const refTotal = supplyCalcReferenceTotal();
   const vendorVatRaw = String((supplySelectedVendor && supplySelectedVendor.vat) || '').trim();
 
-  if(vendorVatRaw === '포함'){
-    return { mode:'포함', diff:0, reason:`거래처정보마스터DB의 매입전표부가세 값이 '포함'이라 포함 방식을 그대로 사용했어요.` };
+  if(vendorVatRaw !== '별도'){
+    const reason = vendorVatRaw === '포함'
+      ? `거래처정보마스터DB의 매입전표부가세 값이 '포함'이라 포함 방식을 그대로 사용했어요.`
+      : `거래처정보마스터DB의 매입전표부가세 값이 '포함'/'별도'가 아니거나 비어있어서, 기본값인 포함 방식으로 계산했어요.`;
+    return { mode:'포함', diff:0, reason };
   }
 
   const separateModes = SUPPLY_MODES.filter(m=>m.id!=='포함');
@@ -4290,9 +4293,7 @@ function decideSupplyMode(){
     const diff = Math.abs(sum - refTotal);
     if(!best || diff < best.diff) best = { mode:m.id, diff, sum };
   });
-  const vendorNote = vendorVatRaw === '별도'
-    ? `거래처정보마스터DB의 매입전표부가세가 '별도'라 별도 6가지 중`
-    : `거래처정보마스터DB에서 부가세구분을 확인하지 못해 별도 6가지 중`;
+  const vendorNote = `거래처정보마스터DB의 매입전표부가세가 '별도'라 별도 6가지 중`;
   let matchNote;
   if(best.diff === 0) matchNote = '계산기 공급가 합계와 정확히 일치하는 방식을 찾았어요.';
   else if(best.diff <= 50) matchNote = `계산기 공급가 합계와 ${best.diff.toLocaleString()}원 차이로 거의 일치하는 방식을 찾았어요.`;
@@ -4306,7 +4307,7 @@ function finalizeSupplyMode(){
   supplyEditsMap = new Map();
   supplyFinalRows = supplyComputed.map((r, idx)=>{
     const m = r.modes[supplyDecision.mode] || { amt:0, unit:0, margin:null };
-    return { ...r, unit:m.unit, amt:m.amt, margin:m.margin, _idx: idx, _orig: { unit:m.unit, amt:m.amt } };
+    return { ...r, unit:m.unit, amt:m.amt, margin:m.margin, _idx: idx, _orig: { unit:m.unit, amt:m.amt, lotNo:r.lotNo, expiry:r.expiry } };
   });
   reconcileSupplyTotals();
   renderSupplyModeInfo();
@@ -4381,9 +4382,13 @@ function supplyEditNoteFor(idx){
   const parts = [];
   supplyEditsMap.forEach((e, key)=>{
     if(key.startsWith(idx + ':')){
-      const delta = Math.round(e.after) - Math.round(e.before);
-      const sign = delta > 0 ? '+' : '';
-      parts.push(`${e.field} ${sign}${delta.toLocaleString()}원`);
+      if(e.field === '제조번호' || e.field === '사용기한'){
+        parts.push(`${e.field} ${e.before}→${e.after}`);
+      } else {
+        const delta = Math.round(e.after) - Math.round(e.before);
+        const sign = delta > 0 ? '+' : '';
+        parts.push(`${e.field} ${sign}${delta.toLocaleString()}원`);
+      }
     }
   });
   return parts.join(', ');
@@ -4465,6 +4470,9 @@ function renderSupplyTable(){
       if(c.editable){
         return `<td class="num editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}"${cellStyle}>${v}</td>`;
       }
+      if(c.textEditable){
+        return `<td class="editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}" data-text="1"${cellStyle}>${v}</td>`;
+      }
       return `<td class="${c.num||c.pct?'num':''}"${cellStyle}>${v}</td>`;
     }).join('');
     const noteCell = `<td style="color:var(--ink-dim); font-size:12px;">${supplyEditNoteFor(r._idx)}</td>`;
@@ -4477,6 +4485,25 @@ function renderSupplyTable(){
       const field = td.dataset.field;
       const row = supplyFinalRows.find(r=>r._idx===idx);
       if(!row) return;
+      const isText = td.dataset.text === '1';
+      const fieldLabel = field === 'unit' ? '매입단가' : (field === 'amt' ? '실금액' : (field === 'lotNo' ? '제조번호' : '사용기한'));
+      if(isText){
+        const val = String(td.textContent).trim();
+        row[field] = val;
+        td.classList.add('edited');
+        const orig = row._orig[field] || '';
+        const key = `${idx}:${field}`;
+        if(val === orig){ supplyEditsMap.delete(key); }
+        else {
+          supplyEditsMap.set(key, {
+            productCode: row.productCode, barcode: row.barcode,
+            field: fieldLabel, before: orig || '(공란)', after: val || '(공란)'
+          });
+        }
+        renderSupplyEditsList();
+        renderSupplyTable();
+        return;
+      }
       const n = Number(String(td.textContent).replace(/,/g,'').trim());
       if(isNaN(n)) { td.textContent = Math.round(row[field]).toLocaleString(); return; }
       row[field] = n;
@@ -4487,7 +4514,7 @@ function renderSupplyTable(){
       else {
         supplyEditsMap.set(key, {
           productCode: row.productCode, barcode: row.barcode,
-          field: field === 'unit' ? '매입단가' : '실금액',
+          field: fieldLabel,
           before: orig, after: n
         });
       }
@@ -4668,8 +4695,8 @@ const INBOUND_COLUMNS = [
   { key:'unit', label:'매입단가', num:true, editable:true, width:88 },
   { key:'amt', label:'실금액', num:true, editable:true, width:100 },
   { key:'discount', label:'할인금액', width:76, hideOnScreen:true },
-  { key:'lotNo', label:'제조번호', width:94 },
-  { key:'expiry', label:'사용기한', width:84 },
+  { key:'lotNo', label:'제조번호', width:94, textEditable:true },
+  { key:'expiry', label:'사용기한', width:84, textEditable:true },
   { key:'margin', label:'마진', pct:true, width:70 },
   { key:'productName', label:'표준상품명', width:160 },
   { key:'maker', label:'다미스코드명', width:160 },
@@ -4858,8 +4885,11 @@ function decideInboundMode(){
   const refTotal = inboundCalcReferenceTotal();
   const vendorVatRaw = String((inboundSelectedVendor && inboundSelectedVendor.vat) || '').trim();
 
-  if(vendorVatRaw === '포함'){
-    return { mode:'포함', diff:0, reason:`거래처정보마스터DB의 매입전표부가세 값이 '포함'이라 포함 방식을 그대로 사용했어요.` };
+  if(vendorVatRaw !== '별도'){
+    const reason = vendorVatRaw === '포함'
+      ? `거래처정보마스터DB의 매입전표부가세 값이 '포함'이라 포함 방식을 그대로 사용했어요.`
+      : `거래처정보마스터DB의 매입전표부가세 값이 '포함'/'별도'가 아니거나 비어있어서, 기본값인 포함 방식으로 계산했어요.`;
+    return { mode:'포함', diff:0, reason };
   }
 
   const separateModes = INBOUND_MODES.filter(m=>m.id!=='포함');
@@ -4875,9 +4905,7 @@ function decideInboundMode(){
     const diff = Math.abs(sum - refTotal);
     if(!best || diff < best.diff) best = { mode:m.id, diff, sum };
   });
-  const vendorNote = vendorVatRaw === '별도'
-    ? `거래처정보마스터DB의 매입전표부가세가 '별도'라 별도 6가지 중`
-    : `거래처정보마스터DB에서 부가세구분을 확인하지 못해 별도 6가지 중`;
+  const vendorNote = `거래처정보마스터DB의 매입전표부가세가 '별도'라 별도 6가지 중`;
   let matchNote;
   if(best.diff === 0) matchNote = '계산기 공급가 합계와 정확히 일치하는 방식을 찾았어요.';
   else if(best.diff <= 50) matchNote = `계산기 공급가 합계와 ${best.diff.toLocaleString()}원 차이로 거의 일치하는 방식을 찾았어요.`;
@@ -4891,7 +4919,7 @@ function finalizeInboundMode(){
   inboundEditsMap = new Map();
   inboundFinalRows = inboundComputed.map((r, idx)=>{
     const m = r.modes[inboundDecision.mode] || { amt:0, unit:0, margin:null };
-    return { ...r, unit:m.unit, amt:m.amt, margin:m.margin, _idx: idx, _orig: { unit:m.unit, amt:m.amt } };
+    return { ...r, unit:m.unit, amt:m.amt, margin:m.margin, _idx: idx, _orig: { unit:m.unit, amt:m.amt, lotNo:r.lotNo, expiry:r.expiry } };
   });
   reconcileInboundTotals();
   renderInboundModeInfo();
@@ -4966,9 +4994,13 @@ function inboundEditNoteFor(idx){
   const parts = [];
   inboundEditsMap.forEach((e, key)=>{
     if(key.startsWith(idx + ':')){
-      const delta = Math.round(e.after) - Math.round(e.before);
-      const sign = delta > 0 ? '+' : '';
-      parts.push(`${e.field} ${sign}${delta.toLocaleString()}원`);
+      if(e.field === '제조번호' || e.field === '사용기한'){
+        parts.push(`${e.field} ${e.before}→${e.after}`);
+      } else {
+        const delta = Math.round(e.after) - Math.round(e.before);
+        const sign = delta > 0 ? '+' : '';
+        parts.push(`${e.field} ${sign}${delta.toLocaleString()}원`);
+      }
     }
   });
   return parts.join(', ');
@@ -5050,6 +5082,9 @@ function renderInboundTable(){
       if(c.editable){
         return `<td class="num editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}"${cellStyle}>${v}</td>`;
       }
+      if(c.textEditable){
+        return `<td class="editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}" data-text="1"${cellStyle}>${v}</td>`;
+      }
       return `<td class="${c.num||c.pct?'num':''}"${cellStyle}>${v}</td>`;
     }).join('');
     const noteCell = `<td style="color:var(--ink-dim); font-size:12px;">${inboundEditNoteFor(r._idx)}</td>`;
@@ -5062,6 +5097,25 @@ function renderInboundTable(){
       const field = td.dataset.field;
       const row = inboundFinalRows.find(r=>r._idx===idx);
       if(!row) return;
+      const isText = td.dataset.text === '1';
+      const fieldLabel = field === 'unit' ? '매입단가' : (field === 'amt' ? '실금액' : (field === 'lotNo' ? '제조번호' : '사용기한'));
+      if(isText){
+        const val = String(td.textContent).trim();
+        row[field] = val;
+        td.classList.add('edited');
+        const orig = row._orig[field] || '';
+        const key = `${idx}:${field}`;
+        if(val === orig){ inboundEditsMap.delete(key); }
+        else {
+          inboundEditsMap.set(key, {
+            productCode: row.productCode, barcode: row.barcode,
+            field: fieldLabel, before: orig || '(공란)', after: val || '(공란)'
+          });
+        }
+        renderInboundEditsList();
+        renderInboundTable();
+        return;
+      }
       const n = Number(String(td.textContent).replace(/,/g,'').trim());
       if(isNaN(n)) { td.textContent = Math.round(row[field]).toLocaleString(); return; }
       row[field] = n;
@@ -5072,7 +5126,7 @@ function renderInboundTable(){
       else {
         inboundEditsMap.set(key, {
           productCode: row.productCode, barcode: row.barcode,
-          field: field === 'unit' ? '매입단가' : '실금액',
+          field: fieldLabel,
           before: orig, after: n
         });
       }
@@ -5209,9 +5263,10 @@ async function initInboundTab(){
   }
 }
 
-// ================= 제품조회 =================
-// 제품코드마스터DB에서 표준코드 또는 약품코드로 조회하고, 규격에 '소분'이 포함되거나
-// 소분 컬럼이 'Y'인 품목은 결과에서 제외합니다.
+// ================= 반품신청서(소분-테스트중) =================
+// 제품코드마스터DB에서 표준코드 또는 약품코드로 조회합니다. 조회된 품목이 규격에 '소분'이
+// 포함되거나 소분 컬럼이 'Y'이면, 같은 약품코드를 쓰는 다른 품목들 중 제품코드마스터DB에
+// 먼저 나오는(맨 위) 순서로 소분이 아닌 첫 품목을 찾아 그 표준코드로 자동 대체합니다.
 const PLOOKUP_STORAGE_KEY = 'stockout_dashboard_plookup_raw_v1';
 const PLOOKUP_COLUMNS = [
   { key:'inputCode', label:'조회코드' },
@@ -5223,17 +5278,18 @@ const PLOOKUP_COLUMNS = [
   { key:'price', label:'일반가', num:true },
   { key:'stdCode', label:'표준코드' },
   { key:'drugCode', label:'약품코드' },
+  { key:'note', label:'비고' },
 ];
 
 let plookupRawRows = [];
 let plookupResults = [];
 let plookupUnmatchedCount = 0;
-let plookupExcludedCount = 0;
+let plookupSubstitutedCount = 0;
 
 function buildProductLookupMaps(){
   const pm = uploadState['productMaster'];
-  const std = new Map(), drug = new Map();
-  if(!pm) return { std, drug, headers:null };
+  const std = new Map(), drugGroups = new Map();
+  if(!pm) return { std, drugGroups, headers:null };
   const headers = pm.headers;
   const idxStd = headers.indexOf('표준코드');
   const idxDrug = headers.indexOf('약품코드');
@@ -5252,10 +5308,11 @@ function buildProductLookupMaps(){
     });
     if(idxDrug!==-1 && r[idxDrug]!==null && r[idxDrug]!==undefined && String(r[idxDrug]).trim()!==''){
       const k = String(r[idxDrug]).trim();
-      if(!drug.has(k)) drug.set(k, r);
+      if(!drugGroups.has(k)) drugGroups.set(k, []);
+      drugGroups.get(k).push(r); // 제품코드마스터DB에 나온 순서 그대로 쌓입니다(맨 앞이 '상위').
     }
   });
-  return { std, drug, headers };
+  return { std, drugGroups, headers };
 }
 
 function parsePlookupPasteText(text){
@@ -5267,11 +5324,36 @@ function parsePlookupPasteText(text){
   });
 }
 
+function plookupIsSplitRow(r, idxSpec, idxSplit){
+  const spec = idxSpec!==-1 ? String(r[idxSpec]||'') : '';
+  const splitVal = idxSplit!==-1 ? String(r[idxSplit]||'').trim().toUpperCase() : '';
+  return spec.includes('소분') || splitVal === 'Y';
+}
+
+// 표준코드로 찾은 행이 소분이면, 같은 약품코드 그룹에서 소분이 아닌 맨 위 품목으로 대체합니다.
+function plookupResolveFromStdRow(initialRow, drugGroups, idxDrug, idxSpec, idxSplit){
+  if(!plookupIsSplitRow(initialRow, idxSpec, idxSplit)) return { row: initialRow, substituted:false };
+  const drugCode = idxDrug!==-1 ? String(initialRow[idxDrug]||'').trim() : '';
+  const group = drugCode ? (drugGroups.get(drugCode) || []) : [];
+  const alt = group.find(r => !plookupIsSplitRow(r, idxSpec, idxSplit));
+  return alt ? { row: alt, substituted:true, originalRow: initialRow } : { row:null, substituted:false };
+}
+
+// 약품코드를 직접 입력한 경우, 그 그룹에서 소분이 아닌 맨 위 품목을 바로 찾습니다.
+function plookupResolveFromDrugCode(drugCode, drugGroups, idxSpec, idxSplit){
+  const group = drugGroups.get(drugCode) || [];
+  if(!group.length) return null;
+  const nonSplit = group.find(r => !plookupIsSplitRow(r, idxSpec, idxSplit));
+  if(!nonSplit) return null;
+  const substituted = group[0] !== nonSplit;
+  return { row: nonSplit, substituted, originalRow: substituted ? group[0] : null };
+}
+
 function computePlookupResults(){
-  const { std, drug, headers } = buildProductLookupMaps();
+  const { std, drugGroups, headers } = buildProductLookupMaps();
   plookupResults = [];
   plookupUnmatchedCount = 0;
-  plookupExcludedCount = 0;
+  plookupSubstitutedCount = 0;
   if(!headers) return;
 
   const idxCode = headers.indexOf('코드');
@@ -5285,28 +5367,40 @@ function computePlookupResults(){
 
   const codeTypeEl = document.querySelector('input[name="plookupCodeType"]:checked');
   const codeType = codeTypeEl ? codeTypeEl.value : '표준코드';
-  const map = codeType === '약품코드' ? drug : std;
 
   plookupRawRows.forEach(f=>{
     const inputCode = String(f[0] || '').trim();
     const qty = f[1] !== undefined ? Number(String(f[1]).replace(/,/g,'')) || 0 : '';
     if(!inputCode) return;
-    const r = map.get(inputCode);
-    if(!r){ plookupUnmatchedCount++; return; }
-    const spec = idxSpec!==-1 ? (r[idxSpec] || '') : '';
-    const splitVal = idxSplit!==-1 ? String(r[idxSplit] || '').trim().toUpperCase() : '';
-    const isSplit = (String(spec).includes('소분')) || splitVal === 'Y';
-    if(isSplit){ plookupExcludedCount++; return; }
+
+    let resolved;
+    if(codeType === '약품코드'){
+      resolved = plookupResolveFromDrugCode(inputCode, drugGroups, idxSpec, idxSplit);
+    } else {
+      const initialRow = std.get(inputCode);
+      if(!initialRow){ plookupUnmatchedCount++; return; }
+      resolved = plookupResolveFromStdRow(initialRow, drugGroups, idxDrug, idxSpec, idxSplit);
+    }
+    if(!resolved || !resolved.row){ plookupUnmatchedCount++; return; }
+
+    const r = resolved.row;
+    let note = '';
+    if(resolved.substituted){
+      plookupSubstitutedCount++;
+      const origStd = resolved.originalRow && idxStd!==-1 ? resolved.originalRow[idxStd] : inputCode;
+      note = `소분 제외로 대체됨 (원래 표준코드: ${origStd})`;
+    }
     plookupResults.push({
       inputCode,
       productCode: idxCode!==-1 ? r[idxCode] : '',
       productName: idxName!==-1 ? r[idxName] : '',
-      spec,
+      spec: idxSpec!==-1 ? r[idxSpec] : '',
       qty,
       maker: idxMaker!==-1 ? r[idxMaker] : '',
       price: idxPrice!==-1 ? r[idxPrice] : '',
       stdCode: idxStd!==-1 ? r[idxStd] : '',
       drugCode: idxDrug!==-1 ? r[idxDrug] : '',
+      note
     });
   });
 }
@@ -5315,7 +5409,7 @@ function renderPlookupInfo(){
   const el = document.getElementById('plookupInfo');
   if(!plookupRawRows.length){ el.style.display = 'none'; return; }
   el.style.display = 'block';
-  el.innerHTML = `입력 <b>${plookupRawRows.length.toLocaleString()}건</b> · 결과 <b>${plookupResults.length.toLocaleString()}건</b> · 소분 제외 <b>${plookupExcludedCount.toLocaleString()}건</b> · 매칭 안 됨 <b>${plookupUnmatchedCount.toLocaleString()}건</b>`;
+  el.innerHTML = `입력 <b>${plookupRawRows.length.toLocaleString()}건</b> · 결과 <b>${plookupResults.length.toLocaleString()}건</b> · 소분 대체 <b>${plookupSubstitutedCount.toLocaleString()}건</b> · 매칭 안 됨 <b>${plookupUnmatchedCount.toLocaleString()}건</b>`;
 }
 
 function renderPlookupTable(){
@@ -5367,8 +5461,8 @@ async function exportPlookupXlsx(){
   const rows = buildPlookupExportRows();
   const columns = PLOOKUP_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : undefined, center: c.num }));
   await downloadStyledXlsx({
-    sheetName: '제품조회',
-    fileName: '제품조회_' + new Date().toISOString().slice(0,10) + '.xlsx',
+    sheetName: '반품신청서_소분테스트',
+    fileName: '반품신청서_소분테스트_' + new Date().toISOString().slice(0,10) + '.xlsx',
     columns, rows
   });
 }
@@ -5379,8 +5473,8 @@ function exportPlookupXls(){
   rows.forEach(o=>{ aoa.push(PLOOKUP_COLUMNS.map(c=>o[c.key])); });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '제품조회');
-  XLSX.writeFile(wb, '제품조회_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
+  XLSX.utils.book_append_sheet(wb, ws, '반품신청서_소분테스트');
+  XLSX.writeFile(wb, '반품신청서_소분테스트_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
 }
 
 function bindPlookupTab(){
@@ -5394,8 +5488,8 @@ function bindPlookupTab(){
     await savePlookupRaw();
   });
   document.getElementById('plookupClearBtn').addEventListener('click', async ()=>{
-    if(!confirm('붙여넣은 제품조회 데이터를 지울까요?')) return;
-    plookupRawRows = []; plookupResults = []; plookupUnmatchedCount = 0; plookupExcludedCount = 0;
+    if(!confirm('붙여넣은 데이터를 지울까요?')) return;
+    plookupRawRows = []; plookupResults = []; plookupUnmatchedCount = 0; plookupSubstitutedCount = 0;
     document.getElementById('plookupPasteArea').value = '';
     updatePlookupPasteInfo();
     renderPlookupInfo();
