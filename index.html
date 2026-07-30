@@ -590,6 +590,7 @@
             <div class="tab" data-tab="supply"><span class="tab-ic">🧾</span>공급내역신고(테스트중)</div>
             <div class="tab" data-tab="inbound"><span class="tab-ic">🧪</span>입고현황조회(테스트중)</div>
             <div class="tab" data-tab="productlookup"><span class="tab-ic">↩️</span>반품신청서(소분-테스트중)</div>
+            <div class="tab" data-tab="pharmreg"><span class="tab-ic">🏭</span>제약사등록자료(테스트중)</div>
           </div>
         </div>
       </div>
@@ -1096,6 +1097,83 @@
         </div>
 
       </div>
+
+      <!-- 제약사등록자료(테스트중) TAB: 제약사 사이트에서 내려받은 거래명세서를 붙여넣으면 등록자료 형식으로 계산합니다 -->
+      <div class="panel" id="panel-pharmreg">
+
+        <div class="sub-section">
+          <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="flex:1 1 0; min-width:280px;">
+              <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입전표 합계액</div>
+              <table id="pharmregCalcTable">
+                <thead><tr><th>구분</th><th>공급가</th><th>부가세</th><th>합계액 <span style="color:var(--red);">◀입력</span></th></tr></thead>
+                <tbody id="pharmregCalcBody"></tbody>
+              </table>
+              <div id="pharmregCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
+            </div>
+            <div style="flex:2 1 0; min-width:320px;">
+              <div class="foot-row" style="gap:12px; margin-bottom:8px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:13px;">제약사(선택사항)</label>
+                <select id="pharmregCompany">
+                  <option value="">고르지 않음</option>
+                  <option>뉴신팜</option><option>메디카코리아</option><option>동아에스티</option>
+                  <option>에이치케이이노엔</option><option>온라인팜</option><option>유나이티드</option>
+                  <option>유한양행</option><option>일동제약</option><option>정안약품</option>
+                  <option>종근당</option><option>팜베이</option><option>태준제약</option>
+                  <option>티알엔</option><option>한독</option><option>휴온스</option><option>기타</option>
+                </select>
+              </div>
+              <div id="pharmregCodeTableArea" style="display:none; margin-bottom:10px; padding:10px; border:1px dashed var(--line); border-radius:8px;">
+                <div class="foot-note" style="margin-bottom:6px;">이 제약사는 거래명세서에 표준코드가 없거나 단가가 빠져있어서, 엑셀의 '코드표' 시트(표준코드/제품명/단가 등)를 붙여넣어두면 매칭·단가 보정에 자동으로 활용해요(제품명 또는 코드로 표준코드를 찾거나, 표준코드로 단가를 채워요).</div>
+                <textarea id="pharmregCodeTablePasteArea" placeholder="엑셀 '코드표' 시트를 헤더 포함해서 붙여넣으세요" style="width:100%; min-height:80px; font-family:var(--mono); font-size:11.5px; padding:8px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+                <div class="foot-row" style="justify-content:space-between; margin-top:6px;">
+                  <div id="pharmregCodeTableInfo" style="color:var(--ink-dim); font-size:12px;">아직 저장된 코드표가 없어요</div>
+                  <button class="btn primary" id="pharmregCodeTableSaveBtn">💾 코드표 저장</button>
+                </div>
+              </div>
+              <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 표준코드·수량·단가·제조번호·유효기간·제품명 컬럼을 헤더 이름으로 자동으로 찾아서 제품코드마스터DB와 매칭해요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <textarea id="pharmregPasteArea" placeholder="제약사 거래명세서 데이터를 헤더 포함해서 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:140px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+              <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
+                <div id="pharmregPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn danger" id="pharmregClearBtn">지우기</button>
+                  <button class="btn primary" id="pharmregApplyBtn">💾 결과 계산</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-section">
+          <div class="sub-section-title">결과 (포함/별도 자동 판별)</div>
+          <div id="pharmregModeInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
+          <div class="toolbar">
+            <div id="pharmregSumInfo" style="display:none; font-weight:800; font-size:15px; color:var(--ink);"></div>
+            <span class="count-badge" id="count-pharmreg"></span>
+            <div class="spacer"></div>
+            <button class="btn" id="pharmregExportXlsxBtn" style="background:var(--accent); color:#fff; border-color:var(--accent);">⬇ XLSX 다운로드</button>
+            <button class="btn" id="pharmregExportXlsBtn" style="background:var(--accent); color:#fff; border-color:var(--accent);">⬇ XLS 다운로드</button>
+          </div>
+          <div class="table-scroll">
+            <table id="table-pharmreg">
+              <thead><tr id="head-pharmreg"></tr></thead>
+              <tbody id="body-pharmreg"></tbody>
+            </table>
+          </div>
+          <div class="foot-note">표준코드로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빨간 줄로 표시돼요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액·제조번호·사용기한</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="sub-section" id="pharmregEditsSection" style="display:none; margin-top:14px;">
+            <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>제품코드</th><th>상품코드</th><th>변경 항목</th><th>수정 전</th><th>수정 후</th></tr></thead>
+                <tbody id="pharmregEditsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
 
       <!-- 공급내역신고 TAB: 원본 데이터를 표에 붙여넣으면 포함/별도(합계액·단가 × 내림·반올림·올림) 7종을 계산합니다 -->
       <div class="panel" id="panel-supply">
@@ -5793,6 +5871,804 @@ async function initPlookupTab(){
   renderPlookupTable();
 }
 
+const PHARMREG_STORAGE_KEY = 'stockout_dashboard_pharmreg_raw_v1';
+const PHARMREG_MODES = [
+  { id:'포함', label:'포함' },
+  { id:'별도-합계액(내림)', label:'별도-합계액(내림)', base:'amt', round:'floor' },
+  { id:'별도-합계액(반올림)', label:'별도-합계액(반올림)', base:'amt', round:'round' },
+  { id:'별도-합계액(올림)', label:'별도-합계액(올림)', base:'amt', round:'ceil' },
+  { id:'별도-단가(내림)', label:'별도-단가(내림)', base:'unit', round:'floor' },
+  { id:'별도-단가(반올림)', label:'별도-단가(반올림)', base:'unit', round:'round' },
+  { id:'별도-단가(올림)', label:'별도-단가(올림)', base:'unit', round:'ceil' },
+];
+const PHARMREG_COLUMNS = [
+  { key:'productCode', label:'제품코드', width:68 },
+  { key:'barcode', label:'상품코드', width:140 },
+  { key:'dealType', label:'거래유형', hideOnScreen:true },
+  { key:'damageType', label:'파손유무', hideOnScreen:true },
+  { key:'qty', label:'수량', num:true, width:56 },
+  { key:'unit', label:'매입단가', num:true, editable:true, width:88 },
+  { key:'amt', label:'실금액', num:true, editable:true, width:100 },
+  { key:'discount', label:'할인금액', width:76, hideOnScreen:true },
+  { key:'lotNo', label:'제조번호', width:94, textEditable:true },
+  { key:'expiry', label:'사용기한', width:84, textEditable:true },
+  { key:'margin', label:'마진', pct:true, width:70 },
+  { key:'productName', label:'표준상품명', width:160 },
+  { key:'maker', label:'다미스코드명', width:160 },
+  { key:'note', label:'구매비고', width:192 },
+  { key:'longout', label:'장기품절등록', width:84, hideOnScreen:true },
+];
+
+let pharmregRawRows = [];      // 파싱된 원본 22열 행들
+let pharmregComputed = [];     // 매칭 + 7가지 모드 계산까지 끝난 행들 (모드 선택 전)
+let pharmregFinalRows = [];    // 자동 판별된 모드로 확정된, 화면에 보여주고 수정 가능한 행들
+let pharmregSelectedVendor = null;   // {name, vat} — 배치의 대표 거래처 (첫 매칭 성공 행 기준)
+let pharmregDecision = null;   // { mode, reason, diff }
+let pharmregEditsMap = new Map(); // key: `${idx}:${field}` -> {productCode,barcode,field,before,after}
+
+// ---------- 매입전표 합계액 (합계액을 우선 입력하면 공급가·부가세가 자동 계산되고, 세 칸 모두 세부조정 가능, 7줄 + 총합계) ----------
+const PHARMREG_CALC_ROWS = 7;
+let pharmregCalcData = Array.from({length: PHARMREG_CALC_ROWS}, ()=>({ pharmreg:null, vat:null, total:null }));
+
+
+// 합계액을 기준으로 공급가·부가세를 자동 계산합니다(÷1.1). 공급가나 부가세를 직접 고치면(세부조정),
+// 합계액이 이미 있으면 그 합계액을 고정한 채 나머지 한 쪽을 다시 맞추고, 합계액이 아직 없으면
+// 예전처럼 10% 부가세로 계산해서 합계액을 새로 만듭니다.
+function recalcPharmregCalcRow(i, field, value){
+  const row = pharmregCalcData[i];
+  row[field] = value;
+  if(field === 'total'){
+    if(value === null){ row.pharmreg = null; row.vat = null; }
+    else{ row.pharmreg = Math.round(value / 1.1); row.vat = value - row.pharmreg; }
+  } else if(field === 'pharmreg'){
+    if(value === null){ row.vat = null; if(row.total === null) row.vat = null; }
+    else if(row.total !== null){ row.vat = row.total - value; }
+    else { row.vat = Math.round(value * 0.1); row.total = value + row.vat; }
+  } else if(field === 'vat'){
+    if(value === null){ row.pharmreg = null; }
+    else if(row.total !== null){ row.pharmreg = row.total - value; }
+    else { row.pharmreg = Math.round(value * 10); row.total = value + row.pharmreg; }
+  }
+}
+
+function pharmregCalcReferenceTotal(){
+  let sum = 0, any = false;
+  pharmregCalcData.forEach(r=>{ if(r.pharmreg!==null){ sum += r.pharmreg; any = true; } });
+  return any ? sum : null;
+}
+
+function pharmregCalcReferenceGrandTotal(){
+  let sum = 0, any = false;
+  pharmregCalcData.forEach(r=>{ if(r.total!==null){ sum += r.total; any = true; } });
+  return any ? sum : null;
+}
+
+function renderPharmregCalcTotals(){
+  let sSum=0, vSum=0, tSum=0, any=false;
+  pharmregCalcData.forEach(r=>{
+    if(r.pharmreg!==null || r.vat!==null){
+      sSum += r.pharmreg||0; vSum += r.vat||0; tSum += (r.total!==null ? r.total : ((r.pharmreg||0)+(r.vat||0)));
+      any = true;
+    }
+  });
+  const row = document.getElementById('pharmregCalcTotalRow');
+  if(row){
+    row.children[1].textContent = any ? fmtCalcNum(sSum) : '-';
+    row.children[2].textContent = any ? fmtCalcNum(vSum) : '-';
+    row.children[3].textContent = any ? fmtCalcNum(tSum) : '-';
+  }
+  // 부가세가 공급가의 10%를 초과하는 줄이 있으면 경고를 띄웁니다.
+  const warnEl = document.getElementById('pharmregCalcWarning');
+  if(warnEl){
+    const flagged = [];
+    pharmregCalcData.forEach((r,i)=>{
+      if(r.pharmreg && r.vat!==null && r.pharmreg > 0){
+        const ratio = r.vat / r.pharmreg;
+        if(ratio > 0.101) flagged.push(`${i+1}행(${(ratio*100).toFixed(1)}%)`);
+      }
+    });
+    if(flagged.length){
+      warnEl.style.display = 'block';
+      warnEl.textContent = `⚠ 부가세가 공급가의 10%를 초과하는 줄이 있어요: ${flagged.join(', ')} — 값을 확인해주세요.`;
+    } else {
+      warnEl.style.display = 'none';
+    }
+  }
+}
+
+function renderPharmregCalcTable(){
+  const body = document.getElementById('pharmregCalcBody');
+  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:#eef4ff; padding:2px 4px; box-sizing:border-box;';
+  const totalInputStyle = 'width:100%; border:2px solid var(--red); border-radius:4px; text-align:right; font:inherit; font-weight:800; background:#fff3f0; padding:2px 4px; box-sizing:border-box;';
+  let html = '';
+  for(let i=0; i<PHARMREG_CALC_ROWS; i++){
+    const r = pharmregCalcData[i];
+    html += `<tr>
+      <td class="num">${i+1}</td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="pharmreg" value="${r.pharmreg!==null?fmtCalcNum(r.pharmreg):''}" style="${inputStyle}"></td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="vat" value="${r.vat!==null?fmtCalcNum(r.vat):''}" style="${inputStyle}"></td>
+      <td class="num"><input type="text" class="calc-input" data-i="${i}" data-field="total" value="${r.total!==null?fmtCalcNum(r.total):''}" style="${totalInputStyle}"></td>
+    </tr>`;
+  }
+  html += `<tr class="total-row" id="pharmregCalcTotalRow"><td>총합계</td><td class="num">-</td><td class="num">-</td><td class="num">-</td></tr>`;
+  body.innerHTML = html;
+
+  body.querySelectorAll('input.calc-input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const i = Number(inp.dataset.i);
+      const field = inp.dataset.field;
+      const n = Number(String(inp.value).replace(/,/g,'').trim());
+      const val = (inp.value.trim()==='' || isNaN(n)) ? null : n;
+      recalcPharmregCalcRow(i, field, val);
+      renderPharmregCalcTable();
+      renderInboundCalcTable();
+      // 방금 입력하던 칸에 포커스를 되돌려줍니다 (이 표 안에서만 찾아서, 다른 탭의 표로 포커스가 튀지 않게 합니다).
+      const again = body.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
+      if(again){ again.focus(); const len = again.value.length; again.setSelectionRange(len, len); }
+    });
+  });
+  renderPharmregCalcTotals();
+  // 계산기 값이 바뀌면 이미 계산된 결과가 있을 경우 자동 판별 모드를 다시 계산합니다.
+  if(pharmregComputed.length) finalizePharmregMode();
+}
+
+
+// 붙여넣은 텍스트를 22열 행 배열로 분해합니다. 엑셀에서 복사하면 탭으로 구분되고,
+// CSV를 그대로 붙여넣으면 콤마(+따옴표)로 구분되므로 둘 다 처리합니다.
+function parsePharmregPasteText(text){
+  const lines = text.split(/\r\n|\r|\n/).map(l=>l.replace(/\s+$/,'')).filter(l=>l.length>0);
+  // 붙여넣기 전체를 기준으로 구분자를 한 번만 정합니다 (엑셀 복사는 탭 구분).
+  // 특정 줄만 개별 판단하면, 셀 안에 줄바꿈이 섞여 밀린 줄이 콤마 규칙으로 잘못 쪼개져
+  // 그 다음 줄부터 전부 컬럼이 밀리는 문제가 생길 수 있어 전체 텍스트 기준으로 통일합니다.
+  const useTab = text.includes('\t');
+  return lines.map(line=>{
+    if(useTab) return line.split('\t').map(v=>v.trim());
+    // 콤마 CSV (따옴표로 감싸져 있을 수 있음)
+    const out = [];
+    let cur = '', inQuotes = false;
+    for(let i=0; i<line.length; i++){
+      const ch = line[i];
+      if(ch === '"'){ inQuotes = !inQuotes; continue; }
+      if(ch === ',' && !inQuotes){ out.push(cur); cur=''; continue; }
+      cur += ch;
+    }
+    out.push(cur);
+    return out.map(v=>v.trim());
+  });
+}
+
+// "8.80675E+12" 같은 지수표기 문자열에서 유효자리수(가수 자릿수)를 세어줍니다.
+
+
+
+
+
+// 사용기한('YYYYMMDD')이 오늘로부터 몇 개월 남았는지 계산합니다 (달력 기준, 음수면 이미 지남).
+
+function pharmregNormCell(v){
+  return String(v||'').replace(/[\s\u00a0]+/g,'').trim();
+}
+
+const PHARMREG_FIELD_KEYWORDS = {
+  stdCode: ['표준코드','의약품표준코드'],
+  qty: ['수량','판매수량'],
+  unitPrice: ['단가','판매가격','공급단가','기준단가','장부단가','실단가'],
+  amount: ['공급가액','금액'],
+  lotNo: ['제조번호','배치','Lot.NO','LOT','Lot'],
+  expiry: ['유효기간','유효일자','유통기한'],
+  itemName: ['제품명','상품명','품명','품목명','제 품 명','품 명'],
+};
+
+// "2028-03-03"/"2028/03/03"/"20280303"/엑셀 시리얼값 등을 YYYYMMDD로 정리합니다.
+function parseFlexibleDateToYYYYMMDD(raw){
+  if(raw === null || raw === undefined) return '';
+  const s = String(raw).trim();
+  if(!s) return '';
+  if(/^\d{8}$/.test(s)) return s;
+  const m = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+  if(m) return m[1] + m[2].padStart(2,'0') + m[3].padStart(2,'0');
+  const num = Number(s);
+  if(!isNaN(num) && num > 20000 && num < 90000){
+    const d = new Date(Math.round((num - 25569) * 86400 * 1000));
+    return `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
+  }
+  return s;
+}
+
+// 최대 5줄까지 훑어서 헤더로 보이는 줄(필요한 항목 중 3개 이상 이름이 일치)을 찾습니다.
+function detectPharmregColumnIndices(rawRows){
+  for(let i=0; i<Math.min(5, rawRows.length); i++){
+    const norm = rawRows[i].map(pharmregNormCell);
+    let hits = 0;
+    Object.values(PHARMREG_FIELD_KEYWORDS).forEach(keywords=>{
+      if(keywords.some(k => norm.includes(pharmregNormCell(k)))) hits++;
+    });
+    if(hits >= 3){
+      const find = (keywords) => {
+        for(const k of keywords){
+          const idx = norm.indexOf(pharmregNormCell(k));
+          if(idx !== -1) return idx;
+        }
+        return -1;
+      };
+      const idxs = {};
+      Object.entries(PHARMREG_FIELD_KEYWORDS).forEach(([field, keywords])=>{ idxs[field] = find(keywords); });
+      return { idxs, dataRows: rawRows.slice(i+1) };
+    }
+  }
+  return { idxs: null, dataRows: rawRows };
+}
+
+// 코드표(회사별로 저장된 표준코드/제품명/단가 참고표)를 이용한 보조 매칭: 표준코드가 없는 회사는
+// 제품명으로 표준코드를 찾고, 단가가 없는 회사는 표준코드로 단가를 채웁니다.
+function buildPharmregCodeTableMaps(company){
+  const nameToStd = new Map(), stdToPrice = new Map(), codeToStd = new Map();
+  const raw = pharmregCodeTables[company];
+  if(!raw || !raw.length) return { nameToStd, stdToPrice, codeToStd };
+  let header = null, dataStart = 0;
+  for(let i=0; i<Math.min(5, raw.length); i++){
+    const norm = raw[i].map(pharmregNormCell);
+    if(norm.some(v=>v==='표준코드'||v==='의약품표준코드')){ header = norm; dataStart = i+1; break; }
+  }
+  if(!header) return { nameToStd, stdToPrice, codeToStd };
+  const idxStd = header.findIndex(v=>v==='표준코드'||v==='의약품표준코드');
+  const idxName = header.findIndex(v=>v.includes('제품명')||v.includes('상품명')||v==='품명');
+  const idxPrice = header.findIndex(v=>v.includes('단가'));
+  const idxCode = header.findIndex(v=>v.includes('KD코드')||v.includes('다미스코드')||v.includes('자사코드'));
+  for(let i=dataStart; i<raw.length; i++){
+    const row = raw[i];
+    if(!row) continue;
+    const std = idxStd!==-1 ? String(row[idxStd]||'').trim() : '';
+    if(!std) continue;
+    if(idxName!==-1){
+      const name = normalizeProductName(row[idxName]);
+      if(name && !nameToStd.has(name)) nameToStd.set(name, std);
+    }
+    if(idxPrice!==-1){
+      const price = Number(String(row[idxPrice]||'').replace(/,/g,''));
+      if(!isNaN(price) && !stdToPrice.has(std)) stdToPrice.set(std, price);
+    }
+    if(idxCode!==-1){
+      const code = String(row[idxCode]||'').trim();
+      if(code && !codeToStd.has(code)) codeToStd.set(code, std);
+    }
+  }
+  return { nameToStd, stdToPrice, codeToStd };
+}
+
+// 사업자번호 대신 거래처정보마스터DB의 매입처명으로 거래처를 찾습니다(제약사 선택 드롭다운과 매칭).
+function buildPharmregVendorNameMap(){
+  const map = new Map();
+  const vm = uploadState['vendorMaster'];
+  if(!vm) return map;
+  const headers = vm.headers;
+  const idxName = findHeaderIndex(headers, '매입처명', '거래처명', '거래처');
+  const idxVat = headers.indexOf('매입전표부가세');
+  if(idxName === -1) return map;
+  vm.rows.forEach(r=>{
+    const name = String(r[idxName]||'').trim();
+    if(!name) return;
+    if(!map.has(name)) map.set(name, { name, vat: idxVat!==-1 ? r[idxVat] : '' });
+  });
+  return map;
+}
+
+function computePharmregResults(){
+  const productIndex = buildProductBarcodeMap();
+  const vendorNameMap = buildPharmregVendorNameMap();
+  pharmregSelectedVendor = null;
+
+  const company = (document.getElementById('pharmregCompany')||{}).value || '';
+  if(company){
+    for(const [name, v] of vendorNameMap){
+      if(name.includes(company) || company.includes(name)){ pharmregSelectedVendor = v; break; }
+    }
+  }
+  const codeTableMaps = buildPharmregCodeTableMaps(company);
+
+  const { idxs, dataRows } = detectPharmregColumnIndices(pharmregRawRows);
+  pharmregComputed = [];
+  if(!idxs) return;
+
+  dataRows.forEach(f=>{
+    if(!f || !f.some(v=>v!==null && v!==undefined && String(v).trim()!=='')) return;
+    let stdCode = idxs.stdCode!==-1 ? String(f[idxs.stdCode]||'').trim() : '';
+    const itemName = idxs.itemName!==-1 ? String(f[idxs.itemName]||'').trim() : '';
+    if(!stdCode && itemName){
+      const byName = codeTableMaps.nameToStd.get(normalizeProductName(itemName));
+      if(byName) stdCode = byName;
+    }
+    if(!stdCode) return;
+    const qty = idxs.qty!==-1 ? (Number(String(f[idxs.qty]||'').replace(/,/g,''))||0) : 0;
+    let rawUnit = idxs.unitPrice!==-1 ? (Number(String(f[idxs.unitPrice]||'').replace(/,/g,''))||0) : 0;
+    let rawAmt = idxs.amount!==-1 ? (Number(String(f[idxs.amount]||'').replace(/,/g,''))||0) : 0;
+    if(!rawUnit && codeTableMaps.stdToPrice.has(stdCode)) rawUnit = codeTableMaps.stdToPrice.get(stdCode);
+    if(!rawUnit && rawAmt && qty) rawUnit = Math.round(rawAmt / qty);
+    if(!rawAmt && rawUnit && qty) rawAmt = rawUnit * qty;
+    const lotNo = idxs.lotNo!==-1 ? String(f[idxs.lotNo]||'').trim() : '';
+    const expiry = idxs.expiry!==-1 ? parseFlexibleDateToYYYYMMDD(f[idxs.expiry]) : '';
+
+    const prod = lookupProductByBarcode(stdCode, productIndex, itemName);
+    const barcode = prod && prod.barcode ? prod.barcode : stdCode;
+    const generalPrice = prod ? Number(prod.price)||0 : 0;
+
+    const modes = {};
+    PHARMREG_MODES.forEach(m=>{
+      let amt, unit;
+      if(m.id === '포함'){
+        amt = rawAmt;
+        unit = qty ? amt / qty : 0;
+      } else if(m.base === 'amt'){
+        amt = roundBy(m.round, rawAmt / 1.1);
+        unit = qty ? amt / qty : 0;
+      } else {
+        unit = roundBy(m.round, rawUnit / 1.1);
+        amt = unit * qty;
+      }
+      const compareBase = m.id === '포함' ? generalPrice : (generalPrice ? generalPrice/1.1 : 0);
+      const margin = compareBase ? ((compareBase - unit) / compareBase) : null;
+      modes[m.id] = { amt, unit, margin };
+    });
+
+    pharmregComputed.push({
+      productCode: prod ? prod.code : '',
+      barcode, dealType: 1, damageType: 1, qty, discount: '',
+      lotNo, expiry,
+      productName: itemName,
+      maker: prod ? prod.maker : '',
+      note: prod ? prod.note : '', longout: prod ? prod.longout : '',
+      generalPrice, modes
+    });
+  });
+
+  finalizePharmregMode();
+}
+
+// 거래처의 매입전표부가세(포함/별도)와 계산기의 공급가 합계를 참고해 7가지 중 하나를 자동으로 고릅니다.
+function decidePharmregMode(){
+  const refTotal = pharmregCalcReferenceTotal();
+  const vendorVatRaw = String((pharmregSelectedVendor && pharmregSelectedVendor.vat) || '').trim();
+
+  if(vendorVatRaw !== '별도'){
+    const reason = vendorVatRaw === '포함'
+      ? `거래처정보마스터DB의 매입전표부가세 값이 '포함'이라 포함 방식을 그대로 사용했어요.`
+      : `거래처정보마스터DB의 매입전표부가세 값이 '포함'/'별도'가 아니거나 비어있어서, 기본값인 포함 방식으로 계산했어요.`;
+    return { mode:'포함', diff:0, reason };
+  }
+
+  const separateModes = PHARMREG_MODES.filter(m=>m.id!=='포함');
+  if(refTotal === null){
+    return {
+      mode:'별도-합계액(반올림)', diff:null,
+      reason:'별도 방식 6가지 중 하나를 고르려면 왼쪽 간이 계산기에 세금계산서 공급가를 입력해주세요 — 아직 입력이 없어서 기본값인 별도-합계액(반올림)을 사용했어요.'
+    };
+  }
+  let best = null;
+  separateModes.forEach(m=>{
+    const sum = pharmregComputed.reduce((s,r)=> s + (r.modes[m.id] ? r.modes[m.id].amt : 0), 0);
+    const diff = Math.abs(sum - refTotal);
+    if(!best || diff < best.diff) best = { mode:m.id, diff, sum };
+  });
+  const vendorNote = `거래처정보마스터DB의 매입전표부가세가 '별도'라 별도 6가지 중`;
+  let matchNote;
+  if(best.diff === 0) matchNote = '계산기 공급가 합계와 정확히 일치하는 방식을 찾았어요.';
+  else if(best.diff <= 50) matchNote = `계산기 공급가 합계와 ${best.diff.toLocaleString()}원 차이로 거의 일치하는 방식을 찾았어요.`;
+  else matchNote = `계산기 공급가 합계와 가장 가까운 방식을 찾았어요 (차이 ${best.diff.toLocaleString()}원 — 정확히 일치하는 방식은 없었어요).`;
+  return { mode: best.mode, diff: best.diff, reason: `${vendorNote} ${matchNote}` };
+}
+
+function finalizePharmregMode(){
+  if(!pharmregComputed.length){ pharmregFinalRows = []; pharmregDecision = null; renderPharmregModeInfo(); renderPharmregTable(); renderPharmregEditsList(); return; }
+  pharmregDecision = decidePharmregMode();
+  pharmregEditsMap = new Map();
+  pharmregFinalRows = pharmregComputed.map((r, idx)=>{
+    const m = r.modes[pharmregDecision.mode] || { amt:0, unit:0, margin:null };
+    return { ...r, unit:m.unit, amt:m.amt, margin:m.margin, _idx: idx, _orig: { unit:m.unit, amt:m.amt, lotNo:r.lotNo, expiry:r.expiry } };
+  });
+  reconcilePharmregTotals();
+  renderPharmregModeInfo();
+  renderPharmregTable();
+  renderPharmregEditsList();
+}
+
+// 매입전표 합계액(계산기)에 입력한 진짜 합계와 결과값 합계 사이에 반올림 등으로 몇십 원 이내
+// 오차가 나면, 금액이 큰(마진 영향이 상대적으로 작은) 품목부터 실금액을 1원 단위로 보정해서
+// 정확히 맞춰줍니다. 품목 하나가 흡수하는 보정액은 그 품목의 수량을 넘지 않도록 제한합니다
+// (매입단가가 ±1원을 크게 벗어나지 않게 하기 위함). 보정 내역은 비고/수정 내역에 남아요.
+function reconcilePharmregTotals(){
+  if(!pharmregFinalRows.length || !pharmregDecision) return;
+  const isIncluded = pharmregDecision.mode === '포함';
+  const target = isIncluded ? pharmregCalcReferenceGrandTotal() : pharmregCalcReferenceTotal();
+  if(target === null) return;
+  const currentSum = pharmregFinalRows.reduce((s,r)=> s + (Number(r.amt)||0), 0);
+  let diff = Math.round(target - currentSum);
+  if(diff === 0) return;
+  const sign = diff > 0 ? 1 : -1;
+  let remaining = Math.abs(diff);
+  const candidates = [...pharmregFinalRows].sort((a,b)=> (b.amt||0) - (a.amt||0));
+  for(const row of candidates){
+    if(remaining <= 0) break;
+    const qty = Number(row.qty) || 0;
+    if(qty <= 1) continue; // 수량이 1 이하면 '수량 미만'만큼 보정할 여지가 없어요
+    const maxAdj = qty - 1; // 보정액은 수량 미만이어야 함
+    const adj = Math.min(maxAdj, remaining);
+    if(adj <= 0) continue;
+    const before = row.amt;
+    row.amt = row.amt + sign*adj;
+    row.unit = qty ? row.amt / qty : row.unit;
+    remaining -= adj;
+    pharmregEditsMap.set(`${row._idx}:amt`, {
+      productCode: row.productCode, barcode: row.barcode,
+      field: '실금액(오차보정)', before, after: row.amt
+    });
+  }
+}
+
+function renderPharmregModeInfo(){
+  const el = document.getElementById('pharmregModeInfo');
+  if(!pharmregDecision){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const vendorPart = pharmregSelectedVendor && pharmregSelectedVendor.name ? `거래처: <b>${pharmregSelectedVendor.name}</b> · ` : '';
+  const matched = pharmregFinalRows.filter(r=>r.productCode).length;
+  const matchPart = pharmregFinalRows.length
+    ? ` · 제품코드마스터DB 매칭: <b>${matched}/${pharmregFinalRows.length}건</b>${matched < pharmregFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
+    : '';
+  const reconciledCount = Array.from(pharmregEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
+  const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
+  const diff = pharmregDecision.diff;
+  const isBigDiff = diff !== null && diff !== undefined && Math.abs(diff) > 1000;
+  const warnPart = isBigDiff ? `<div style="color:var(--red); font-weight:800; margin-top:4px;">⚠ 매입전표 합계액과 결과값 차이가 커요 (${Math.abs(Math.round(diff)).toLocaleString()}원) — 계산기 입력값이나 붙여넣은 데이터를 다시 확인해주세요.</div>` : '';
+  el.innerHTML = `${vendorPart}선택된 방식: <b>${pharmregDecision.mode}</b> — ${pharmregDecision.reason}${matchPart}${reconcilePart}${warnPart}`;
+}
+
+let pharmregColumnWidths = {}; // 사용자가 드래그로 조절한 컬럼 너비 (key: 컬럼 key 또는 'flag'/'editNote')
+const PHARMREG_COLWIDTH_KEY = 'stockout_dashboard_pharmreg_colwidths_v1';
+
+async function loadPharmregColumnWidths(){
+  try{
+    const res = await window.storage.get(PHARMREG_COLWIDTH_KEY, true);
+    if(res && res.value) pharmregColumnWidths = JSON.parse(res.value);
+  }catch(e){ /* 저장된 값 없음 */ }
+}
+async function savePharmregColumnWidths(){
+  try{ await window.storage.set(PHARMREG_COLWIDTH_KEY, JSON.stringify(pharmregColumnWidths), true); }catch(e){ /* best effort */ }
+}
+
+function pharmregEditNoteFor(idx){
+  const parts = [];
+  pharmregEditsMap.forEach((e, key)=>{
+    if(key.startsWith(idx + ':')){
+      if(e.field === '제조번호' || e.field === '사용기한'){
+        parts.push(`${e.field} ${e.before}→${e.after}`);
+      } else {
+        const delta = Math.round(e.after) - Math.round(e.before);
+        const sign = delta > 0 ? '+' : '';
+        parts.push(`${e.field} ${sign}${delta.toLocaleString()}원`);
+      }
+    }
+  });
+  return parts.join(', ');
+}
+
+function renderPharmregTable(){
+  const screenCols = PHARMREG_COLUMNS.filter(c=>!c.hideOnScreen);
+  const allCols = [
+    { key:'flag', width:52 },
+    ...screenCols,
+    { key:'editNote', label:'비고', width:160 }
+  ];
+  const head = document.getElementById('head-pharmreg');
+  head.innerHTML = allCols.map(c=>{
+    const w = pharmregColumnWidths[c.key] || c.width;
+    const label = c.key === 'productCode' ? `${c.label||''} <span style="color:var(--red); font-weight:800;">(공급내역신고 주의)</span>` : (c.label||'');
+    return `<th style="width:${w}px; position:relative;">${label}<span class="pharmreg-col-resize" data-col="${c.key}" style="position:absolute; right:0; top:0; width:6px; height:100%; cursor:col-resize;"></span></th>`;
+  }).join('');
+
+  head.querySelectorAll('.pharmreg-col-resize').forEach(handle=>{
+    handle.addEventListener('mousedown', (e)=>{
+      e.preventDefault();
+      const th = handle.closest('th');
+      const colKey = handle.dataset.col;
+      const startX = e.clientX;
+      const startWidth = th.getBoundingClientRect().width;
+      function onMove(ev){
+        const newWidth = Math.max(30, Math.round(startWidth + (ev.clientX - startX)));
+        th.style.width = newWidth + 'px';
+      }
+      function onUp(){
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        pharmregColumnWidths[colKey] = parseInt(th.style.width, 10);
+        savePharmregColumnWidths();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  const rows = [...pharmregFinalRows].sort((a,b)=>{
+    const rank = r=>{
+      const m = r.margin;
+      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m < 0.05 || m >= 0.15);
+      if(marginWarn) return 0;
+      const ml = monthsUntilExpiry(r.expiry);
+      if(ml !== null && ml < 9) return 1;
+      return 2;
+    };
+    return rank(a) - rank(b);
+  });
+  document.getElementById('count-pharmreg').textContent = `${rows.length.toLocaleString()}건`;
+
+  const sumEl = document.getElementById('pharmregSumInfo');
+  if(pharmregFinalRows.length){
+    const sum = pharmregFinalRows.reduce((s,r)=> s + (Number(r.amt)||0), 0);
+    sumEl.style.display = 'block';
+    sumEl.textContent = `결과값 합계액: ${Math.round(sum).toLocaleString()}원`;
+  } else {
+    sumEl.style.display = 'none';
+  }
+
+  const body = document.getElementById('body-pharmreg');
+  body.innerHTML = rows.map(r=>{
+    const monthsLeft = monthsUntilExpiry(r.expiry);
+    const isSoon = monthsLeft !== null && monthsLeft < 9;
+    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin < 0.05 || r.margin >= 0.15);
+    const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
+    const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
+    const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
+    const mainCells = screenCols.map(c=>{
+      let v = r[c.key];
+      if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*10000)/100).toLocaleString() + '%'; }
+      else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
+      else if(v===null || v===undefined) v = '';
+      const isExpiryWarn = c.key === 'expiry' && isSoon;
+      const cellStyle = (!isMarginWarn && isExpiryWarn) ? ' style="color:var(--red); font-weight:700;"' : '';
+      if(c.editable){
+        return `<td class="num editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}"${cellStyle}>${v}</td>`;
+      }
+      if(c.textEditable){
+        return `<td class="editable" contenteditable="true" data-idx="${r._idx}" data-field="${c.key}" data-text="1"${cellStyle}>${v}</td>`;
+      }
+      return `<td class="${c.num||c.pct?'num':''}"${cellStyle}>${v}</td>`;
+    }).join('');
+    const noteCell = `<td style="color:var(--ink-dim); font-size:12px;">${pharmregEditNoteFor(r._idx)}</td>`;
+    return `<tr${rowStyle}>` + flagCell + mainCells + noteCell + '</tr>';
+  }).join('');
+
+  body.querySelectorAll('td[contenteditable]').forEach(td=>{
+    td.addEventListener('blur', ()=>{
+      const idx = Number(td.dataset.idx);
+      const field = td.dataset.field;
+      const row = pharmregFinalRows.find(r=>r._idx===idx);
+      if(!row) return;
+      const isText = td.dataset.text === '1';
+      const fieldLabel = field === 'unit' ? '매입단가' : (field === 'amt' ? '실금액' : (field === 'lotNo' ? '제조번호' : '사용기한'));
+      if(isText){
+        const val = String(td.textContent).trim();
+        row[field] = val;
+        td.classList.add('edited');
+        const orig = row._orig[field] || '';
+        const key = `${idx}:${field}`;
+        if(val === orig){ pharmregEditsMap.delete(key); }
+        else {
+          pharmregEditsMap.set(key, {
+            productCode: row.productCode, barcode: row.barcode,
+            field: fieldLabel, before: orig || '(공란)', after: val || '(공란)'
+          });
+        }
+        renderPharmregEditsList();
+        renderPharmregTable();
+        return;
+      }
+      const n = Number(String(td.textContent).replace(/,/g,'').trim());
+      if(isNaN(n)) { td.textContent = Math.round(row[field]).toLocaleString(); return; }
+      row[field] = n;
+      td.classList.add('edited');
+      const orig = row._orig[field];
+      const key = `${idx}:${field}`;
+      if(n === orig){ pharmregEditsMap.delete(key); }
+      else {
+        pharmregEditsMap.set(key, {
+          productCode: row.productCode, barcode: row.barcode,
+          field: fieldLabel,
+          before: orig, after: n
+        });
+      }
+      renderPharmregEditsList();
+      renderPharmregTable();
+    });
+    td.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); td.blur(); } });
+  });
+}
+
+function renderPharmregEditsList(){
+  const section = document.getElementById('pharmregEditsSection');
+  const body = document.getElementById('pharmregEditsBody');
+  if(pharmregEditsMap.size === 0){ section.style.display = 'none'; body.innerHTML = ''; return; }
+  section.style.display = 'block';
+  body.innerHTML = Array.from(pharmregEditsMap.values()).map(e=>`
+    <tr>
+      <td>${e.productCode || ''}</td>
+      <td>${e.barcode || ''}</td>
+      <td>${e.field}</td>
+      <td class="num">${Math.round(e.before).toLocaleString()}</td>
+      <td class="num">${Math.round(e.after).toLocaleString()}</td>
+    </tr>`).join('');
+}
+
+async function savePharmregRaw(){
+  try{ await window.storage.set(PHARMREG_STORAGE_KEY, JSON.stringify(pharmregRawRows), true); }catch(e){ /* best effort */ }
+}
+
+async function loadPharmregRaw(){
+  try{
+    const res = await window.storage.get(PHARMREG_STORAGE_KEY, true);
+    if(res && res.value){
+      pharmregRawRows = JSON.parse(res.value);
+      document.getElementById('pharmregPasteArea').value = pharmregRawRows.map(r=>r.join('\t')).join('\n');
+    }
+  }catch(e){ /* nothing saved yet */ }
+}
+
+function updatePharmregPasteInfo(){
+  const el = document.getElementById('pharmregPasteInfo');
+  el.textContent = pharmregRawRows.length ? `${pharmregRawRows.length.toLocaleString()}행 붙여넣어짐 · 계산 완료` : '아직 붙여넣은 데이터가 없어요';
+}
+
+// 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
+// 다운로드 파일은 화면 표시 여부와 무관하게 항상 이 10개 컬럼을, 이 순서 그대로 내려줍니다.
+const PHARMREG_EXPORT_KEY_ORDER = ['productCode','barcode','dealType','damageType','qty','unit','amt','discount','lotNo','expiry'];
+const PHARMREG_EXPORT_COLUMNS = PHARMREG_EXPORT_KEY_ORDER.map(k => PHARMREG_COLUMNS.find(c=>c.key===k));
+
+function buildPharmregExportRows(){
+  return pharmregFinalRows.map(r=>{
+    const o = {};
+    PHARMREG_EXPORT_COLUMNS.forEach(c=>{
+      let v = r[c.key];
+      if(c.pct) v = (v===null||v===undefined||isNaN(v)) ? '' : Math.round(v*10000)/100;
+      else if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
+      o[c.key] = (v===null||v===undefined) ? '' : v;
+    });
+    return o;
+  });
+}
+
+function pharmregExportFileBaseName(){
+  const vendorName = (pharmregSelectedVendor && pharmregSelectedVendor.name) ? pharmregSelectedVendor.name : '공급내역신고';
+  return vendorName.replace(/[\\/*?:[\]]/g,'');
+}
+
+async function exportPharmregXlsx(){
+  if(!pharmregFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
+  const rows = buildPharmregExportRows();
+  const columns = PHARMREG_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.00"%"' : undefined), center: c.num||c.pct }));
+  await downloadStyledXlsx({
+    sheetName: (pharmregDecision ? pharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
+    fileName: pharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
+    columns, rows
+  });
+}
+
+function exportPharmregXls(){
+  if(!pharmregFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
+  const rows = buildPharmregExportRows();
+  const aoa = [PHARMREG_EXPORT_COLUMNS.map(c=>c.label)];
+  rows.forEach(o=>{ aoa.push(PHARMREG_EXPORT_COLUMNS.map(c=>o[c.key])); });
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, (pharmregDecision ? pharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  XLSX.writeFile(wb, pharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
+}
+
+// 엑셀에서 복사하면 일반 텍스트(clipboard 'text/plain') 말고 서식이 담긴 'text/html'도 함께 담깁니다.
+// 엑셀 HTML에는 셀이 숫자일 때 화면표시(지수표기)와 별개로 실제 값을 담은 속성(x:num 등)이 남아있는
+// 경우가 있어, 있으면 그 값을 우선 사용해 표준코드 같은 큰 숫자가 지수표기로 잘리는 걸 자동으로
+// 막아줍니다 (엑셀 버전에 따라 없을 수도 있고, 그럴 땐 그냥 평소처럼 붙여넣기가 진행돼요).
+
+let pharmregCodeTables = {};
+let pharmregCodeTableUpdatedAt = {};
+const PHARMREG_CODETABLE_COMPANIES = ['뉴신팜','메디카코리아','에이치케이이노엔','일동제약','티알엔'];
+const PHARMREG_CODETABLE_STORAGE_KEY = 'stockout_dashboard_pharmreg_codetables_v1';
+
+async function savePharmregCodeTables(){
+  try{ await window.storage.set(PHARMREG_CODETABLE_STORAGE_KEY, JSON.stringify({ tables: pharmregCodeTables, updatedAt: pharmregCodeTableUpdatedAt }), true); }catch(e){}
+}
+async function loadPharmregCodeTables(){
+  try{
+    const res = await window.storage.get(PHARMREG_CODETABLE_STORAGE_KEY, true);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      pharmregCodeTables = parsed.tables || {};
+      pharmregCodeTableUpdatedAt = parsed.updatedAt || {};
+    }
+  }catch(e){}
+}
+function renderPharmregCodeTableInfo(company){
+  const el = document.getElementById('pharmregCodeTableInfo');
+  const rows = pharmregCodeTables[company] || [];
+  const ts = pharmregCodeTableUpdatedAt[company];
+  if(!rows.length){ el.textContent = '아직 저장된 코드표가 없어요'; return; }
+  const tsTxt = ts ? new Date(ts).toLocaleString('ko-KR') : '';
+  el.textContent = `${rows.length.toLocaleString()}행 저장됨 · 최종 업데이트: ${tsTxt}`;
+}
+function updatePharmregCodeTableAreaVisibility(){
+  const company = document.getElementById('pharmregCompany').value;
+  const area = document.getElementById('pharmregCodeTableArea');
+  const show = PHARMREG_CODETABLE_COMPANIES.includes(company);
+  area.style.display = show ? 'block' : 'none';
+  if(show){
+    const rows = pharmregCodeTables[company] || [];
+    document.getElementById('pharmregCodeTablePasteArea').value = rows.map(r=>r.join('\t')).join('\n');
+    renderPharmregCodeTableInfo(company);
+  }
+}
+
+function bindPharmregTab(){
+  document.getElementById('pharmregPasteArea').addEventListener('paste', (e)=>{
+    const html = e.clipboardData && e.clipboardData.getData('text/html');
+    if(!html) return; // text/html이 없으면 평소처럼 일반 텍스트 붙여넣기가 그대로 진행됩니다.
+    const rows = parseExcelHtmlTable(html);
+    if(rows && rows.length){
+      e.preventDefault();
+      document.getElementById('pharmregPasteArea').value = rows.map(r=>r.join('\t')).join('\n');
+    }
+  });
+  document.getElementById('pharmregApplyBtn').addEventListener('click', async ()=>{
+    const text = document.getElementById('pharmregPasteArea').value;
+    pharmregRawRows = parsePharmregPasteText(text);
+    computePharmregResults();
+    updatePharmregPasteInfo();
+    await savePharmregRaw();
+  });
+  document.getElementById('pharmregClearBtn').addEventListener('click', async ()=>{
+    if(!confirm('붙여넣은 데이터를 지울까요?')) return;
+    pharmregRawRows = []; pharmregComputed = []; pharmregFinalRows = []; pharmregDecision = null; pharmregEditsMap = new Map();
+    document.getElementById('pharmregPasteArea').value = '';
+    updatePharmregPasteInfo();
+    renderPharmregModeInfo();
+    renderPharmregTable();
+    renderPharmregEditsList();
+    try{ await window.storage.delete(PHARMREG_STORAGE_KEY, true); }catch(e){}
+  });
+  document.getElementById('pharmregCompany').addEventListener('change', async ()=>{
+    updatePharmregCodeTableAreaVisibility();
+    if(pharmregRawRows.length){
+      computePharmregResults();
+      renderPharmregModeInfo();
+      renderPharmregTable();
+    }
+  });
+  document.getElementById('pharmregCodeTableSaveBtn').addEventListener('click', async ()=>{
+    const company = document.getElementById('pharmregCompany').value;
+    if(!company){ alert('제약사를 먼저 선택해주세요.'); return; }
+    const text = document.getElementById('pharmregCodeTablePasteArea').value;
+    pharmregCodeTables[company] = parsePharmregPasteText(text);
+    pharmregCodeTableUpdatedAt[company] = new Date().toISOString();
+    renderPharmregCodeTableInfo(company);
+    await savePharmregCodeTables();
+    if(pharmregRawRows.length){
+      computePharmregResults();
+      renderPharmregModeInfo();
+      renderPharmregTable();
+    }
+  });
+  document.getElementById('pharmregExportXlsxBtn').addEventListener('click', exportPharmregXlsx);
+  document.getElementById('pharmregExportXlsBtn').addEventListener('click', exportPharmregXls);
+}
+
+async function initPharmregTab(){
+  bindPharmregTab();
+  renderPharmregCalcTable();
+  await loadPharmregColumnWidths();
+  await loadPharmregCodeTables();
+  updatePharmregCodeTableAreaVisibility();
+  await loadPharmregRaw();
+  if(pharmregRawRows.length){
+    computePharmregResults();
+    updatePharmregPasteInfo();
+  }
+}
+
 init();
 initUploadTabs().then(async ()=>{
   await loadStockHistory();
@@ -5818,6 +6694,7 @@ initUploadTabs().then(async ()=>{
   await initSupplyTab();
   await initInboundTab();
   await initPlookupTab();
+  await initPharmregTab();
 });
 document.getElementById('stockHistoryYearFilter').addEventListener('change', renderStockChart);
 document.getElementById('stockDamageYearFilter').addEventListener('change', renderStockDamageChart);
