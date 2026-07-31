@@ -1209,6 +1209,8 @@
                 </div>
               </div>
 
+              <div id="pharminfo-extra-wraps"></div>
+
               <div class="sub-section-title" style="font-size:13px; margin-bottom:4px;">제약사명세서 자료</div>
               <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 위에서 고른 제약사 형식에 맞춰 표준코드·수량·단가·제조번호·유효기간·제품명 열을 정확한 위치로 찾아서 제품코드마스터DB와 매칭해요(회사마다 실제 서식을 직접 확인해서 만든 것이라 위치를 추측하지 않아요) · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
               <div id="pharmregProfileInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
@@ -1290,7 +1292,14 @@
               <div id="supplyCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 입고현황조회 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 입고현황조회 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
+              <div class="foot-row" style="margin-bottom:6px;">
+                <label class="upload-drop compact" for="supplyFileInput" style="flex:1 1 0;">
+                  <span class="upload-icon">⬆</span>
+                  <span>엑셀/CSV 파일로 올리려면 여기를 누르세요</span>
+                </label>
+                <input type="file" id="supplyFileInput" accept=".xlsx,.xls,.csv" hidden>
+              </div>
               <textarea id="supplyPasteArea" placeholder="여기에 엑셀에서 복사한 공급내역신고자료 데이터를 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:160px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
               <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
                 <div id="supplyPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
@@ -1347,7 +1356,14 @@
               <div id="inboundCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 공급내역신고자료 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 공급내역신고자료 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
+              <div class="foot-row" style="margin-bottom:6px;">
+                <label class="upload-drop compact" for="inboundFileInput" style="flex:1 1 0;">
+                  <span class="upload-icon">⬆</span>
+                  <span>엑셀/CSV 파일로 올리려면 여기를 누르세요</span>
+                </label>
+                <input type="file" id="inboundFileInput" accept=".xlsx,.xls,.csv" hidden>
+              </div>
               <textarea id="inboundPasteArea" placeholder="여기에 입고현황조회 화면에서 복사한 데이터를 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:160px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
               <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
                 <div id="inboundPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
@@ -2152,6 +2168,9 @@ const UPLOAD_CONFIGS = {
   // 관리합니다. 명세서상의 미매칭 품목은 이 표에 표준코드 빈 채로 자동 추가되고, 표 안에서 바로 수기 수정할 수 있어요.
   pharminfo_hk:      { sheetNames: ['Sheet1','제약사상품정보','상품정보'], storageKey: 'stockout_dashboard_pharminfo_hk_v1', label: '제약사상품정보(에이치케이이노엔)', headerHint: '상품명', noPagination: true },
   pharminfo_ildong:  { sheetNames: ['Sheet1','제약사상품정보','상품정보'], storageKey: 'stockout_dashboard_pharminfo_ildong_v1', label: '제약사상품정보(일동제약)', headerHint: '상품명', noPagination: true },
+  pharminfo_newshin: { sheetNames: ['Sheet1','제약사상품정보','상품정보','코드표'], storageKey: 'stockout_dashboard_pharminfo_newshin_v1', label: '제약사상품정보(뉴신팜)', headerHint: '표준코드', noPagination: true },
+  pharminfo_medica:  { sheetNames: ['Sheet1','제약사상품정보','상품정보','코드표'], storageKey: 'stockout_dashboard_pharminfo_medica_v1', label: '제약사상품정보(메디카코리아)', headerHint: '제품명', noPagination: true },
+  pharminfo_tr:      { sheetNames: ['Sheet1','제약사상품정보','상품정보','코드표'], storageKey: 'stockout_dashboard_pharminfo_tr_v1', label: '제약사상품정보(티알엔)', headerHint: '표준코드', noPagination: true },
 };
 
 // 재고 및 파손재고현황 표에서 쓰는 창고(시트) 목록 — 전월/당월 구분 없이 창고별 최신 자료 하나만 보관하고,
@@ -5038,8 +5057,24 @@ function switchPayinputMode(mode){
   const radio = document.querySelector(`input[name="payinputMode"][value="${mode}"]`);
   if(radio && !radio.checked){ radio.checked = true; radio.dispatchEvent(new Event('change')); }
 }
+// 엑셀/CSV 파일을 읽어서, 붙여넣기 칸에 그대로 넣을 수 있는 탭 구분 텍스트로 바꿔줍니다.
+async function readWorkbookAsTsv(file){
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type:'array' });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+  return aoa.map(row => row.map(v => v===null ? '' : v).join('\t')).join('\n');
+}
 
 function bindSupplyTab(){
+  document.getElementById('supplyFileInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const text = await readWorkbookAsTsv(file);
+    document.getElementById('supplyPasteArea').value = text;
+    document.getElementById('supplyApplyBtn').click();
+    e.target.value = '';
+  });
   document.getElementById('supplyPasteArea').addEventListener('paste', (e)=>{
     const html = e.clipboardData && e.clipboardData.getData('text/html');
     if(!html) return; // text/html이 없으면 평소처럼 일반 텍스트 붙여넣기가 그대로 진행됩니다.
@@ -5646,6 +5681,14 @@ function exportInboundXls(){
 // 막아줍니다 (엑셀 버전에 따라 없을 수도 있고, 그럴 땐 그냥 평소처럼 붙여넣기가 진행돼요).
 
 function bindInboundTab(){
+  document.getElementById('inboundFileInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const text = await readWorkbookAsTsv(file);
+    document.getElementById('inboundPasteArea').value = text;
+    document.getElementById('inboundApplyBtn').click();
+    e.target.value = '';
+  });
   document.getElementById('inboundPasteArea').addEventListener('paste', (e)=>{
     const html = e.clipboardData && e.clipboardData.getData('text/html');
     if(!html) return; // text/html이 없으면 평소처럼 일반 텍스트 붙여넣기가 그대로 진행됩니다.
@@ -6326,10 +6369,10 @@ const PHARMREG_PROFILES = {
   '유한양행': { headerRows: 1, idx: { stdCode:7, qty:12, unit:13, amount:14, lotNo:10, expiry:11, itemName:8 },
     forceVatMode: '별도', rawAlreadyExclusive: true,
     note:'이 회사 단가·실금액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
-  '뉴신팜': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd',
-    note:'이 회사 자료엔 단가가 없어서, 저장해둔 코드표(표준코드→단가)에서 단가를 가져와요.' },
-  '티알엔': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd',
-    note:'이 회사 자료엔 단가가 없어서, 저장해둔 코드표(표준코드→단가)에서 단가를 가져와요.' },
+  '뉴신팜': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd', codeTableUploadId: 'pharminfo_newshin',
+    note:'이 회사 자료엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드→단가)에서 단가를 가져와요.' },
+  '티알엔': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd', codeTableUploadId: 'pharminfo_tr',
+    note:'이 회사 자료엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드→단가)에서 단가를 가져와요.' },
   '일동제약': { dynamicHeader: { need: ['상품명','수량','단가'], map: { itemName:'상품명', itemSpec:'포장단위', qty:'수량', unit:'단가', amount:'공급가액', lotNo:'제조번호', expiry:'유통기한' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_ildong', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
     note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보에서 상품명으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가돼요. 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
@@ -6346,8 +6389,8 @@ const PHARMREG_PROFILES = {
   '태준제약': { headerRows: 1, idx: { stdCode:1, qty:4, unit:5, amount:6, lotNo:7, expiry:8, itemName:2 } },
   '유나이티드': { dynamicHeader: { need: ['표준코드','수량','단가'], map: { stdCode:'표준코드', itemName:'품명', qty:'수량', amount:'금액', lotNo:'제조번호', expiry:'유효기간' } } },
   '메디카코리아': { dynamicHeader: { need: ['품명','규격','수량'], map: { itemName:'품명', itemSpec:'규격', qty:'수량', amount:'금액', note:'비고' } },
-    codeTableMatch: 'nameSpecConcat', noteSplitLotExpiry: true,
-    note:'이 회사는 표준코드가 없어서, 저장해둔 제약사상품정보(코드표)의 제품명+포장단위를 이 명세서의 품명+규격과 맞춰서 표준코드를 찾아요. 비고칸은 "제조번호/사용기한" 형식으로 자동 나눠요.' },
+    codeTableMatch: 'nameSpecConcat', noteSplitLotExpiry: true, codeTableUploadId: 'pharminfo_medica', autoAddUnmatchedToCodeTable: true,
+    note:'이 회사는 표준코드가 없어서, 저장해둔 제약사상품정보(제품명/포장단위/의약품표준코드)의 제품명+포장단위를 이 명세서의 품명+규격과 맞춰서 표준코드를 찾아요. 비고칸은 "제조번호/사용기한" 형식으로 자동 나눠요. 명세서에 있는데 제약사상품정보에 없는 품명은 표준코드가 빈 채로 자동 추가돼요.' },
   '동아에스티': { dynamicHeader: { need: ['표준코드','수량','단가'], map: { stdCode:'표준코드', qty:'수량', unit:'단가', amount:'총금액', itemName:'품명' } }, needsSupplyCross: true,
     note:'이 회사는 거래명세서에 제조번호·사용기한이 없어서, 위쪽 "공급내역신고자료" 칸에 저장해둔 자료에서 표준코드로 찾아와요.' },
 };
@@ -6524,7 +6567,7 @@ function computePharmregResults(){
       const normName = pharmregNormCell(itemName);
       if(!codeTableMaps.knownNames.has(normName) && !autoAddSeen.has(normName)){
         autoAddSeen.add(normName);
-        autoAddNames.push(itemName);
+        autoAddNames.push({ name: itemName, spec: itemSpec });
       }
     }
     if(!stdCode) return;
@@ -6598,9 +6641,10 @@ function computePharmregResults(){
     if(lay.uploadId){
       const us = uploadState[lay.uploadId];
       if(us){
-        autoAddNames.forEach(name=>{
+        autoAddNames.forEach(({name, spec})=>{
           const newRow = new Array(lay.colCount).fill('');
           newRow[lay.idxName] = name;
+          if(lay.idxSpec !== -1 && lay.idxSpec !== undefined) newRow[lay.idxSpec] = spec;
           us.rows.push(newRow);
         });
         renderUploadTable(lay.uploadId);
@@ -6609,9 +6653,10 @@ function computePharmregResults(){
       }
     } else {
       const raw = pharmregCodeTables[company];
-      autoAddNames.forEach(name=>{
+      autoAddNames.forEach(({name, spec})=>{
         const newRow = new Array(lay.colCount).fill('');
         newRow[lay.idxName] = name;
+        if(lay.idxSpec !== -1 && lay.idxSpec !== undefined) newRow[lay.idxSpec] = spec;
         raw.push(newRow);
       });
       savePharmregCodeTables();
@@ -6971,8 +7016,8 @@ function exportPharmregXls(){
 
 let pharmregCodeTables = {};
 let pharmregCodeTableUpdatedAt = {};
-const PHARMREG_CODETABLE_COMPANIES = ['뉴신팜','메디카코리아','티알엔'];
-const PHARMREG_UPLOADTABLE_COMPANIES = { '에이치케이이노엔':'pharminfo_hk', '일동제약':'pharminfo_ildong' };
+const PHARMREG_CODETABLE_COMPANIES = [];
+const PHARMREG_UPLOADTABLE_COMPANIES = { '뉴신팜':'pharminfo_newshin', '메디카코리아':'pharminfo_medica', '에이치케이이노엔':'pharminfo_hk', '일동제약':'pharminfo_ildong', '티알엔':'pharminfo_tr' };
 const PHARMREG_CODETABLE_STORAGE_KEY = 'stockout_dashboard_pharmreg_codetables_v1';
 
 async function savePharmregCodeTables(){
@@ -7240,8 +7285,10 @@ async function initPharmregTab(){
   bindPharmregTab();
   renderPharmregCalcTable();
   renderPharmregCompanyButtons();
-  document.getElementById('fillstd-pharminfo_hk').addEventListener('click', ()=> fillPharmregStdCodeFromProductCode('pharminfo_hk'));
-  document.getElementById('fillstd-pharminfo_ildong').addEventListener('click', ()=> fillPharmregStdCodeFromProductCode('pharminfo_ildong'));
+  Object.values(PHARMREG_UPLOADTABLE_COMPANIES).forEach(uploadId=>{
+    const btn = document.getElementById('fillstd-' + uploadId);
+    if(btn) btn.addEventListener('click', ()=> fillPharmregStdCodeFromProductCode(uploadId));
+  });
   await loadPharmregColumnWidths();
   await loadPharmregCodeTables();
   updatePharmregCodeTableAreaVisibility();
@@ -7257,6 +7304,49 @@ async function initPharmregTab(){
   }
 }
 
+
+// 뉴신팜/메디카코리아/티알엔의 제약사상품정보도 같은 방식(엑셀 업로드+표+수기수정+표준코드 채우기 버튼)으로
+// 만들어줍니다. 이미 있는 에이치케이이노엔/일동제약 블록과 똑같은 구조를 코드로 생성해서, HTML을
+// 세 번 더 그대로 옮겨적지 않고 재사용합니다.
+function createPharminfoUploadBlock(uploadId, titleNote){
+  const wrap = document.createElement('div');
+  wrap.id = uploadId + '-wrap';
+  wrap.style.display = 'none';
+  wrap.style.marginBottom = '10px';
+  wrap.innerHTML = `
+    <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
+    <div class="foot-note" style="margin-bottom:6px;">${titleNote}</div>
+    <div class="upload-bar" id="upload-${uploadId}-bar">
+      <label class="upload-drop compact" for="file-${uploadId}">
+        <span class="upload-icon">⬆</span>
+        <span><b>제약사상품정보</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+      </label>
+      <input type="file" id="file-${uploadId}" accept=".xlsx,.xls,.csv" hidden>
+      <div class="upload-actions">
+        <button class="btn primary" id="save-${uploadId}" style="display:none;">💾 저장</button>
+        <button class="btn danger" id="clear-${uploadId}" style="display:none;">데이터 지우기</button>
+        <div class="upload-meta" id="meta-${uploadId}">아직 업로드된 데이터가 없어요</div>
+        <div class="save-indicator" id="saveState-${uploadId}" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+      </div>
+    </div>
+    <div class="toolbar" id="toolbar-${uploadId}" style="display:none;">
+      <input type="text" id="search-${uploadId}" placeholder="전체 컬럼 검색...">
+      <span class="count-badge" id="count-${uploadId}"></span>
+      <div class="spacer"></div>
+      <button class="btn primary" id="fillstd-${uploadId}">🔎 제품코드로 표준코드 채우기</button>
+      <div class="pager" id="pager-${uploadId}"></div>
+    </div>
+    <div class="table-scroll" id="scroll-${uploadId}" style="display:none; max-height:260px; overflow-y:auto;">
+      <table id="table-${uploadId}">
+        <thead><tr id="head-${uploadId}"></tr></thead>
+        <tbody id="body-${uploadId}"></tbody>
+      </table>
+    </div>`;
+  document.getElementById('pharminfo-extra-wraps').appendChild(wrap);
+}
+createPharminfoUploadBlock('pharminfo_newshin', '표준코드/제품명/단가 열로 된 엑셀을 올려서 관리하세요 — 이 회사는 명세서에 표준코드가 이미 있어서 매칭용이 아니라, 명세서에 없는 <b>단가</b>를 표준코드 기준으로 보완하는 용도예요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요.');
+createPharminfoUploadBlock('pharminfo_medica', '제품명/포장단위/의약품표준코드 열로 된 엑셀을 올려서 관리하세요(제품명+포장단위를 합쳐서 매칭해요) · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 제품명은 표준코드가 빈 채로 자동 추가돼요.');
+createPharminfoUploadBlock('pharminfo_tr', '표준코드/제품명/단가 열로 된 엑셀을 올려서 관리하세요 — 이 회사는 명세서에 표준코드가 이미 있어서 매칭용이 아니라, 명세서에 없는 <b>단가</b>를 표준코드 기준으로 보완하는 용도예요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요.');
 
 init();
 initUploadTabs().then(async ()=>{
