@@ -1211,7 +1211,7 @@
               <div id="supplyCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 입고현황조회 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
               <textarea id="supplyPasteArea" placeholder="여기에 엑셀에서 복사한 공급내역신고자료 데이터를 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:160px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
               <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
                 <div id="supplyPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
@@ -1268,7 +1268,7 @@
               <div id="inboundCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣으세요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 공급내역신고자료 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
               <textarea id="inboundPasteArea" placeholder="여기에 입고현황조회 화면에서 복사한 데이터를 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:160px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
               <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
                 <div id="inboundPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
@@ -4926,6 +4926,23 @@ function parseExcelHtmlTable(html){
   }catch(e){ return null; }
 }
 
+// 붙여넣은 데이터가 공급내역신고자료(건별, 헤더 없음)인지 입고현황조회(전체, 헤더 있음)인지
+// 자동으로 판단합니다. 라디오를 미리 고르지 않아도, 붙여넣은 내용을 보고 알아서 맞는 쪽으로 처리해요.
+function detectPayinputFormat(text){
+  const lines = text.split(/\r\n|\r|\n/).map(l=>l.replace(/\s+$/,'')).filter(l=>l.length>0);
+  if(!lines.length) return null;
+  const useTab = text.includes('\t');
+  const firstCells = (useTab ? lines[0].split('\t') : lines[0].split(',')).map(v=>v.trim());
+  if(firstCells.includes('표준코드') || firstCells.includes('공급업체') || firstCells.includes('사업자등록번호')) return 'inbound';
+  if(firstCells.length >= 23) return 'inbound';
+  if(firstCells.length >= 15 && firstCells.length <= 22) return 'supply';
+  return null;
+}
+function switchPayinputMode(mode){
+  const radio = document.querySelector(`input[name="payinputMode"][value="${mode}"]`);
+  if(radio && !radio.checked){ radio.checked = true; radio.dispatchEvent(new Event('change')); }
+}
+
 function bindSupplyTab(){
   document.getElementById('supplyPasteArea').addEventListener('paste', (e)=>{
     const html = e.clipboardData && e.clipboardData.getData('text/html');
@@ -4938,6 +4955,13 @@ function bindSupplyTab(){
   });
   document.getElementById('supplyApplyBtn').addEventListener('click', async ()=>{
     const text = document.getElementById('supplyPasteArea').value;
+    const detected = detectPayinputFormat(text);
+    if(detected === 'inbound'){
+      switchPayinputMode('inbound');
+      document.getElementById('inboundPasteArea').value = text;
+      document.getElementById('inboundApplyBtn').click();
+      return;
+    }
     supplyRawRows = parseSupplyPasteText(text);
     computeSupplyResults();
     updateSupplyPasteInfo();
@@ -5537,6 +5561,13 @@ function bindInboundTab(){
   });
   document.getElementById('inboundApplyBtn').addEventListener('click', async ()=>{
     const text = document.getElementById('inboundPasteArea').value;
+    const detected = detectPayinputFormat(text);
+    if(detected === 'supply'){
+      switchPayinputMode('supply');
+      document.getElementById('supplyPasteArea').value = text;
+      document.getElementById('supplyApplyBtn').click();
+      return;
+    }
     inboundRawRows = parseInboundPasteText(text);
     computeInboundResults();
     updateInboundPasteInfo();
@@ -7076,6 +7107,38 @@ function handleFile(file){
 }
 
 // 파일이든 붙여넣기든, 2차원 배열(aoa)만 준비되면 이 처리는 똑같이 거칩니다.
+// 반품_담당자_정보.xlsx 기준: 반품담당자별 발신인·TEL·FAX (발신처는 항상 '동원헬스케어'로 고정)
+const RETURN_SENDER_MAP = {
+  '이상연': { person:'이상연 상무', tel:'02-440-1810', fax:'031-768-7027' },
+  '최형욱': { person:'최형욱 차장', tel:'02-440-1811', fax:'031-768-7027' },
+  '김은경': { person:'김은경 과장', tel:'02-440-1813', fax:'031-768-7027' },
+  '전송이': { person:'전송이 사원', tel:'02-440-1812', fax:'031-768-7027' },
+  '예상화': { person:'예상화 사원', tel:'02-440-1814', fax:'031-768-7027' },
+};
+
+// 거래처정보마스터DB에서 해당 거래처(수신처)의 반품담당자를 찾습니다.
+function findReturnManagerForClient(clientName){
+  const vm = uploadState['vendorMaster'];
+  if(!vm || !clientName) return '';
+  const headers = vm.headers;
+  const idxName = findHeaderIndex(headers, '매입처명', '거래처명', '거래처');
+  const idxReturnMgr = headers.indexOf('반품담당자');
+  if(idxName === -1 || idxReturnMgr === -1) return '';
+  const row = vm.rows.find(r => String(r[idxName]||'').trim() === String(clientName).trim());
+  return row ? String(row[idxReturnMgr]||'').trim() : '';
+}
+
+// 수신처(거래처)가 바뀌면, 그 거래처의 반품담당자를 찾아서 발신인·TEL·FAX를 자동으로 맞춰줍니다.
+function updateSenderFromClient(clientName){
+  const mgr = findReturnManagerForClient(clientName);
+  const info = RETURN_SENDER_MAP[mgr];
+  if(!info) return;
+  state.meta.sender.org = state.meta.sender.org || '동원헬스케어';
+  state.meta.sender.person = info.person;
+  state.meta.sender.tel = info.tel;
+  state.meta.sender.fax = info.fax;
+}
+
 function processReturnFormAoa(aoa){
   if(!aoa.length){ throw new Error('시트에 데이터가 없습니다.'); }
 
@@ -7102,6 +7165,7 @@ function processReturnFormAoa(aoa){
   state.headers = headerRow;
   const firstClient = rows.length ? String(rows[0]['우선처']||'').trim() : '';
   if(!state.meta.recv.orgManual){ state.meta.recv.org = firstClient; }
+  updateSenderFromClient(firstClient);
 
   computeItems();
   saveState();
@@ -7216,7 +7280,7 @@ function buildSheetDom(){
   recvOrgRow.appendChild(el('label', {}, ['수신처']));
   recvOrgRow.appendChild(el('span', {}, [':']));
   const recvOrgInput = el('input', {value: m.recv.org});
-  recvOrgInput.addEventListener('input', e=>{ m.recv.org = e.target.value; m.recv.orgManual = e.target.value; saveState(); renderAll(); });
+  recvOrgInput.addEventListener('input', e=>{ m.recv.org = e.target.value; m.recv.orgManual = e.target.value; updateSenderFromClient(e.target.value); saveState(); renderAll(); });
   recvOrgRow.appendChild(recvOrgInput);
   recvCol.appendChild(recvOrgRow);
 
