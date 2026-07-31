@@ -591,7 +591,6 @@
           <div class="tabs-group-title"><span class="dot" style="background:#1a8f6b;"></span>테스트중</div>
           <div class="tabs">
             <div class="tab" data-tab="productlookup"><span class="tab-ic">↩️</span>반품신청서(소분-테스트중)</div>
-            <div class="tab" data-tab="pharmreg"><span class="tab-ic">🏭</span>제약사등록자료(테스트중)</div>
           </div>
         </div>
       </div>
@@ -1100,21 +1099,29 @@
 
       </div>
 
-      <!-- 제약사등록자료(테스트중) TAB: 제약사 사이트에서 내려받은 거래명세서를 붙여넣으면 등록자료 형식으로 계산합니다 -->
-      <div class="panel" id="panel-pharmreg">
+      <!-- 매입전표입력(엑셀) TAB: 공급내역신고 자료 / 제약사사이트 자료 중 선택해서 사용합니다(전체 형식은 화면에 안 보여도 자동판별로 계속 인식돼요) -->
+      <div class="panel" id="panel-payinput">
+        <div class="sub-section" style="padding-bottom:0;">
+          <div class="foot-row" style="gap:16px; justify-content:flex-start;">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="payinputMode" value="supply" checked> 공급내역신고 자료</label>
+            <label style="display:none; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="payinputMode" value="inbound"> 공급내역신고(전체)</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="payinputMode" value="pharmreg"> 제약사사이트 자료</label>
+          </div>
+        </div>
+
+      <div id="panel-pharmreg" style="display:none;">
 
         <div class="sub-section">
           <div class="sub-section-title" style="font-size:13px; margin-bottom:8px;">제약사 선택 (선택사항)</div>
           <div id="pharmregCompanyButtons" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;"></div>
           <select id="pharmregCompany" style="display:none;">
-            <option value="">고르지 않음</option>
-            <option>뉴신팜</option><option>메디카코리아</option><option value="동아에스티">동아에스티</option>
+            <option>뉴신팜</option><option>메디카코리아</option><option value="동아에스티">동아에스티 (준비중)</option>
             <option>에이치케이이노엔</option><option>온라인팜</option><option>유나이티드</option>
             <option>유한양행</option><option>일동제약</option>
-            <option>종근당</option><option>팜베이</option><option>태준제약</option>
-            <option>티알엔</option><option>한독</option><option>휴온스</option><option value="기타">기타</option>
+            <option value="종근당">종근당 (준비중)</option><option value="팜베이">팜베이 (준비중)</option><option value="태준제약">태준제약 (준비중)</option>
+            <option value="티알엔">티알엔 (준비중)</option><option value="한독">한독 (준비중)</option><option value="휴온스">휴온스 (준비중)</option>
           </select>
-          <div class="foot-note" style="margin:0;">14개 제약사는 실제 서식을 확인해서 준비해뒀어요 · 동아에스티는 거래명세서에 제조번호·사용기한이 비어있어서 공급내역신고자료를 함께 붙여넣어야 해요(아래에 별도 칸이 나와요).</div>
+          <div class="foot-note" style="margin:0;">(준비중)이 붙은 회사는 아직 실제 데이터로 검증하지 못했어요 · 동아에스티는 거래명세서에 제조번호·사용기한이 비어있어서 공급내역신고자료를 함께 올려야 해요(아래에 별도 칸이 나와요).</div>
         </div>
 
         <div class="sub-section">
@@ -1255,7 +1262,7 @@
               <tbody id="body-pharmreg"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빨간 줄로 표시돼요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액·제조번호·사용기한</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빨간 줄로 표시돼요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액·제조번호·사용기한</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 매칭 안 된 품목은 맨 위에 '미매칭'으로 표시되고, 마진이 4% 이하이거나 13% 이상이면 '확인요망'으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="pharmregEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1269,15 +1276,6 @@
 
       </div>
 
-
-      <!-- 매입전표입력(엑셀) TAB: 공급내역신고(건별)/공급내역신고(전체) 중 선택해서 사용합니다 -->
-      <div class="panel" id="panel-payinput">
-        <div class="sub-section" style="padding-bottom:0;">
-          <div class="foot-row" style="gap:16px; justify-content:flex-start;">
-            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="payinputMode" value="supply" checked> 공급내역신고(건별)</label>
-            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="payinputMode" value="inbound"> 공급내역신고(전체)</label>
-          </div>
-        </div>
 
       <div id="panel-supply" style="display:block;">
 
@@ -1328,7 +1326,7 @@
               <tbody id="body-supply"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="supplyEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1392,7 +1390,7 @@
               <tbody id="body-inbound"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 5% 미만이거나 15% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="inboundEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -4832,7 +4830,7 @@ function renderSupplyTable(){
   const rows = [...supplyFinalRows].sort((a,b)=>{
     const rank = r=>{
       const m = r.margin;
-      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m < 0.05 || m >= 0.15);
+      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m <= 0.04 || m >= 0.12);
       if(marginWarn) return 0;
       const ml = monthsUntilExpiry(r.expiry);
       if(ml !== null && ml < 9) return 1;
@@ -4855,7 +4853,7 @@ function renderSupplyTable(){
   body.innerHTML = rows.map(r=>{
     const monthsLeft = monthsUntilExpiry(r.expiry);
     const isSoon = monthsLeft !== null && monthsLeft < 9;
-    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin < 0.05 || r.margin >= 0.15);
+    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.12);
     const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
     const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
     const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
@@ -4981,6 +4979,25 @@ function supplyExportFileBaseName(){
   return vendorName.replace(/[\\/*?:[\]]/g,'');
 }
 
+// 표준코드/상품코드/제조번호처럼 숫자로만 보이는 값은, 다운로드한 파일을 나중에 엑셀에서 열어
+// 셀을 다시 입력하거나 저장할 때 엑셀이 "숫자"로 잘못 인식해서 지수표기(예: 8.8E+12)로 바꾸거나
+// 맨 앞자리 0을 지워버릴 수 있어요. 그걸 막기 위해 이 컬럼들의 셀 서식을 "텍스트"로 고정해둡니다.
+function forceTextFormatForColumns(ws, columns, keysToForce, rowCount){
+  keysToForce.forEach(key=>{
+    const colIdx = columns.findIndex(c => c.key === key);
+    if(colIdx === -1) return;
+    for(let r = 1; r <= rowCount; r++){
+      const addr = XLSX.utils.encode_cell({ r, c: colIdx });
+      const cell = ws[addr];
+      if(cell && cell.v !== undefined && cell.v !== null && cell.v !== ''){
+        cell.t = 's';
+        cell.v = String(cell.v);
+        cell.z = '@';
+      }
+    }
+  });
+}
+
 async function exportSupplyXlsx(){
   if(!supplyFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
   const rows = buildSupplyExportRows();
@@ -4989,6 +5006,7 @@ async function exportSupplyXlsx(){
   const aoa = [SUPPLY_EXPORT_COLUMNS.map(c=>c.label)];
   rows.forEach(o=>{ aoa.push(SUPPLY_EXPORT_COLUMNS.map(c=>o[c.key])); });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
+  forceTextFormatForColumns(ws, SUPPLY_EXPORT_COLUMNS, ['productCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (supplyDecision ? supplyDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, supplyExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
@@ -5000,6 +5018,7 @@ function exportSupplyXls(){
   const aoa = [SUPPLY_EXPORT_COLUMNS.map(c=>c.label)];
   rows.forEach(o=>{ aoa.push(SUPPLY_EXPORT_COLUMNS.map(c=>o[c.key])); });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
+  forceTextFormatForColumns(ws, SUPPLY_EXPORT_COLUMNS, ['productCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (supplyDecision ? supplyDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, supplyExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
@@ -5502,7 +5521,7 @@ function renderInboundTable(){
   const rows = [...inboundFinalRows].sort((a,b)=>{
     const rank = r=>{
       const m = r.margin;
-      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m < 0.05 || m >= 0.15);
+      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m <= 0.04 || m >= 0.12);
       if(marginWarn) return 0;
       const ml = monthsUntilExpiry(r.expiry);
       if(ml !== null && ml < 9) return 1;
@@ -5525,7 +5544,7 @@ function renderInboundTable(){
   body.innerHTML = rows.map(r=>{
     const monthsLeft = monthsUntilExpiry(r.expiry);
     const isSoon = monthsLeft !== null && monthsLeft < 9;
-    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin < 0.05 || r.margin >= 0.15);
+    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.12);
     const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
     const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
     const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
@@ -5659,6 +5678,7 @@ async function exportInboundXlsx(){
   const aoa = [INBOUND_EXPORT_COLUMNS.map(c=>c.label)];
   rows.forEach(o=>{ aoa.push(INBOUND_EXPORT_COLUMNS.map(c=>o[c.key])); });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
+  forceTextFormatForColumns(ws, INBOUND_EXPORT_COLUMNS, ['productCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (inboundDecision ? inboundDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, inboundExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
@@ -5670,6 +5690,7 @@ function exportInboundXls(){
   const aoa = [INBOUND_EXPORT_COLUMNS.map(c=>c.label)];
   rows.forEach(o=>{ aoa.push(INBOUND_EXPORT_COLUMNS.map(c=>o[c.key])); });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
+  forceTextFormatForColumns(ws, INBOUND_EXPORT_COLUMNS, ['productCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (inboundDecision ? inboundDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, inboundExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
@@ -6837,12 +6858,13 @@ function renderPharmregTable(){
 
   const rows = [...pharmregFinalRows].sort((a,b)=>{
     const rank = r=>{
+      if(!r.productCode) return 0; // 미매칭 — 맨 위
       const m = r.margin;
-      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m < 0.05 || m >= 0.15);
-      if(marginWarn) return 0;
+      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m <= 0.04 || m >= 0.13);
+      if(marginWarn) return 1;
       const ml = monthsUntilExpiry(r.expiry);
-      if(ml !== null && ml < 9) return 1;
-      return 2;
+      if(ml !== null && ml < 9) return 2;
+      return 3;
     };
     return rank(a) - rank(b);
   });
@@ -6861,10 +6883,11 @@ function renderPharmregTable(){
   body.innerHTML = rows.map(r=>{
     const monthsLeft = monthsUntilExpiry(r.expiry);
     const isSoon = monthsLeft !== null && monthsLeft < 9;
-    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin < 0.05 || r.margin >= 0.15);
-    const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
+    const isUnmatched = !r.productCode;
+    const isMarginWarn = !isUnmatched && r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.13);
+    const flagLabel = isUnmatched ? '미매칭' : (isMarginWarn ? '확인요망' : (isSoon ? '임박' : ''));
     const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
-    const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
+    const rowStyle = (isUnmatched || isMarginWarn) ? ' style="color:var(--red);"' : '';
     const mainCells = screenCols.map(c=>{
       let v = r[c.key];
       if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*10000)/100).toLocaleString() + '%'; }
@@ -6990,12 +7013,13 @@ function pharmregExportFileBaseName(){
 async function exportPharmregXlsx(){
   if(!pharmregFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
   const rows = buildPharmregExportRows();
-  const columns = PHARMREG_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.00"%"' : undefined), center: c.num||c.pct }));
-  await downloadStyledXlsx({
-    sheetName: (pharmregDecision ? pharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
-    fileName: pharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
-    columns, rows
-  });
+  const aoa = [PHARMREG_EXPORT_COLUMNS.map(c=>c.label)];
+  rows.forEach(o=>{ aoa.push(PHARMREG_EXPORT_COLUMNS.map(c=>o[c.key])); });
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  forceTextFormatForColumns(ws, PHARMREG_EXPORT_COLUMNS, ['productCode','barcode','lotNo'], rows.length);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, (pharmregDecision ? pharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  XLSX.writeFile(wb, pharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
 }
 
 function exportPharmregXls(){
@@ -7004,6 +7028,7 @@ function exportPharmregXls(){
   const aoa = [PHARMREG_EXPORT_COLUMNS.map(c=>c.label)];
   rows.forEach(o=>{ aoa.push(PHARMREG_EXPORT_COLUMNS.map(c=>o[c.key])); });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
+  forceTextFormatForColumns(ws, PHARMREG_EXPORT_COLUMNS, ['productCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (pharmregDecision ? pharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, pharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
@@ -7172,12 +7197,12 @@ function renderPharmregCompanyButtons(){
   const wrap = document.getElementById('pharmregCompanyButtons');
   if(!wrap) return;
   const select = document.getElementById('pharmregCompany');
-  const companies = Array.from(select.options).map(o=>o.value || o.textContent).filter((v,idx)=> idx>0); // "고르지 않음" 제외
+  const options = Array.from(select.options).map(o=>({ value: o.value || o.textContent, label: o.textContent }));
   const current = select.value;
   const chipStyle = (active) => `padding:6px 14px; border-radius:999px; border:1px solid ${active?'var(--accent)':'var(--line)'}; background:${active?'var(--accent)':'#fff'}; color:${active?'#fff':'var(--ink)'}; font-size:13px; cursor:pointer; font-weight:${active?'700':'400'};`;
-  let html = `<button type="button" class="pharmreg-chip" data-company="" style="${chipStyle(current==='')}">고르지 않음</button>`;
-  companies.forEach(c=>{
-    html += `<button type="button" class="pharmreg-chip" data-company="${c}" style="${chipStyle(current===c)}">${c}${c==='동아에스티'?' 🔗':''}</button>`;
+  let html = '';
+  options.forEach(({value, label})=>{
+    html += `<button type="button" class="pharmreg-chip" data-company="${value}" style="${chipStyle(current===value)}">${label}${value==='동아에스티'?' 🔗':''}</button>`;
   });
   wrap.innerHTML = html;
   wrap.querySelectorAll('.pharmreg-chip').forEach(btn=>{
@@ -7377,6 +7402,7 @@ initUploadTabs().then(async ()=>{
       const mode = (document.querySelector('input[name="payinputMode"]:checked')||{}).value || 'supply';
       document.getElementById('panel-supply').style.display = mode==='supply' ? 'block' : 'none';
       document.getElementById('panel-inbound').style.display = mode==='inbound' ? 'block' : 'none';
+      document.getElementById('panel-pharmreg').style.display = mode==='pharmreg' ? 'block' : 'none';
     });
   });
   await initPlookupTab();
