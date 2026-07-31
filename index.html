@@ -147,6 +147,9 @@
 
   /* toolbar */
   .toolbar{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; align-items:center; }
+  /* 품절 현황 목록: 스크롤을 내려도 검색/필터 툴바와 표 헤더가 계속 보이게 고정합니다. */
+  .sticky-toolbar{ position:sticky; top:0; z-index:6; background:var(--bg); padding:10px 0 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+  .sticky-head-table thead th{ position:sticky; top:0; z-index:2; background:var(--panel); box-shadow: 0 1px 0 var(--line); }
   .toolbar input[type="text"], .toolbar select{
     background:var(--panel); border:1px solid var(--line-strong); color:var(--ink);
     padding:8px 11px; border-radius:8px; font-size:13px; font-family:inherit; box-shadow: var(--shadow-sm);
@@ -563,8 +566,9 @@
           <div class="tabs-group-title"><span class="dot"></span>발주</div>
           <div class="kpis" id="kpiRow"></div>
           <div class="tabs">
+            <div class="tab" data-tab="mgrstatus"><span class="tab-ic">🧑‍💼</span>품절현황</div>
             <div class="tab active" data-tab="list"><span class="tab-ic">📋</span>품절 현황 목록</div>
-            <div class="tab" data-tab="basedb"><span class="tab-ic">🗂️</span>DB업데이트</div>
+            <div class="tab" data-tab="payinput"><span class="tab-ic">🧾</span>매입전표입력(엑셀)</div>
           </div>
         </div>
         <div class="section-block accent-stock">
@@ -575,7 +579,6 @@
             <div class="tab" data-tab="stocktrend"><span class="tab-ic">📈</span>재고현황</div>
             <div class="tab" data-tab="stockdamage"><span class="tab-ic">⚠️</span>파손재고현황</div>
             <div class="tab" data-tab="returns"><span class="tab-ic">📝</span>반품신청서</div>
-            <div class="tab" data-tab="stockdb"><span class="tab-ic">🗂️</span>DB업데이트</div>
           </div>
         </div>
         <div class="section-block accent-master">
@@ -587,8 +590,6 @@
         <div class="section-block accent-supply">
           <div class="tabs-group-title"><span class="dot" style="background:#1a8f6b;"></span>테스트중</div>
           <div class="tabs">
-            <div class="tab" data-tab="supply"><span class="tab-ic">🧾</span>공급내역신고(테스트중)</div>
-            <div class="tab" data-tab="inbound"><span class="tab-ic">🧪</span>입고현황조회(테스트중)</div>
             <div class="tab" data-tab="productlookup"><span class="tab-ic">↩️</span>반품신청서(소분-테스트중)</div>
             <div class="tab" data-tab="pharmreg"><span class="tab-ic">🏭</span>제약사등록자료(테스트중)</div>
           </div>
@@ -599,10 +600,10 @@
     <div class="main-content">
 
       <!-- LIST TAB -->
-      <div class="panel active" id="panel-list">
-
-        <!-- 담당자별 품절 현황 (목록 위에 항상 표시) -->
+      <!-- 담당자별 품절 현황 TAB -->
+      <div class="panel" id="panel-mgrstatus">
         <div class="sub-section">
+          <div class="sub-section-title">담당자별 품절 현황</div>
           <div class="table-scroll mgr-scroll">
             <table id="mgrTable">
               <thead id="mgrHead"></thead>
@@ -614,8 +615,9 @@
           </div>
         </div>
 
-        <!-- 품절DATA 업로드 (목록 데이터 위에 드래그해서 갱신) -->
+        <!-- 데이터 업로드(품절data/최종발주일/3개월사용품목) — 표 아래 세로 1열 배치 -->
         <div class="sub-section">
+          <div class="sub-section-title" style="font-size:13px;">품절data</div>
           <div class="upload-bar" id="upload-pumjeoldata-bar">
             <label class="upload-drop compact" for="file-pumjeoldata">
               <span class="upload-icon">⬆</span>
@@ -642,37 +644,8 @@
               <tbody id="body-pumjeoldata"></tbody>
             </table>
           </div>
-        </div>
 
-        <div class="toolbar">
-          <input type="text" id="searchInput" placeholder="코드 또는 거래처 검색...">
-          <select id="managerFilter"><option value="">담당자 전체</option></select>
-          <select id="statusFilter">
-            <option value="">상태 전체</option>
-            <option value="품절">품절</option>
-            <option value="품절없음">품절없음</option>
-          </select>
-          <select id="paymentFilter"><option value="">결제기준일 전체</option></select>
-          <select id="lastOrderDateFilter"><option value="">최종발주일 전체</option></select>
-          <span class="count-badge" id="listCount"></span>
-          <div class="spacer"></div>
-          <button class="btn" id="exportListBtn">⬇ Excel 다운로드</button>
-          <div class="save-indicator" id="saveIndicator"><span class="save-dot"></span><span>대기 중</span></div>
-        </div>
-        <div class="table-scroll">
-          <table id="listTable">
-            <thead><tr id="listHead"></tr></thead>
-            <tbody id="listBody"></tbody>
-          </table>
-        </div>
-        <div class="foot-note">숫자·날짜·담당자 등 대부분의 셀은 클릭 후 바로 수정하면 자동 저장돼요 (본인 브라우저에만 저장됨). 상태는 <code>품절 / 품절없음</code> 드롭다운으로 변경합니다.</div>
-      </div>
-
-      <!-- 기초DATABASE TAB: 최종발주일 / 3개월사용품목 / 발주담당자 (각각 드래그 업로드 + 항목별 저장시간) -->
-      <div class="panel" id="panel-basedb">
-
-        <div class="sub-section">
-          <div class="sub-section-title">최종발주일</div>
+          <div class="sub-section-title" style="font-size:13px; margin-top:16px;">최종발주일</div>
           <div class="upload-bar" id="upload-finalorder-bar">
             <label class="upload-drop compact" for="file-finalorder">
               <span class="upload-icon">⬆</span>
@@ -699,10 +672,8 @@
               <tbody id="body-finalorder"></tbody>
             </table>
           </div>
-        </div>
 
-        <div class="sub-section">
-          <div class="sub-section-title">3개월사용품목</div>
+          <div class="sub-section-title" style="font-size:13px; margin-top:16px;">3개월사용품목</div>
           <div class="upload-bar" id="upload-usage3m-bar">
             <label class="upload-drop compact" for="file-usage3m">
               <span class="upload-icon">⬆</span>
@@ -730,11 +701,100 @@
             </table>
           </div>
         </div>
+      </div>
 
+      <div class="panel active" id="panel-list">
+
+        <div class="sticky-toolbar" id="listStickyHeader">
+          <div class="sub-section-title" style="margin-bottom:8px;">거래처별 품절현황</div>
+          <div class="toolbar" id="listToolbar" style="margin-bottom:0;">
+            <input type="text" id="searchInput" placeholder="코드 또는 거래처 검색...">
+            <select id="managerFilter"><option value="">담당자 전체</option></select>
+            <select id="statusFilter">
+              <option value="">상태 전체</option>
+              <option value="품절">품절</option>
+              <option value="품절없음">품절없음</option>
+            </select>
+            <select id="paymentFilter"><option value="">결제기준일 전체</option></select>
+            <select id="lastOrderDateFilter"><option value="">최종발주일 전체</option></select>
+            <select id="monthStartFilter"><option value="">월초발주 전체</option><option value="준비">준비</option><option value="완료">완료</option><option value="누락">누락</option></select>
+            <span class="count-badge" id="listCount"></span>
+            <div class="spacer"></div>
+            <button class="btn" id="exportListBtn">⬇ Excel 다운로드</button>
+            <div class="save-indicator" id="saveIndicator"><span class="save-dot"></span><span>대기 중</span></div>
+          </div>
+        </div>
+        <div class="table-scroll" id="listTableScroll" style="max-height:68vh; overflow-y:auto;">
+          <table id="listTable" class="sticky-head-table">
+            <thead><tr id="listHead"></tr></thead>
+            <tbody id="listBody"></tbody>
+          </table>
+        </div>
+        <div class="foot-note">숫자·날짜·담당자 등 대부분의 셀은 클릭 후 바로 수정하면 자동 저장돼요 (본인 브라우저에만 저장됨). 상태는 <code>품절 / 품절없음</code> 드롭다운으로 변경합니다.</div>
       </div>
 
       <!-- 재고 및 파손재고현황 TAB (재고 및 반품) -->
       <div class="panel" id="panel-stock">
+        <div class="sub-section">
+          <div class="sub-section-title">우선처별 재고 및 매입실적 업로드</div>
+          <div class="foot-note" style="margin-bottom:8px;">파일명에 <b>연·월</b>이 들어가 있어야 해요(예: "26년 7월", "2026-07" 등) — 그 달 자료로 인식해서 저장돼요.</div>
+          <div style="margin-bottom:6px;"><b>우선처별 재고 및 매입실적 - 광주</b></div>
+          <div class="upload-bar" id="upload-stockGJ-bar">
+            <label class="upload-drop compact" for="file-stockGJ">
+              <span class="upload-icon">⬆</span>
+              <span><b>광주</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+              <span class="upload-source">'EX3100I_우선처별 재고 및 매입실적에서 내린자료 업로드' (파일명에 연·월 포함 필수)</span>
+            </label>
+            <input type="file" id="file-stockGJ" accept=".xlsx,.xls,.csv" hidden>
+            <div class="upload-actions">
+              <button class="btn primary" id="save-stockGJ" style="display:none;">💾 저장</button>
+              <button class="btn danger" id="clear-stockGJ" style="display:none;">데이터 지우기</button>
+              <div class="upload-meta" id="meta-stockGJ">아직 업로드된 데이터가 없어요</div>
+              <div class="save-indicator" id="saveState-stockGJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+            </div>
+          </div>
+          <div class="toolbar" id="toolbar-stockGJ" style="display:none;">
+            <input type="text" id="search-stockGJ" placeholder="전체 컬럼 검색...">
+            <span class="count-badge" id="count-stockGJ"></span>
+            <div class="spacer"></div>
+            <div class="pager" id="pager-stockGJ"></div>
+          </div>
+          <div class="table-scroll" id="scroll-stockGJ" style="display:none;">
+            <table id="table-stockGJ">
+              <thead><tr id="head-stockGJ"></tr></thead>
+              <tbody id="body-stockGJ"></tbody>
+            </table>
+          </div>
+
+          <div style="margin:12px 0 6px;"><b>우선처별 재고 및 매입실적 - 의정부</b></div>
+          <div class="upload-bar" id="upload-stockEJ-bar">
+            <label class="upload-drop compact" for="file-stockEJ">
+              <span class="upload-icon">⬆</span>
+              <span><b>의정부</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+              <span class="upload-source">'EX3100I_우선처별 재고 및 매입실적에서 내린자료 업로드' (파일명에 연·월 포함 필수)</span>
+            </label>
+            <input type="file" id="file-stockEJ" accept=".xlsx,.xls,.csv" hidden>
+            <div class="upload-actions">
+              <button class="btn primary" id="save-stockEJ" style="display:none;">💾 저장</button>
+              <button class="btn danger" id="clear-stockEJ" style="display:none;">데이터 지우기</button>
+              <div class="upload-meta" id="meta-stockEJ">아직 업로드된 데이터가 없어요</div>
+              <div class="save-indicator" id="saveState-stockEJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+            </div>
+          </div>
+          <div class="toolbar" id="toolbar-stockEJ" style="display:none;">
+            <input type="text" id="search-stockEJ" placeholder="전체 컬럼 검색...">
+            <span class="count-badge" id="count-stockEJ"></span>
+            <div class="spacer"></div>
+            <div class="pager" id="pager-stockEJ"></div>
+          </div>
+          <div class="table-scroll" id="scroll-stockEJ" style="display:none;">
+            <table id="table-stockEJ">
+              <thead><tr id="head-stockEJ"></tr></thead>
+              <tbody id="body-stockEJ"></tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="sub-section">
           <div class="sub-section-title">재고 및 파손재고현황</div>
           <div class="toolbar">
@@ -824,13 +884,20 @@
             </div>
           </div>
 
-          <div class="upload-bar">
+          <div class="upload-bar" style="display:none;">
             <label class="upload-drop compact" for="fileInput" id="dropZone">
               <span class="upload-icon">⬆</span>
               <span><b>반품신청서</b> 엑셀/CSV 드래그 시 아래 목록 자동 정리</span>
               <span class="upload-source">'WH2060E_구매반품검사 &amp; 승인결과에서 내린자료 업로드'</span>
             </label>
             <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden>
+          </div>
+          <div class="foot-note" style="margin-bottom:6px;">엑셀 'WH2060E_구매반품검사 &amp; 승인결과'에서 내린 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요.</div>
+          <div id="returnFormPasteBox">
+            <textarea id="returnFormPasteText" placeholder="엑셀에서 복사한 데이터를 헤더 포함해서 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:100px; font-family:var(--mono); font-size:12px; padding:8px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+            <div class="foot-row" style="justify-content:flex-end; margin-top:6px;">
+              <button class="btn primary" id="returnFormPasteApply" style="font-size:12px;">💾 붙여넣은 데이터 적용</button>
+            </div>
           </div>
           <div class="status-line" id="uploadStatus"></div>
 
@@ -851,71 +918,6 @@
 
           <div id="formSection"></div>
         </div>
-      </div>
-
-      <!-- 기초DATABASE TAB (재고 및 반품): 재고 4종 시트 + 반품담당자 -->
-      <div class="panel" id="panel-stockdb">
-
-        <div class="sub-section">
-          <div class="sub-section-title">우선처별 재고 및 매입실적 - 광주</div>
-          <div class="upload-bar" id="upload-stockGJ-bar">
-            <label class="upload-drop compact" for="file-stockGJ">
-              <span class="upload-icon">⬆</span>
-              <span><b>광주</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-source">'EX3100I_우선처별 재고 및 매입실적에서 내린자료 업로드'</span>
-            </label>
-            <input type="file" id="file-stockGJ" accept=".xlsx,.xls,.csv" hidden>
-            <div class="upload-actions">
-              <button class="btn primary" id="save-stockGJ" style="display:none;">💾 저장</button>
-              <button class="btn danger" id="clear-stockGJ" style="display:none;">데이터 지우기</button>
-              <div class="upload-meta" id="meta-stockGJ">아직 업로드된 데이터가 없어요</div>
-              <div class="save-indicator" id="saveState-stockGJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
-            </div>
-          </div>
-          <div class="toolbar" id="toolbar-stockGJ" style="display:none;">
-            <input type="text" id="search-stockGJ" placeholder="전체 컬럼 검색...">
-            <span class="count-badge" id="count-stockGJ"></span>
-            <div class="spacer"></div>
-            <div class="pager" id="pager-stockGJ"></div>
-          </div>
-          <div class="table-scroll" id="scroll-stockGJ" style="display:none;">
-            <table id="table-stockGJ">
-              <thead><tr id="head-stockGJ"></tr></thead>
-              <tbody id="body-stockGJ"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="sub-section">
-          <div class="sub-section-title">우선처별 재고 및 매입실적 - 의정부</div>
-          <div class="upload-bar" id="upload-stockEJ-bar">
-            <label class="upload-drop compact" for="file-stockEJ">
-              <span class="upload-icon">⬆</span>
-              <span><b>의정부</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-              <span class="upload-source">'EX3100I_우선처별 재고 및 매입실적에서 내린자료 업로드'</span>
-            </label>
-            <input type="file" id="file-stockEJ" accept=".xlsx,.xls,.csv" hidden>
-            <div class="upload-actions">
-              <button class="btn primary" id="save-stockEJ" style="display:none;">💾 저장</button>
-              <button class="btn danger" id="clear-stockEJ" style="display:none;">데이터 지우기</button>
-              <div class="upload-meta" id="meta-stockEJ">아직 업로드된 데이터가 없어요</div>
-              <div class="save-indicator" id="saveState-stockEJ" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
-            </div>
-          </div>
-          <div class="toolbar" id="toolbar-stockEJ" style="display:none;">
-            <input type="text" id="search-stockEJ" placeholder="전체 컬럼 검색...">
-            <span class="count-badge" id="count-stockEJ"></span>
-            <div class="spacer"></div>
-            <div class="pager" id="pager-stockEJ"></div>
-          </div>
-          <div class="table-scroll" id="scroll-stockEJ" style="display:none;">
-            <table id="table-stockEJ">
-              <thead><tr id="head-stockEJ"></tr></thead>
-              <tbody id="body-stockEJ"></tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
 
       <!-- 마스터DB TAB: 제품코드마스터DB(업로드·초기화만) / 거래처정보마스터DB(업로드+수기수정+신규거래처 자동추가) -->
@@ -1043,7 +1045,7 @@
         <div class="sub-section">
           <div class="sub-section-title">반품신청서(소분-테스트중)</div>
           <div class="foot-note" style="margin-bottom:8px;">아래 4가지 중 조회 방식을 고르세요 · <b>다미스자료 기준(완제품코드)</b>는 WH2060E_구매반품검사·승인결과 엑셀 파일을 그대로 업로드, <b>보험코드 기준</b> 두 가지는 코드·수량을 붙여넣기(급여코드=약품코드/비급여코드 둘 다 찾아봐요) · 완제품코드 조회에서 소분 품목이 걸리면, 같은 약품코드를 쓰는 소분이 아닌 품목(제품코드마스터DB에 먼저 나오는 순서)으로 자동 대체해요 · 소분코드 조회는 반대로 소분 품목만 찾아줘요 · <b>합산</b>은 다미스자료·보험코드(완제품코드) 두 조회의 결과를 합쳐서 같은 품목의 수량을 더해 보여줘요(소분코드 조회 결과는 포함 안 됨) · 이 메뉴는 아직 반품신청서 서식 출력(인쇄·PDF)까지는 연결되지 않은 테스트 버전이에요.</div>
-          <div class="foot-row" style="gap:16px; margin-bottom:8px; flex-wrap:wrap;">
+          <div class="foot-row" style="gap:16px; margin-bottom:8px; flex-wrap:wrap; justify-content:flex-start;">
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="damis" checked> 다미스자료 기준(완제품코드)</label>
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="ins_full"> 보험코드 기준(완제품코드)</label>
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="ins_split"> 보험코드 기준(소분코드)</label>
@@ -1102,6 +1104,20 @@
       <div class="panel" id="panel-pharmreg">
 
         <div class="sub-section">
+          <div class="sub-section-title" style="font-size:13px; margin-bottom:8px;">제약사 선택 (선택사항)</div>
+          <div id="pharmregCompanyButtons" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;"></div>
+          <select id="pharmregCompany" style="display:none;">
+            <option value="">고르지 않음</option>
+            <option>뉴신팜</option><option>메디카코리아</option><option value="동아에스티">동아에스티</option>
+            <option>에이치케이이노엔</option><option>온라인팜</option><option>유나이티드</option>
+            <option>유한양행</option><option>일동제약</option><option>정안약품</option>
+            <option>종근당</option><option>팜베이</option><option>태준제약</option>
+            <option>티알엔</option><option>한독</option><option>휴온스</option><option value="기타">기타</option>
+          </select>
+          <div class="foot-note" style="margin:0;">14개 제약사는 실제 서식을 확인해서 준비해뒀어요 · 동아에스티는 거래명세서에 제조번호·사용기한이 비어있어서 공급내역신고자료를 함께 붙여넣어야 해요(아래에 별도 칸이 나와요).</div>
+        </div>
+
+        <div class="sub-section">
           <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
             <div style="flex:1 1 0; min-width:280px;">
               <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입전표 합계액</div>
@@ -1112,16 +1128,13 @@
               <div id="pharmregCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-row" style="gap:12px; margin-bottom:8px; align-items:center; flex-wrap:wrap;">
-                <label style="font-size:13px;">제약사(선택사항)</label>
-                <select id="pharmregCompany">
-                  <option value="">고르지 않음</option>
-                  <option>뉴신팜</option><option>메디카코리아</option><option>동아에스티</option>
-                  <option>에이치케이이노엔</option><option>온라인팜</option><option>유나이티드</option>
-                  <option>유한양행</option><option>일동제약</option><option>정안약품</option>
-                  <option>종근당</option><option>팜베이</option><option>태준제약</option>
-                  <option>티알엔</option><option>한독</option><option>휴온스</option><option>기타</option>
-                </select>
+              <div id="pharmregDongaSupplyArea" style="display:none; margin-bottom:10px; padding:10px; border:1px dashed var(--line); border-radius:8px;">
+                <div class="foot-note" style="margin-bottom:6px;">동아에스티는 거래명세서만으로는 제조번호·사용기한을 알 수 없어서, '공급내역신고자료'(공급내역신고 탭에서 쓰는 것과 같은 형식, 헤더 없이 A~V 22열)를 붙여넣어두면 표준코드로 매칭해서 채워요.</div>
+                <textarea id="pharmregDongaSupplyPasteArea" placeholder="공급내역신고자료를 헤더 없이 붙여넣으세요" style="width:100%; min-height:80px; font-family:var(--mono); font-size:11.5px; padding:8px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+                <div class="foot-row" style="justify-content:space-between; margin-top:6px;">
+                  <div id="pharmregDongaSupplyInfo" style="color:var(--ink-dim); font-size:12px;">아직 저장된 공급내역신고자료가 없어요</div>
+                  <button class="btn primary" id="pharmregDongaSupplySaveBtn">💾 공급내역신고자료 저장</button>
+                </div>
               </div>
               <div id="pharmregCodeTableArea" style="display:none; margin-bottom:10px; padding:10px; border:1px dashed var(--line); border-radius:8px;">
                 <div class="foot-note" style="margin-bottom:6px;">이 제약사는 거래명세서에 표준코드가 없거나 단가가 빠져있어서, 엑셀의 '코드표' 시트(표준코드/제품명/단가 등)를 붙여넣어두면 매칭·단가 보정에 자동으로 활용해요(제품명 또는 코드로 표준코드를 찾거나, 표준코드로 단가를 채워요).</div>
@@ -1131,7 +1144,8 @@
                   <button class="btn primary" id="pharmregCodeTableSaveBtn">💾 코드표 저장</button>
                 </div>
               </div>
-              <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 표준코드·수량·단가·제조번호·유효기간·제품명 컬럼을 헤더 이름으로 자동으로 찾아서 제품코드마스터DB와 매칭해요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 위에서 고른 제약사 형식에 맞춰 표준코드·수량·단가·제조번호·유효기간·제품명 열을 정확한 위치로 찾아서 제품코드마스터DB와 매칭해요(회사마다 실제 서식을 직접 확인해서 만든 것이라 위치를 추측하지 않아요) · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <div id="pharmregProfileInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
               <textarea id="pharmregPasteArea" placeholder="제약사 거래명세서 데이터를 헤더 포함해서 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:140px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
               <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
                 <div id="pharmregPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
@@ -1175,8 +1189,16 @@
       </div>
 
 
-      <!-- 공급내역신고 TAB: 원본 데이터를 표에 붙여넣으면 포함/별도(합계액·단가 × 내림·반올림·올림) 7종을 계산합니다 -->
-      <div class="panel" id="panel-supply">
+      <!-- 매입전표입력(엑셀) TAB: 공급내역신고(건별)/공급내역신고(전체) 중 선택해서 사용합니다 -->
+      <div class="panel" id="panel-payinput">
+        <div class="sub-section" style="padding-bottom:0;">
+          <div class="foot-row" style="gap:16px; justify-content:flex-start;">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="payinputMode" value="supply" checked> 공급내역신고(건별)</label>
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="payinputMode" value="inbound"> 공급내역신고(전체)</label>
+          </div>
+        </div>
+
+      <div id="panel-supply" style="display:block;">
 
         <div class="sub-section">
           <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
@@ -1233,7 +1255,7 @@
       </div>
 
       <!-- 입고현황조회(테스트) TAB: ESB 의약품유통정보 입고현황조회 형식 붙여넣기 테스트 -->
-      <div class="panel" id="panel-inbound">
+      <div id="panel-inbound" style="display:none;">
 
         <div class="sub-section">
           <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
@@ -1288,6 +1310,8 @@
         </div>
 
       
+      </div>
+
       </div>
 
     </div>
@@ -1427,11 +1451,10 @@ const DAMDANGJA_RAW = {"headers": ["담당자", "취급품목수", "거래처수
 </script>
 <script>
 // ---------- config ----------
-const VACATION_MAP = {"온라인팜": "개별", "종근당": "7/30~8/9", "일동제약": "8/1~8/9", "유한양행": "7/28~8/9", "제일약품": "8/1~8/9", "휴텍스제약": "8/1~8/9", "환인제약": "8/1~8/9", "대원제약": "8/10~8/17", "대웅제약": "8/1~8/9", "동화약품": "7/30~8/9", "경동제약": "개별", "한림ＭＳ": "7/30~8/10", "명인제약": "8/1~8/9", "안국약품": "개별", "국제약품": "8/1~8/9", "유나이티드": "8/1~8/9", "삼진제약": "7/28~8/9", "동아에스티": "8/1~8/9", "신풍제약": "8/1~8/9", "삼천당제약": "개별", "휴온스": "개별", "대화제약": "8/10~8/17", "에이치케이이노엔": "8/7~8/12", "알리코제약": "개별", "한독": "개별", "알보젠코리아": "7/29~8/9", "대웅바이오": "8/1~8/9", "부광약품": "8/1~8/5", "현대약품": "7/29~8/9", "보령": "개별", "동구바이오제약": "8/12~8/17", "제이더블유신약": "7/30~8/9", "코오롱제약": "8/1~8/9", "영진약품": "7/30~8/9", "유니메드": "8/1~8/9", "제이더블유중외제약": "7/30~8/9", "동국제약": "8/1~8/9", "명문제약": "7/30~8/9", "광동제약": "7/30~8/9", "에스케이케미칼": "8/10~8/17", "하나제약": "7/30~8/9", "일양약품": "8/1~8/9", "팜젠사이언스": "8/1~8/9", "삼아제약": "8/1~8/9", "삼일제약": "8/1~8/9", "아주약품": "8/10~8/17", "한올바이오": "8/1~8/9", "한국메딕스": "개별", "서울제약": "개별", "일화": "8/17~8/23", "동광제약": "7/21~26", "한화제약": "8/10~8/17", "고려제약": "7/27~8/10", "녹십자": "7/27~8/10", "대우제약": "8/1~8/9", "동성제약": "8/1~8/9", "메디카코리아": "개별", "유영제약": "8/10~8/17", "글락소스미스클라인": "개별", "한국화이자": "개별", "더유제약": "개별", "화이트생명과학": "7/29~8/9", "건일제약": "8/10~8/17", "바이넥스": "개별", "유유제약": "개별", "한국노바티스": "개별", "동아제약": "7/27~8/10", "비보존제약": "8/5~8/9", "한국얀센": "개별", "태준제약": "개별", "다림바이오텍": "개별", "진양제약": "개별", "태극제약": "8/12~8/17", "사노피아벤티스코리아": "개별", "한가람약품": "개별", "바이엘코리": "개별", "한국파마": "8/1~8/9", "한국엠에스디": "개별", "경보제약": "8/1~8/9", "일성아이에스": "8/17~8/21", "프라임제약": "8/10~8/17", "한국팜비오": "7/27~8/2", "구주제약": "개별", "영풍제약": "8/1~8/5", "신일제약": "개별", "엘지화학": "개별", "쥴릭파마": "개별", "영일제약": "8/6~8/9", "위더스제약": "개별", "씨엠지제약": "8/1~8/5", "신신제약": "8/1~8/9", "테라젠이텍스": "8/1~8/9", "한국다이이찌": "개별", "에이프로젠파마": "8/10~8/17", "휴비스트": "8/14~8/19", "보령바이오파마": "8/10~8/17", "초당약품": "8/10~8/17", "한국아스트라제네카": "개별", "한국오츠카제약": "7/29~8/9", "한국메나리니": "개별", "휴온스메디텍": "8/5~8/9", "한국먼디파마": "8/10~8/17", "킵스바이오파마": "8/1~8/9", "한국다케다제약": "개별", "한국에자이": "개별", "한독테바": "개별", "한국릴리": "개별", "대원바이오텍": "8/1~8/9", "옵투스제약": "개별", "한국아스텔라스": "개별", "경풍약품": "7/30~8/9", "동주팜": "8/10~8/17", "타나베파마코리아": "개별", "보령컨슈머헬": "7/30~8/9", "셀트리온": "8/10~8/17", "이노트로닉": "8/10~8/17", "이든파마": "8/5~8/9", "한국로슈": "개별", "한국베링거인겔": "개별", "파마킹": "7/29~8/9", "삼성제약": "8/14~8/17", "한국페링": "개별", "삼남제약": "7/30~8/9", "한국애보트": "개별", "지오영": "개별", "한국위너스": "8/1~8/9", "한국유니팜": "8/1~8/9", "라이트팜텍": "개별", "비아트리스코리아": "8/10~17", "마더스제약": "개별", "바이오스마트": "개별", "로하스메디": "개별", "한국오가논": "개별", "뉴신팜(제뉴원)": "개별", "위드원바이오": "8/1~8/9", "티알엔": "개별", "다산제약": "7/29~8/9", "건일바이오팜": "8/10~8/17", "에이치엘비": "개별", "에이치에이써플라이": "개별", "씨티씨바이오": "8/1~8/9", "케이에스제약": "8/10~8/17", "대동유통": "개별", "디케이에스에이치": "개별", "온힐": "개별", "팜베이": "개별", "시니온팜": "8/10~8/17", "오스템파마": "개별", "더블유사이언스(지엘": "개별"};
 const LIST_HEADERS = [
   {key:'code', label:'코드', editable:false},
   {key:'client', label:'거래처', editable:true},
-  {key:'vacation', label:'휴가', editable:true},
+  {key:'vacation', label:'휴가일정', editable:true},
   {key:'itemCount', label:'취급품목수', editable:true, num:true},
   {key:'stockout', label:'품절', editable:true, num:true},
   {key:'noOrder', label:'품절미발주', editable:true, num:true},
@@ -1464,7 +1487,7 @@ const MGR_HEADERS = [
 // map raw row arrays (from openpyxl export) -> keyed objects matching headers above
 function mokrokRowToObj(row){
   return {
-    code: row[0], client: row[1], vacation: VACATION_MAP[row[1]] || '', itemCount: row[2], stockout: row[3], noOrder: row[4],
+    code: row[0], client: row[1], itemCount: row[2], stockout: row[3], noOrder: row[4],
     expected: row[5], noOrder2: row[6], totalNoOrder: row[7], lastOrderDate: row[8],
     region: row[9], managerPrev: row[10], manager: row[11], paymentBasis: row[12],
     turn: row[13], status: row[14]
@@ -1547,13 +1570,6 @@ async function init(){
   const saved = await loadEdits();
   if(saved && saved.list && saved.list.length){
     listData = saved.list;
-    // 이전에 저장된 데이터에는 '휴가' 값이 없을 수 있으므로, 없는 경우에만 통합_문서1 기준값으로 채워줍니다
-    // (이미 수기로 입력/수정한 값은 건드리지 않아요).
-    listData.forEach(r=>{
-      if(r.vacation === undefined || r.vacation === null){
-        r.vacation = VACATION_MAP[r.client] || '';
-      }
-    });
     if(saved.savedAt) lastSavedAt = saved.savedAt;
     setIndicator('saved');
   } else {
@@ -1671,6 +1687,7 @@ function renderListTable(){
   const stF = document.getElementById('statusFilter').value;
   const payF = document.getElementById('paymentFilter').value;
   const lodF = document.getElementById('lastOrderDateFilter').value;
+  const msF = document.getElementById('monthStartFilter').value;
 
   let rows = listData.map((r, idx)=>({r, idx})).filter(({r})=>{
     if(q && !(String(r.code).toLowerCase().includes(q) || String(r.client||'').toLowerCase().includes(q))) return false;
@@ -1678,6 +1695,8 @@ function renderListTable(){
     if(stF && r.status !== stF) return false;
     if(payF && r.paymentBasis !== payF) return false;
     if(lodF && r.lastOrderDate !== lodF) return false;
+    if(msF === '누락'){ if(r.monthStart) return false; }
+    else if(msF && (r.monthStart||'') !== msF) return false;
     return true;
   });
 
@@ -1874,7 +1893,7 @@ function bindGlobalEvents(){
     });
   });
 
-  ['searchInput','managerFilter','statusFilter','paymentFilter','lastOrderDateFilter'].forEach(id=>{
+  ['searchInput','managerFilter','statusFilter','paymentFilter','lastOrderDateFilter','monthStartFilter'].forEach(id=>{
     document.getElementById(id).addEventListener('input', renderListTable);
     document.getElementById(id).addEventListener('change', renderListTable);
   });
@@ -2281,26 +2300,10 @@ async function handleFile(id, file){
   try{
     const buf = await file.arrayBuffer();
     const result = await parseFileInWorker(buf, cfg);
-    uploadState[id] = {
-      headers: result.headers, rows: result.rows, page: 0, pageSize: 50,
-      sort: { key:null, dir:1 }, sheetUsed: result.sheetName, uploadedAt: new Date().toISOString(), fileName: file.name,
-      trimmedColumns: result.trimmed ? { original: result.originalColumnCount, kept: result.keptColumnCount } : null,
-      fileMonth: STOCK_WAREHOUSES.some(p=>p.id===id) ? fileMonthKeyOf(file.name) : null
-    };
-    await saveUpload(id);
-    if(STOCK_WAREHOUSES.some(p=>p.id===id)){
-      const monthKey = uploadState[id].fileMonth || new Date().toISOString().slice(0,7);
-      await saveMonthlyStockSnapshot(id, monthKey, uploadState[id]);
-    }
-    renderUploadTable(id);
-    updateUploadMeta(id);
-    if(id === 'pumjeoldata') recomputeFromPumjeoldata();
-    if(id === 'finalorder') recomputeFromFinalOrder();
-    if(id === 'usage3m') recomputeFromUsage3m();
-    if(id === 'ordermgr') { await syncOrdermgrToVendorMaster(); recomputeFromManager(); refreshStockViews(); }
-    if(id === 'returnmgr') { await syncReturnmgrToVendorMaster(); refreshStockViews(); }
-    if(id === 'vendorMaster') { if(ensureVendorMasterReturnNoteColumn()){ renderUploadTable('vendorMaster'); await saveUpload('vendorMaster'); } recomputeFromManager(); refreshStockViews(); }
-    if(STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
+    await finishUploadProcessing(id, {
+      headers: result.headers, rows: result.rows, sheetUsed: result.sheetName, fileName: file.name,
+      trimmedColumns: result.trimmed ? { original: result.originalColumnCount, kept: result.keptColumnCount } : null
+    });
   }catch(err){
     console.error('업로드 처리 실패:', err);
     setUploadProcessing(id, false);
@@ -2310,6 +2313,57 @@ async function handleFile(id, file){
   }
   setUploadProcessing(id, false);
 }
+
+// 파일 업로드든 붙여넣기든, 최종적으로 {headers, rows}가 준비되면 이 뒷정리(저장·화면갱신·재계산)는 똑같이 거칩니다.
+async function finishUploadProcessing(id, parsed){
+  uploadState[id] = {
+    headers: parsed.headers, rows: parsed.rows, page: 0, pageSize: 50,
+    sort: { key:null, dir:1 }, sheetUsed: parsed.sheetUsed || '붙여넣기', uploadedAt: new Date().toISOString(), fileName: parsed.fileName || '(붙여넣은 데이터)',
+    trimmedColumns: parsed.trimmedColumns || null,
+    fileMonth: STOCK_WAREHOUSES.some(p=>p.id===id) ? fileMonthKeyOf(parsed.fileName || '') : null
+  };
+  await saveUpload(id);
+  if(STOCK_WAREHOUSES.some(p=>p.id===id)){
+    const monthKey = uploadState[id].fileMonth || new Date().toISOString().slice(0,7);
+    await saveMonthlyStockSnapshot(id, monthKey, uploadState[id]);
+  }
+  renderUploadTable(id);
+  updateUploadMeta(id);
+  if(id === 'pumjeoldata') recomputeFromPumjeoldata();
+  if(id === 'finalorder') recomputeFromFinalOrder();
+  if(id === 'usage3m') recomputeFromUsage3m();
+  if(id === 'ordermgr') { await syncOrdermgrToVendorMaster(); recomputeFromManager(); refreshStockViews(); }
+  if(id === 'returnmgr') { await syncReturnmgrToVendorMaster(); refreshStockViews(); }
+  if(id === 'vendorMaster') { if(ensureVendorMasterReturnNoteColumn()){ renderUploadTable('vendorMaster'); await saveUpload('vendorMaster'); } recomputeFromManager(); refreshStockViews(); }
+  if(STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
+}
+
+// 붙여넣은 텍스트(탭 또는 콤마 구분, 첫 줄=헤더)를 {headers, rows}로 바꿉니다. essentialColumns.colIndexes가
+// 설정된 항목(우선처별 재고 및 매입실적 등)은 그 열 위치만 뽑아서 라벨을 새 헤더로 씁니다.
+function parseUploadPasteText(id, text){
+  const cfg = UPLOAD_CONFIGS[id];
+  const lines = text.split(/\r\n|\r|\n/).map(l=>l.replace(/\s+$/,'')).filter(l=>l.length>0);
+  if(!lines.length) return { headers:[], rows:[] };
+  const useTab = text.includes('\t');
+  const splitLine = line => useTab ? line.split('\t').map(v=>v.trim()) : line.split(',').map(v=>v.trim());
+  let allRows = lines.map(splitLine);
+  let headers = allRows[0];
+  let dataRows = allRows.slice(1);
+  if(cfg && cfg.essentialColumns && cfg.essentialColumns.colIndexes){
+    const { colIndexes, labels } = cfg.essentialColumns;
+    headers = labels;
+    dataRows = dataRows.map(r => colIndexes.map(ci => r[ci] !== undefined ? r[ci] : ''));
+  }
+  return { headers, rows: dataRows };
+}
+
+async function handleUploadPaste(id, text){
+  const cfg = UPLOAD_CONFIGS[id];
+  const parsed = parseUploadPasteText(id, text);
+  if(!parsed.headers.length || !parsed.rows.length){ alert('붙여넣은 데이터를 읽지 못했어요. 헤더 줄을 포함해서 다시 붙여넣어주세요.'); return; }
+  await finishUploadProcessing(id, { headers: parsed.headers, rows: parsed.rows, sheetUsed: '붙여넣기', fileName: '' });
+}
+
 
 function setUploadSaveState(id, state, errMsg){
   const indicator = document.getElementById('saveState-' + id);
@@ -2745,6 +2799,29 @@ async function initUploadTabs(){
   for(const id of Object.keys(UPLOAD_CONFIGS)){
     await loadUploadFromStorage(id);
   }
+  ['ordermgr','returnmgr'].forEach(addUploadPasteUI);
+}
+
+// 드래그 업로드 칸 밑에 "붙여넣기로 대신하기" 토글을 추가합니다. 열면 텍스트칸+적용 버튼이 나오고,
+// 엑셀에서 복사한 데이터(헤더 포함)를 붙여넣으면 파일 업로드와 똑같은 처리를 거칩니다.
+function addUploadPasteUI(id){
+  const bar = document.getElementById('upload-' + id + '-bar');
+  if(!bar) return;
+  bar.style.display = 'none'; // 화면에는 붙여넣기만 보이게 하고, 파일 업로드 요소는 남겨둡니다(기존 로직이 참조해서).
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div id="pasteBox-${id}">
+      <textarea id="pasteText-${id}" placeholder="엑셀에서 복사한 데이터를 헤더 포함해서 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:100px; font-family:var(--mono); font-size:12px; padding:8px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
+      <div class="foot-row" style="justify-content:flex-end; margin-top:6px;">
+        <button class="btn primary" id="pasteApply-${id}" style="font-size:12px;">💾 붙여넣은 데이터 적용</button>
+      </div>
+    </div>`;
+  bar.insertAdjacentElement('afterend', wrap);
+  document.getElementById(`pasteApply-${id}`).addEventListener('click', async ()=>{
+    const text = document.getElementById(`pasteText-${id}`).value;
+    if(!text.trim()){ alert('붙여넣을 데이터가 없어요.'); return; }
+    await handleUploadPaste(id, text);
+  });
 }
 
 // ---------- recompute 목록 / 담당자별 현황 from uploaded raw sheets ----------
@@ -2766,7 +2843,7 @@ function findOrCreateListRow(client, code){
   if(!row && client) row = listData.find(r => r.client === client);
   if(!row){
     row = {
-      code: c || '', client: client || '', vacation: VACATION_MAP[client] || '', itemCount: 0, stockout: 0, noOrder: 0,
+      code: c || '', client: client || '', vacation: '', itemCount: 0, stockout: 0, noOrder: 0,
       expected: 0, noOrder2: 0, totalNoOrder: 0, lastOrderDate: '', region: '',
       manager: '', paymentBasis: '', turn: '', status: '품절없음', monthStart: ''
     };
@@ -4135,7 +4212,7 @@ let supplySelectedVendor = null;   // {name, vat} — 배치의 대표 거래처
 let supplyDecision = null;   // { mode, reason, diff }
 let supplyEditsMap = new Map(); // key: `${idx}:${field}` -> {productCode,barcode,field,before,after}
 
-// ---------- 매입전표 합계액 (합계액을 우선 입력하면 공급가·부가세가 자동 계산되고, 세 칸 모두 세부조정 가능, 7줄 + 총합계) ----------
+// ---------- 매입전표 합계액 (합계액 우선 입력시 자동분할, 공급가부터 입력시 부가세 수기입력+10%대비 10%p 이상 벗어나면 거부, 음수 허용, 7줄+총합계) ----------
 const SUPPLY_CALC_ROWS = 7;
 let supplyCalcData = Array.from({length: SUPPLY_CALC_ROWS}, ()=>({ supply:null, vat:null, total:null }));
 
@@ -4146,21 +4223,34 @@ function fmtCalcNum(v){
 // 합계액을 기준으로 공급가·부가세를 자동 계산합니다(÷1.1). 공급가나 부가세를 직접 고치면(세부조정),
 // 합계액이 이미 있으면 그 합계액을 고정한 채 나머지 한 쪽을 다시 맞추고, 합계액이 아직 없으면
 // 예전처럼 10% 부가세로 계산해서 합계액을 새로 만듭니다.
+// 합계액이 이미 있으면(세부조정 모드) 합계액을 고정한 채 나머지 한 쪽을 맞추고,
+// 합계액이 없으면(공급가 입력 모드) 공급가·부가세를 각각 그대로 받아들이되(자동 10% 계산 없음),
+// 둘 다 채워지면 부가세율이 표준 10%에서 10%p 이상 벗어날 경우 그 입력을 거부합니다(음수도 허용).
 function recalcSupplyCalcRow(i, field, value){
   const row = supplyCalcData[i];
-  row[field] = value;
   if(field === 'total'){
+    row.total = value;
     if(value === null){ row.supply = null; row.vat = null; }
     else{ row.supply = Math.round(value / 1.1); row.vat = value - row.supply; }
-  } else if(field === 'supply'){
-    if(value === null){ row.vat = null; if(row.total === null) row.vat = null; }
-    else if(row.total !== null){ row.vat = row.total - value; }
-    else { row.vat = Math.round(value * 0.1); row.total = value + row.vat; }
-  } else if(field === 'vat'){
-    if(value === null){ row.supply = null; }
-    else if(row.total !== null){ row.supply = row.total - value; }
-    else { row.supply = Math.round(value * 10); row.total = value + row.supply; }
+    return { ok:true };
   }
+  if(row.total !== null){
+    if(field === 'supply'){ row.supply = value; row.vat = (value===null) ? null : row.total - value; }
+    else { row.vat = value; row.supply = (value===null) ? null : row.total - value; }
+    return { ok:true };
+  }
+  const prevSupply = row.supply, prevVat = row.vat;
+  if(field === 'supply') row.supply = value; else row.vat = value;
+  if(row.supply !== null && row.vat !== null && row.supply !== 0){
+    const ratio = row.vat / row.supply;
+    if(ratio < 0 || ratio >= 0.20){
+      row.supply = prevSupply; row.vat = prevVat;
+      row.total = (row.supply!==null && row.vat!==null) ? row.supply + row.vat : null;
+      return { ok:false, message:`부가세율이 표준 10%에서 10%p 이상 벗어나서(${(ratio*100).toFixed(1)}%) 반영하지 않았어요 — 공급가·부가세 값을 확인해주세요.` };
+    }
+  }
+  row.total = (row.supply!==null && row.vat!==null) ? row.supply + row.vat : null;
+  return { ok:true };
 }
 
 function supplyCalcReferenceTotal(){
@@ -4231,9 +4321,15 @@ function renderSupplyCalcTable(){
       const field = inp.dataset.field;
       const n = Number(String(inp.value).replace(/,/g,'').trim());
       const val = (inp.value.trim()==='' || isNaN(n)) ? null : n;
-      recalcSupplyCalcRow(i, field, val);
+      const result = recalcSupplyCalcRow(i, field, val);
       renderSupplyCalcTable();
       renderInboundCalcTable();
+      if(!result.ok){
+        const warnEl = document.getElementById('supplyCalcWarning');
+        if(warnEl){ warnEl.style.display = 'block'; warnEl.textContent = `⚠ ${result.message}`; }
+        const warnEl2 = document.getElementById('inboundCalcWarning');
+        if(warnEl2){ warnEl2.style.display = 'block'; warnEl2.textContent = `⚠ ${result.message}`; }
+      }
       // 방금 입력하던 칸에 포커스를 되돌려줍니다 (이 표 안에서만 찾아서, 다른 탭의 표로 포커스가 튀지 않게 합니다).
       const again = body.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
       if(again){ again.focus(); const len = again.value.length; again.setSelectionRange(len, len); }
@@ -4602,7 +4698,7 @@ function renderSupplyTable(){
   const head = document.getElementById('head-supply');
   head.innerHTML = allCols.map(c=>{
     const w = supplyColumnWidths[c.key] || c.width;
-    const label = c.key === 'productCode' ? `${c.label||''} <span style="color:var(--red); font-weight:800;">(공급내역신고 주의)</span>` : (c.label||'');
+    const label = c.key === 'productCode' ? `${c.label||''} <span style="color:var(--red); font-weight:800;">(공급내역신고-건별 주의)</span>` : (c.label||'');
     return `<th style="width:${w}px; position:relative;">${label}<span class="supply-col-resize" data-col="${c.key}" style="position:absolute; right:0; top:0; width:6px; height:100%; cursor:col-resize;"></span></th>`;
   }).join('');
 
@@ -4783,12 +4879,14 @@ function supplyExportFileBaseName(){
 async function exportSupplyXlsx(){
   if(!supplyFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
   const rows = buildSupplyExportRows();
-  const columns = SUPPLY_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.00"%"' : undefined), center: c.num||c.pct }));
-  await downloadStyledXlsx({
-    sheetName: (supplyDecision ? supplyDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
-    fileName: supplyExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
-    columns, rows
-  });
+  // ExcelJS가 만드는 최신 스타일 대신, SheetJS로 더 단순하고 옛날 엑셀(2016 이전 포함)에서도
+  // 잘 열리는 형태의 xlsx로 저장합니다.
+  const aoa = [SUPPLY_EXPORT_COLUMNS.map(c=>c.label)];
+  rows.forEach(o=>{ aoa.push(SUPPLY_EXPORT_COLUMNS.map(c=>o[c.key])); });
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, (supplyDecision ? supplyDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  XLSX.writeFile(wb, supplyExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
 }
 
 function exportSupplyXls(){
@@ -4971,9 +5069,15 @@ function renderInboundCalcTable(){
       const field = inp.dataset.field;
       const n = Number(String(inp.value).replace(/,/g,'').trim());
       const val = (inp.value.trim()==='' || isNaN(n)) ? null : n;
-      recalcSupplyCalcRow(i, field, val);
+      const result = recalcSupplyCalcRow(i, field, val);
       renderInboundCalcTable();
       renderSupplyCalcTable();
+      if(!result.ok){
+        const warnEl = document.getElementById('inboundCalcWarning');
+        if(warnEl){ warnEl.style.display = 'block'; warnEl.textContent = `⚠ ${result.message}`; }
+        const warnEl2 = document.getElementById('supplyCalcWarning');
+        if(warnEl2){ warnEl2.style.display = 'block'; warnEl2.textContent = `⚠ ${result.message}`; }
+      }
       // 방금 입력하던 칸에 포커스를 되돌려줍니다 (이 표 안에서만 찾아서, 다른 탭의 표로 포커스가 튀지 않게 합니다).
       const again = body.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
       if(again){ again.focus(); const len = again.value.length; again.setSelectionRange(len, len); }
@@ -5214,7 +5318,7 @@ function renderInboundTable(){
   const head = document.getElementById('head-inbound');
   head.innerHTML = allCols.map(c=>{
     const w = inboundColumnWidths[c.key] || c.width;
-    const label = c.key === 'productCode' ? `${c.label||''} <span style="color:var(--red); font-weight:800;">(입고현황조회 주의)</span>` : (c.label||'');
+    const label = c.key === 'productCode' ? `${c.label||''} <span style="color:var(--red); font-weight:800;">(공급내역신고-전체 주의)</span>` : (c.label||'');
     return `<th style="width:${w}px; position:relative;">${label}<span class="inbound-col-resize" data-col="${c.key}" style="position:absolute; right:0; top:0; width:6px; height:100%; cursor:col-resize;"></span></th>`;
   }).join('');
 
@@ -5395,12 +5499,14 @@ function inboundExportFileBaseName(){
 async function exportInboundXlsx(){
   if(!inboundFinalRows.length){ alert('먼저 데이터를 붙여넣고 결과를 계산해주세요.'); return; }
   const rows = buildInboundExportRows();
-  const columns = INBOUND_EXPORT_COLUMNS.map(c=>({ key:c.key, label:c.label, width:14, numFmt: c.num ? '#,##0' : (c.pct ? '0.00"%"' : undefined), center: c.num||c.pct }));
-  await downloadStyledXlsx({
-    sheetName: (inboundDecision ? inboundDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,''),
-    fileName: inboundExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx',
-    columns, rows
-  });
+  // ExcelJS가 만드는 최신 스타일 대신, SheetJS로 더 단순하고 옛날 엑셀(2016 이전 포함)에서도
+  // 잘 열리는 형태의 xlsx로 저장합니다.
+  const aoa = [INBOUND_EXPORT_COLUMNS.map(c=>c.label)];
+  rows.forEach(o=>{ aoa.push(INBOUND_EXPORT_COLUMNS.map(c=>o[c.key])); });
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, (inboundDecision ? inboundDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  XLSX.writeFile(wb, inboundExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
 }
 
 function exportInboundXls(){
@@ -5915,7 +6021,7 @@ let pharmregSelectedVendor = null;   // {name, vat} — 배치의 대표 거래�
 let pharmregDecision = null;   // { mode, reason, diff }
 let pharmregEditsMap = new Map(); // key: `${idx}:${field}` -> {productCode,barcode,field,before,after}
 
-// ---------- 매입전표 합계액 (합계액을 우선 입력하면 공급가·부가세가 자동 계산되고, 세 칸 모두 세부조정 가능, 7줄 + 총합계) ----------
+// ---------- 매입전표 합계액 (합계액 우선 입력시 자동분할, 공급가부터 입력시 부가세 수기입력+10%대비 10%p 이상 벗어나면 거부, 음수 허용, 7줄+총합계) ----------
 const PHARMREG_CALC_ROWS = 7;
 let pharmregCalcData = Array.from({length: PHARMREG_CALC_ROWS}, ()=>({ pharmreg:null, vat:null, total:null }));
 
@@ -5925,19 +6031,29 @@ let pharmregCalcData = Array.from({length: PHARMREG_CALC_ROWS}, ()=>({ pharmreg:
 // 예전처럼 10% 부가세로 계산해서 합계액을 새로 만듭니다.
 function recalcPharmregCalcRow(i, field, value){
   const row = pharmregCalcData[i];
-  row[field] = value;
   if(field === 'total'){
+    row.total = value;
     if(value === null){ row.pharmreg = null; row.vat = null; }
     else{ row.pharmreg = Math.round(value / 1.1); row.vat = value - row.pharmreg; }
-  } else if(field === 'pharmreg'){
-    if(value === null){ row.vat = null; if(row.total === null) row.vat = null; }
-    else if(row.total !== null){ row.vat = row.total - value; }
-    else { row.vat = Math.round(value * 0.1); row.total = value + row.vat; }
-  } else if(field === 'vat'){
-    if(value === null){ row.pharmreg = null; }
-    else if(row.total !== null){ row.pharmreg = row.total - value; }
-    else { row.pharmreg = Math.round(value * 10); row.total = value + row.pharmreg; }
+    return { ok:true };
   }
+  if(row.total !== null){
+    if(field === 'pharmreg'){ row.pharmreg = value; row.vat = (value===null) ? null : row.total - value; }
+    else { row.vat = value; row.pharmreg = (value===null) ? null : row.total - value; }
+    return { ok:true };
+  }
+  const prevSupply = row.pharmreg, prevVat = row.vat;
+  if(field === 'pharmreg') row.pharmreg = value; else row.vat = value;
+  if(row.pharmreg !== null && row.vat !== null && row.pharmreg !== 0){
+    const ratio = row.vat / row.pharmreg;
+    if(ratio < 0 || ratio >= 0.20){
+      row.pharmreg = prevSupply; row.vat = prevVat;
+      row.total = (row.pharmreg!==null && row.vat!==null) ? row.pharmreg + row.vat : null;
+      return { ok:false, message:`부가세율이 표준 10%에서 10%p 이상 벗어나서(${(ratio*100).toFixed(1)}%) 반영하지 않았어요 — 공급가·부가세 값을 확인해주세요.` };
+    }
+  }
+  row.total = (row.pharmreg!==null && row.vat!==null) ? row.pharmreg + row.vat : null;
+  return { ok:true };
 }
 
 function pharmregCalcReferenceTotal(){
@@ -6008,9 +6124,12 @@ function renderPharmregCalcTable(){
       const field = inp.dataset.field;
       const n = Number(String(inp.value).replace(/,/g,'').trim());
       const val = (inp.value.trim()==='' || isNaN(n)) ? null : n;
-      recalcPharmregCalcRow(i, field, val);
+      const result = recalcPharmregCalcRow(i, field, val);
       renderPharmregCalcTable();
-      renderInboundCalcTable();
+      if(!result.ok){
+        const warnEl = document.getElementById('pharmregCalcWarning');
+        if(warnEl){ warnEl.style.display = 'block'; warnEl.textContent = `⚠ ${result.message}`; }
+      }
       // 방금 입력하던 칸에 포커스를 되돌려줍니다 (이 표 안에서만 찾아서, 다른 탭의 표로 포커스가 튀지 않게 합니다).
       const again = body.querySelector(`input.calc-input[data-i="${i}"][data-field="${field}"]`);
       if(again){ again.focus(); const len = again.value.length; again.setSelectionRange(len, len); }
@@ -6046,26 +6165,40 @@ function parsePharmregPasteText(text){
   });
 }
 
-// "8.80675E+12" 같은 지수표기 문자열에서 유효자리수(가수 자릿수)를 세어줍니다.
-
-
-
-
-
-// 사용기한('YYYYMMDD')이 오늘로부터 몇 개월 남았는지 계산합니다 (달력 기준, 음수면 이미 지남).
-
 function pharmregNormCell(v){
   return String(v||'').replace(/[\s\u00a0]+/g,'').trim();
 }
 
-const PHARMREG_FIELD_KEYWORDS = {
-  stdCode: ['표준코드','의약품표준코드'],
-  qty: ['수량','판매수량'],
-  unitPrice: ['단가','판매가격','공급단가','기준단가','장부단가','실단가'],
-  amount: ['공급가액','금액'],
-  lotNo: ['제조번호','배치','Lot.NO','LOT','Lot'],
-  expiry: ['유효기간','유효일자','유통기한'],
-  itemName: ['제품명','상품명','품명','품목명','제 품 명','품 명'],
+// ---------- 회사별 정확한 컬럼 위치(하드코딩) ----------
+// 매입엑셀파일-제약사사이트기준.xlsx의 실제 수식을 하나하나 확인해서 만든 표입니다(추측 아님).
+// idx는 0-based 열 번호(A=0,B=1,...), headerRows는 실제 데이터가 시작되기 전 건너뛸 줄 수예요.
+// unit 또는 amount 중 하나가 null이면 수량으로 서로 계산해서 채워요.
+// codeTable: 'priceByStd'(표준코드→단가 보완) 또는 'stdByName'(제품명→표준코드 보완)
+const PHARMREG_PROFILES = {
+  '유한양행': { headerRows: 1, idx: { stdCode:7, qty:12, unit:13, amount:14, lotNo:10, expiry:11, itemName:8 } },
+  '뉴신팜': { headerRows: 1, idx: { stdCode:1, qty:4, unit:null, amount:null, lotNo:6, expiry:7, itemName:2 }, codeTable:'priceByStd',
+    note:'이 회사 자료엔 단가가 없어서, 저장해둔 코드표(표준코드→단가)에서 단가를 가져와요.' },
+  '티알엔': { headerRows: 1, idx: { stdCode:1, qty:4, unit:null, amount:null, lotNo:6, expiry:7, itemName:2 }, codeTable:'priceByStd',
+    note:'이 회사 자료엔 단가가 없어서, 저장해둔 코드표(표준코드→단가)에서 단가를 가져와요.' },
+  '일동제약': { headerRows: 1, idx: { stdCode:null, qty:3, unit:null, amount:5, lotNo:9, expiry:8, itemName:1 }, codeTable:'stdByName',
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 코드표에서 제품명으로 표준코드를 찾아요.' },
+  '에이치케이이노엔': { headerRows: 1, idx: { stdCode:null, qty:6, unit:null, amount:8, lotNo:4, expiry:5, itemName:0 }, codeTable:'stdByName',
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 코드표에서 제품명(품목)으로 표준코드를 찾아요.' },
+  '한독': { headerRows: 1, idx: { stdCode:12, qty:17, unit:18, amount:19, lotNo:15, expiry:16, itemName:14 } },
+  '정안약품': { headerRows: 1, idx: { stdCode:32, qty:12, unit:null, amount:17, lotNo:23, expiry:24, itemName:10 } },
+  '온라인팜': { headerRows: 1, idx: { stdCode:5, qty:9, unit:null, amount:14, lotNo:7, expiry:8, itemName:6 } },
+  '종근당': { headerRows: 1, idx: { stdCode:4, qty:6, unit:8, amount:null, lotNo:11, expiry:12, itemName:5 },
+    note:'이 회사는 표준코드 컬럼이 따로 없어서, 품목코드를 표준코드로 그대로 사용해요(원본 수식과 동일).' },
+  '휴온스': { headerRows: 1, idx: { stdCode:3, qty:9, unit:10, amount:null, lotNo:7, expiry:8, itemName:4 },
+    note:'원본 엑셀 수식은 실금액 칸에 단가를 잘못 넣고 있어서(수식 오류로 보여요), 여기서는 수량×단가로 정확히 계산했어요.' },
+  '팜베이': { headerRows: 1, idx: { stdCode:10, qty:6, unit:5, amount:7, lotNo:8, expiry:9, itemName:3 } },
+  '태준제약': { headerRows: 1, idx: { stdCode:1, qty:4, unit:5, amount:6, lotNo:7, expiry:8, itemName:2 } },
+  '유나이티드': { headerRows: 1, idx: { stdCode:2, qty:5, unit:null, amount:7, lotNo:8, expiry:9, itemName:1 } },
+  '메디카코리아': { headerRows: 1, idx: { stdCode:1, qty:5, unit:null, amount:6, lotNo:7, expiry:null, itemName:3 }, codeTable:'stdByName',
+    lowConfidence: true,
+    note:'⚠ 이 회사는 원본 엑셀에서 표준코드 열에 이름이 안 붙어있어서(병합된 셀 문제로 보여요) 정확도가 낮을 수 있어요 — 결과를 한 번 더 확인해주세요. 사용기한은 원본에도 연결이 안 되어 있어 비어있어요.' },
+  '동아에스티': { dynamicHeader: { need: ['표준코드','수량','단가'], map: { stdCode:'표준코드', qty:'수량', unit:'단가', amount:'총금액', itemName:'품명' } }, needsSupplyCross: true,
+    note:'이 회사는 거래명세서에 제조번호·사용기한이 없어서, 위쪽 "공급내역신고자료" 칸에 저장해둔 자료에서 표준코드로 찾아와요.' },
 };
 
 // "2028-03-03"/"2028/03/03"/"20280303"/엑셀 시리얼값 등을 YYYYMMDD로 정리합니다.
@@ -6084,46 +6217,21 @@ function parseFlexibleDateToYYYYMMDD(raw){
   return s;
 }
 
-// 최대 5줄까지 훑어서 헤더로 보이는 줄(필요한 항목 중 3개 이상 이름이 일치)을 찾습니다.
-function detectPharmregColumnIndices(rawRows){
-  for(let i=0; i<Math.min(5, rawRows.length); i++){
-    const norm = rawRows[i].map(pharmregNormCell);
-    let hits = 0;
-    Object.values(PHARMREG_FIELD_KEYWORDS).forEach(keywords=>{
-      if(keywords.some(k => norm.includes(pharmregNormCell(k)))) hits++;
-    });
-    if(hits >= 3){
-      const find = (keywords) => {
-        for(const k of keywords){
-          const idx = norm.indexOf(pharmregNormCell(k));
-          if(idx !== -1) return idx;
-        }
-        return -1;
-      };
-      const idxs = {};
-      Object.entries(PHARMREG_FIELD_KEYWORDS).forEach(([field, keywords])=>{ idxs[field] = find(keywords); });
-      return { idxs, dataRows: rawRows.slice(i+1) };
-    }
-  }
-  return { idxs: null, dataRows: rawRows };
-}
-
 // 코드표(회사별로 저장된 표준코드/제품명/단가 참고표)를 이용한 보조 매칭: 표준코드가 없는 회사는
 // 제품명으로 표준코드를 찾고, 단가가 없는 회사는 표준코드로 단가를 채웁니다.
 function buildPharmregCodeTableMaps(company){
-  const nameToStd = new Map(), stdToPrice = new Map(), codeToStd = new Map();
+  const nameToStd = new Map(), stdToPrice = new Map();
   const raw = pharmregCodeTables[company];
-  if(!raw || !raw.length) return { nameToStd, stdToPrice, codeToStd };
+  if(!raw || !raw.length) return { nameToStd, stdToPrice };
   let header = null, dataStart = 0;
   for(let i=0; i<Math.min(5, raw.length); i++){
     const norm = raw[i].map(pharmregNormCell);
     if(norm.some(v=>v==='표준코드'||v==='의약품표준코드')){ header = norm; dataStart = i+1; break; }
   }
-  if(!header) return { nameToStd, stdToPrice, codeToStd };
+  if(!header) return { nameToStd, stdToPrice };
   const idxStd = header.findIndex(v=>v==='표준코드'||v==='의약품표준코드');
-  const idxName = header.findIndex(v=>v.includes('제품명')||v.includes('상품명')||v==='품명');
+  const idxName = header.findIndex(v=>v.includes('제품명')||v.includes('상품명')||v==='품명'||v==='품목');
   const idxPrice = header.findIndex(v=>v.includes('단가'));
-  const idxCode = header.findIndex(v=>v.includes('KD코드')||v.includes('다미스코드')||v.includes('자사코드'));
   for(let i=dataStart; i<raw.length; i++){
     const row = raw[i];
     if(!row) continue;
@@ -6137,12 +6245,8 @@ function buildPharmregCodeTableMaps(company){
       const price = Number(String(row[idxPrice]||'').replace(/,/g,''));
       if(!isNaN(price) && !stdToPrice.has(std)) stdToPrice.set(std, price);
     }
-    if(idxCode!==-1){
-      const code = String(row[idxCode]||'').trim();
-      if(code && !codeToStd.has(code)) codeToStd.set(code, std);
-    }
   }
-  return { nameToStd, stdToPrice, codeToStd };
+  return { nameToStd, stdToPrice };
 }
 
 // 사업자번호 대신 거래처정보마스터DB의 매입처명으로 거래처를 찾습니다(제약사 선택 드롭다운과 매칭).
@@ -6162,40 +6266,99 @@ function buildPharmregVendorNameMap(){
   return map;
 }
 
+function renderPharmregProfileInfo(company, profile){
+  const el = document.getElementById('pharmregProfileInfo');
+  if(!el) return;
+  if(!company){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  if(!profile){
+    el.innerHTML = `<span style="color:var(--red); font-weight:700;">⚠ "${company}"은(는) 아직 정확한 형식이 등록되지 않았어요. 결과를 계산해드릴 수 없으니, 이 회사 형식을 다음에 추가해드릴게요.</span>`;
+    return;
+  }
+  const noteHtml = profile.note ? `<div style="margin-top:4px; ${profile.lowConfidence?'color:var(--red); font-weight:700;':'color:var(--ink-dim);'}">${profile.note}</div>` : '';
+  if(profile.dynamicHeader){
+    el.innerHTML = `<b>"${company}"</b> 형식으로 인식했어요 — 붙여넣은 데이터에서 표준코드·수량·단가가 있는 줄을 찾아 그 줄부터 읽어요.${noteHtml}`;
+    return;
+  }
+  const i = profile.idx;
+  const col = n => n===null||n===undefined ? '(없음)' : String.fromCharCode(65 + (n % 26)) + (n>=26?Math.floor(n/26):'') + '열';
+  el.innerHTML = `<b>"${company}"</b> 형식으로 인식했어요 — 표준코드:${col(i.stdCode)} · 수량:${col(i.qty)} · 단가:${col(i.unit)} · 금액:${col(i.amount)} · 제조번호:${col(i.lotNo)} · 사용기한:${col(i.expiry)} · 제품명:${col(i.itemName)}${noteHtml}`;
+}
+
 function computePharmregResults(){
   const productIndex = buildProductBarcodeMap();
   const vendorNameMap = buildPharmregVendorNameMap();
   pharmregSelectedVendor = null;
+  pharmregComputed = [];
 
   const company = (document.getElementById('pharmregCompany')||{}).value || '';
+  const profile = PHARMREG_PROFILES[company];
+  renderPharmregProfileInfo(company, profile);
+  if(!profile || !pharmregRawRows.length) return;
+
   if(company){
     for(const [name, v] of vendorNameMap){
       if(name.includes(company) || company.includes(name)){ pharmregSelectedVendor = v; break; }
     }
   }
   const codeTableMaps = buildPharmregCodeTableMaps(company);
+  const dongaSupplyMap = profile.needsSupplyCross ? buildPharmregDongaSupplyMap() : null;
 
-  const { idxs, dataRows } = detectPharmregColumnIndices(pharmregRawRows);
-  pharmregComputed = [];
-  if(!idxs) return;
+  let i = profile.idx;
+  let dataRows;
+  if(profile.dynamicHeader){
+    // 헤더가 실제로 몇 번째 줄에 있는지 몰라서(회사마다 앞부분 안내문 줄 수가 다를 수 있어서),
+    // 필요한 이름들이 모두 나오는 줄을 찾아서 그 줄을 기준으로 열 위치를 정합니다.
+    const dh = profile.dynamicHeader;
+    let headerIdx = -1, norm = null;
+    for(let r=0; r<Math.min(30, pharmregRawRows.length); r++){
+      const rowNorm = pharmregRawRows[r].map(pharmregNormCell);
+      if(dh.need.every(k => rowNorm.includes(pharmregNormCell(k)))){ headerIdx = r; norm = rowNorm; break; }
+    }
+    if(headerIdx === -1){
+      const el = document.getElementById('pharmregProfileInfo');
+      if(el){
+        el.style.display = 'block';
+        el.innerHTML = `<span style="color:var(--red); font-weight:700;">⚠ 붙여넣은 데이터에서 "${dh.need.join('/')}"가 모두 있는 줄을 못 찾았어요 — 거래명세서의 표 부분(품명/표준코드/수량... 헤더가 있는 줄부터)이 포함되도록 다시 붙여넣어주세요.</span>`;
+      }
+      return;
+    }
+    i = {};
+    Object.entries(dh.map).forEach(([field, label])=>{
+      const idx = norm.indexOf(pharmregNormCell(label));
+      i[field] = idx === -1 ? null : idx;
+    });
+    if(i.lotNo === undefined) i.lotNo = null;
+    if(i.expiry === undefined) i.expiry = null;
+    dataRows = pharmregRawRows.slice(headerIdx + 1);
+  } else {
+    dataRows = pharmregRawRows.slice(profile.headerRows || 0);
+  }
 
   dataRows.forEach(f=>{
     if(!f || !f.some(v=>v!==null && v!==undefined && String(v).trim()!=='')) return;
-    let stdCode = idxs.stdCode!==-1 ? String(f[idxs.stdCode]||'').trim() : '';
-    const itemName = idxs.itemName!==-1 ? String(f[idxs.itemName]||'').trim() : '';
+    let stdCode = i.stdCode!==null && i.stdCode!==undefined ? String(f[i.stdCode]||'').trim() : '';
+    const itemName = i.itemName!==null && i.itemName!==undefined ? String(f[i.itemName]||'').trim() : '';
     if(!stdCode && itemName){
       const byName = codeTableMaps.nameToStd.get(normalizeProductName(itemName));
       if(byName) stdCode = byName;
     }
     if(!stdCode) return;
-    const qty = idxs.qty!==-1 ? (Number(String(f[idxs.qty]||'').replace(/,/g,''))||0) : 0;
-    let rawUnit = idxs.unitPrice!==-1 ? (Number(String(f[idxs.unitPrice]||'').replace(/,/g,''))||0) : 0;
-    let rawAmt = idxs.amount!==-1 ? (Number(String(f[idxs.amount]||'').replace(/,/g,''))||0) : 0;
+    const qty = i.qty!==null && i.qty!==undefined ? (Number(String(f[i.qty]||'').replace(/,/g,''))||0) : 0;
+    let rawUnit = (i.unit!==null && i.unit!==undefined) ? (Number(String(f[i.unit]||'').replace(/,/g,''))||0) : 0;
+    let rawAmt = (i.amount!==null && i.amount!==undefined) ? (Number(String(f[i.amount]||'').replace(/,/g,''))||0) : 0;
     if(!rawUnit && codeTableMaps.stdToPrice.has(stdCode)) rawUnit = codeTableMaps.stdToPrice.get(stdCode);
     if(!rawUnit && rawAmt && qty) rawUnit = Math.round(rawAmt / qty);
     if(!rawAmt && rawUnit && qty) rawAmt = rawUnit * qty;
-    const lotNo = idxs.lotNo!==-1 ? String(f[idxs.lotNo]||'').trim() : '';
-    const expiry = idxs.expiry!==-1 ? parseFlexibleDateToYYYYMMDD(f[idxs.expiry]) : '';
+    let lotNo = (i.lotNo!==null && i.lotNo!==undefined) ? String(f[i.lotNo]||'').trim() : '';
+    let expiry = (i.expiry!==null && i.expiry!==undefined) ? parseFlexibleDateToYYYYMMDD(f[i.expiry]) : '';
+    if(dongaSupplyMap && (!lotNo || !expiry)){
+      const cross = dongaSupplyMap.get(stdCode);
+      if(cross){
+        if(!lotNo) lotNo = cross.lotNo;
+        if(!expiry) expiry = cross.expiry;
+      }
+    }
 
     const prod = lookupProductByBarcode(stdCode, productIndex, itemName);
     const barcode = prod && prod.barcode ? prod.barcode : stdCode;
@@ -6232,8 +6395,6 @@ function computePharmregResults(){
 
   finalizePharmregMode();
 }
-
-// 거래처의 매입전표부가세(포함/별도)와 계산기의 공급가 합계를 참고해 7가지 중 하나를 자동으로 고릅니다.
 function decidePharmregMode(){
   const refTotal = pharmregCalcReferenceTotal();
   const vendorVatRaw = String((pharmregSelectedVendor && pharmregSelectedVendor.vat) || '').trim();
@@ -6612,6 +6773,77 @@ function updatePharmregCodeTableAreaVisibility(){
   }
 }
 
+// ---------- 동아에스티: 공급내역신고자료(공급내역신고 탭과 같은 22열 형식)로 제조번호·사용기한 보완 ----------
+let pharmregDongaSupplyRows = [];
+let pharmregDongaSupplyUpdatedAt = null;
+const PHARMREG_DONGA_SUPPLY_STORAGE_KEY = 'stockout_dashboard_pharmreg_donga_supply_v1';
+
+async function savePharmregDongaSupply(){
+  try{ await window.storage.set(PHARMREG_DONGA_SUPPLY_STORAGE_KEY, JSON.stringify({ rows: pharmregDongaSupplyRows, updatedAt: pharmregDongaSupplyUpdatedAt }), true); }catch(e){}
+}
+async function loadPharmregDongaSupply(){
+  try{
+    const res = await window.storage.get(PHARMREG_DONGA_SUPPLY_STORAGE_KEY, true);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      pharmregDongaSupplyRows = parsed.rows || [];
+      pharmregDongaSupplyUpdatedAt = parsed.updatedAt || null;
+    }
+  }catch(e){}
+}
+function renderPharmregDongaSupplyInfo(){
+  const el = document.getElementById('pharmregDongaSupplyInfo');
+  if(!el) return;
+  if(!pharmregDongaSupplyRows.length){ el.textContent = '아직 저장된 공급내역신고자료가 없어요'; return; }
+  const tsTxt = pharmregDongaSupplyUpdatedAt ? new Date(pharmregDongaSupplyUpdatedAt).toLocaleString('ko-KR') : '';
+  el.textContent = `${pharmregDongaSupplyRows.length.toLocaleString()}행 저장됨 · 최종 업데이트: ${tsTxt}`;
+}
+function updatePharmregDongaSupplyAreaVisibility(){
+  const company = document.getElementById('pharmregCompany').value;
+  const area = document.getElementById('pharmregDongaSupplyArea');
+  if(!area) return;
+  const show = company === '동아에스티';
+  area.style.display = show ? 'block' : 'none';
+  if(show){
+    document.getElementById('pharmregDongaSupplyPasteArea').value = pharmregDongaSupplyRows.map(r=>r.join('\t')).join('\n');
+    renderPharmregDongaSupplyInfo();
+  }
+}
+// 표준코드 → {lotNo, expiry} 맵을 만듭니다(공급내역신고자료와 같은 22열 형식: K(10)=표준코드, S(18)=제조번호, T(19)=사용기한 뒷자리).
+function buildPharmregDongaSupplyMap(){
+  const map = new Map();
+  pharmregDongaSupplyRows.forEach(f=>{
+    const std = String(f[10]||'').trim();
+    if(!std) return;
+    const lotNo = String(f[18]||'').trim();
+    const expiryRaw = String(f[19]||'').trim();
+    const expiry = expiryRaw ? ('20' + expiryRaw.padStart(6,'0')) : '';
+    if(!map.has(std)) map.set(std, { lotNo, expiry });
+  });
+  return map;
+}
+
+// ---------- 제약사 선택: 드롭다운 대신 상단에 나열된 버튼(칩)으로 골라요 ----------
+function renderPharmregCompanyButtons(){
+  const wrap = document.getElementById('pharmregCompanyButtons');
+  if(!wrap) return;
+  const select = document.getElementById('pharmregCompany');
+  const companies = Array.from(select.options).map(o=>o.value || o.textContent).filter((v,idx)=> idx>0); // "고르지 않음" 제외
+  const current = select.value;
+  const chipStyle = (active) => `padding:6px 14px; border-radius:999px; border:1px solid ${active?'var(--accent)':'var(--line)'}; background:${active?'var(--accent)':'#fff'}; color:${active?'#fff':'var(--ink)'}; font-size:13px; cursor:pointer; font-weight:${active?'700':'400'};`;
+  let html = `<button type="button" class="pharmreg-chip" data-company="" style="${chipStyle(current==='')}">고르지 않음</button>`;
+  companies.forEach(c=>{
+    html += `<button type="button" class="pharmreg-chip" data-company="${c}" style="${chipStyle(current===c)}">${c}${c==='동아에스티'?' 🔗':''}</button>`;
+  });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.pharmreg-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      select.value = btn.dataset.company;
+      select.dispatchEvent(new Event('change'));
+    });
+  });
+}
+
 function bindPharmregTab(){
   document.getElementById('pharmregPasteArea').addEventListener('paste', (e)=>{
     const html = e.clipboardData && e.clipboardData.getData('text/html');
@@ -6640,7 +6872,9 @@ function bindPharmregTab(){
     try{ await window.storage.delete(PHARMREG_STORAGE_KEY, true); }catch(e){}
   });
   document.getElementById('pharmregCompany').addEventListener('change', async ()=>{
+    renderPharmregCompanyButtons();
     updatePharmregCodeTableAreaVisibility();
+    updatePharmregDongaSupplyAreaVisibility();
     if(pharmregRawRows.length){
       computePharmregResults();
       renderPharmregModeInfo();
@@ -6661,6 +6895,18 @@ function bindPharmregTab(){
       renderPharmregTable();
     }
   });
+  document.getElementById('pharmregDongaSupplySaveBtn').addEventListener('click', async ()=>{
+    const text = document.getElementById('pharmregDongaSupplyPasteArea').value;
+    pharmregDongaSupplyRows = parsePharmregPasteText(text);
+    pharmregDongaSupplyUpdatedAt = new Date().toISOString();
+    renderPharmregDongaSupplyInfo();
+    await savePharmregDongaSupply();
+    if(pharmregRawRows.length){
+      computePharmregResults();
+      renderPharmregModeInfo();
+      renderPharmregTable();
+    }
+  });
   document.getElementById('pharmregExportXlsxBtn').addEventListener('click', exportPharmregXlsx);
   document.getElementById('pharmregExportXlsBtn').addEventListener('click', exportPharmregXls);
 }
@@ -6668,15 +6914,19 @@ function bindPharmregTab(){
 async function initPharmregTab(){
   bindPharmregTab();
   renderPharmregCalcTable();
+  renderPharmregCompanyButtons();
   await loadPharmregColumnWidths();
   await loadPharmregCodeTables();
   updatePharmregCodeTableAreaVisibility();
+  await loadPharmregDongaSupply();
+  updatePharmregDongaSupplyAreaVisibility();
   await loadPharmregRaw();
   if(pharmregRawRows.length){
     computePharmregResults();
     updatePharmregPasteInfo();
   }
 }
+
 
 init();
 initUploadTabs().then(async ()=>{
@@ -6702,6 +6952,13 @@ initUploadTabs().then(async ()=>{
   renderDamageView();
   await initSupplyTab();
   await initInboundTab();
+  document.querySelectorAll('input[name="payinputMode"]').forEach(r=>{
+    r.addEventListener('change', ()=>{
+      const mode = (document.querySelector('input[name="payinputMode"]:checked')||{}).value || 'supply';
+      document.getElementById('panel-supply').style.display = mode==='supply' ? 'block' : 'none';
+      document.getElementById('panel-inbound').style.display = mode==='inbound' ? 'block' : 'none';
+    });
+  });
   await initPlookupTab();
   await initPharmregTab();
 });
@@ -6790,6 +7047,15 @@ dropZone.addEventListener('drop', (e)=>{
 });
 fileInput.addEventListener('change', (e)=>{ if(e.target.files.length) handleFile(e.target.files[0]); });
 
+const returnFormPasteApplyBtn = document.getElementById('returnFormPasteApply');
+if(returnFormPasteApplyBtn){
+  returnFormPasteApplyBtn.addEventListener('click', ()=>{
+    const text = document.getElementById('returnFormPasteText').value;
+    if(!text.trim()){ alert('붙여넣을 데이터가 없어요.'); return; }
+    handleReturnFormPaste(text);
+  });
+}
+
 function handleFile(file){
   uploadStatus.className = 'status-line';
   uploadStatus.textContent = '읽는 중...';
@@ -6800,45 +7066,63 @@ function handleFile(file){
       const wb = XLSX.read(data, {type:'array'});
       const ws = wb.Sheets[wb.SheetNames[0]];
       const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:''});
-      if(!aoa.length){ throw new Error('시트에 데이터가 없습니다.'); }
-
-      let headerRowIdx = 0;
-      for(let i=0;i<Math.min(5,aoa.length);i++){
-        const norm = aoa[i].map(normalizeKey);
-        const hits = REQUIRED.filter(r => norm.includes(r)).length;
-        if(hits >= 4){ headerRowIdx = i; break; }
-      }
-      const headerRow = aoa[headerRowIdx].map(normalizeKey);
-      const missing = REQUIRED.filter(r => !headerRow.includes(r));
-      if(missing.length){ throw new Error('필수 컬럼을 찾을 수 없습니다: ' + missing.join(', ')); }
-
-      const rows = [];
-      for(let i=headerRowIdx+1;i<aoa.length;i++){
-        const arr = aoa[i];
-        if(!arr || arr.every(v => v === '' || v === null || v === undefined)) continue;
-        const obj = {};
-        headerRow.forEach((h,idx) => { if(h) obj[h] = arr[idx] !== undefined ? arr[idx] : ''; });
-        rows.push(obj);
-      }
-
-      state.rawRows = rows;
-      state.headers = headerRow;
-      const firstClient = rows.length ? String(rows[0]['우선처']||'').trim() : '';
-      if(!state.meta.recv.orgManual){ state.meta.recv.org = firstClient; }
-
-      computeItems();
-      saveState();
-      renderAll();
-      uploadedAt = new Date();
-      updateUploadedLabel();
-      uploadStatus.className = 'status-line good';
-      uploadStatus.textContent = `업로드 완료 · ${rows.length}행 · 품목 ${state.items.length}건 정리됨 (수신처: ${firstClient})`;
+      processReturnFormAoa(aoa);
     }catch(err){
       uploadStatus.className = 'status-line error';
       uploadStatus.textContent = '오류: ' + err.message;
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// 파일이든 붙여넣기든, 2차원 배열(aoa)만 준비되면 이 처리는 똑같이 거칩니다.
+function processReturnFormAoa(aoa){
+  if(!aoa.length){ throw new Error('시트에 데이터가 없습니다.'); }
+
+  let headerRowIdx = 0;
+  for(let i=0;i<Math.min(5,aoa.length);i++){
+    const norm = aoa[i].map(normalizeKey);
+    const hits = REQUIRED.filter(r => norm.includes(r)).length;
+    if(hits >= 4){ headerRowIdx = i; break; }
+  }
+  const headerRow = aoa[headerRowIdx].map(normalizeKey);
+  const missing = REQUIRED.filter(r => !headerRow.includes(r));
+  if(missing.length){ throw new Error('필수 컬럼을 찾을 수 없습니다: ' + missing.join(', ')); }
+
+  const rows = [];
+  for(let i=headerRowIdx+1;i<aoa.length;i++){
+    const arr = aoa[i];
+    if(!arr || arr.every(v => v === '' || v === null || v === undefined)) continue;
+    const obj = {};
+    headerRow.forEach((h,idx) => { if(h) obj[h] = arr[idx] !== undefined ? arr[idx] : ''; });
+    rows.push(obj);
+  }
+
+  state.rawRows = rows;
+  state.headers = headerRow;
+  const firstClient = rows.length ? String(rows[0]['우선처']||'').trim() : '';
+  if(!state.meta.recv.orgManual){ state.meta.recv.org = firstClient; }
+
+  computeItems();
+  saveState();
+  renderAll();
+  uploadedAt = new Date();
+  updateUploadedLabel();
+  uploadStatus.className = 'status-line good';
+  uploadStatus.textContent = `업로드 완료 · ${rows.length}행 · 품목 ${state.items.length}건 정리됨 (수신처: ${firstClient})`;
+}
+
+function handleReturnFormPaste(text){
+  uploadStatus.className = 'status-line';
+  try{
+    const lines = text.split(/\r\n|\r|\n/).map(l=>l.replace(/\s+$/,'')).filter(l=>l.length>0);
+    const useTab = text.includes('\t');
+    const aoa = lines.map(line => useTab ? line.split('\t').map(v=>v.trim()) : line.split(',').map(v=>v.trim()));
+    processReturnFormAoa(aoa);
+  }catch(err){
+    uploadStatus.className = 'status-line error';
+    uploadStatus.textContent = '오류: ' + err.message;
+  }
 }
 
 /* ============================================================
@@ -6857,7 +7141,7 @@ function computeItems(){
       seen.set(key, items.length);
       items.push({
         code:code, std:String(r['표준코드']||'').trim(), name:String(r['상품명']||'').trim(),
-        spec:String(r['규격']||'').trim(), lot:lot, exp:exp, qty:0, note:''
+        spec:String(r['규격']||'').trim(), maker:String(r['제약사']||'').trim(), lot:lot, exp:exp, qty:0, note:''
       });
     }
   });
@@ -6868,6 +7152,10 @@ function computeItems(){
       const exp = String(r['사용기한']||'').trim();
       return (code===it.code && lot===it.lot && exp===it.exp) ? s + (Number(r['수량'])||0) : s;
     },0);
+  });
+  // 붙여넣은 순서가 뒤죽박죽이어도, 항상 제약사 → 상품명 → 규격 순으로 정렬해서 예전처럼 가지런히 모아줍니다.
+  items.sort((a,b)=>{
+    return a.maker.localeCompare(b.maker, 'ko') || a.name.localeCompare(b.name, 'ko') || a.spec.localeCompare(b.spec, 'ko');
   });
   const firstIdx = new Map(); const codeTotal = new Map();
   items.forEach((it,i)=>{
