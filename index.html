@@ -1149,7 +1149,7 @@
               <!-- 에이치케이이노엔/일동제약: 제약사상품정보를 엑셀 업로드+표로 관리(상품명/제품코드/표준코드), 명세서 미매칭 품목은 자동 추가 -->
               <div id="pharminfo_hk-wrap" style="display:none; margin-bottom:10px;">
                 <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요.</div>
+                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
                 <div class="upload-bar" id="upload-pharminfo_hk-bar">
                   <label class="upload-drop compact" for="file-pharminfo_hk">
                     <span class="upload-icon">⬆</span>
@@ -1167,6 +1167,7 @@
                   <input type="text" id="search-pharminfo_hk" placeholder="전체 컬럼 검색...">
                   <span class="count-badge" id="count-pharminfo_hk"></span>
                   <div class="spacer"></div>
+                  <button class="btn primary" id="fillstd-pharminfo_hk">🔎 제품코드로 표준코드 채우기</button>
                   <div class="pager" id="pager-pharminfo_hk"></div>
                 </div>
                 <div class="table-scroll" id="scroll-pharminfo_hk" style="display:none; max-height:260px; overflow-y:auto;">
@@ -1179,7 +1180,7 @@
 
               <div id="pharminfo_ildong-wrap" style="display:none; margin-bottom:10px;">
                 <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요.</div>
+                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
                 <div class="upload-bar" id="upload-pharminfo_ildong-bar">
                   <label class="upload-drop compact" for="file-pharminfo_ildong">
                     <span class="upload-icon">⬆</span>
@@ -1197,6 +1198,7 @@
                   <input type="text" id="search-pharminfo_ildong" placeholder="전체 컬럼 검색...">
                   <span class="count-badge" id="count-pharminfo_ildong"></span>
                   <div class="spacer"></div>
+                  <button class="btn primary" id="fillstd-pharminfo_ildong">🔎 제품코드로 표준코드 채우기</button>
                   <div class="pager" id="pager-pharminfo_ildong"></div>
                 </div>
                 <div class="table-scroll" id="scroll-pharminfo_ildong" style="display:none; max-height:260px; overflow-y:auto;">
@@ -5019,8 +5021,17 @@ function detectPayinputFormat(text){
   const useTab = text.includes('\t');
   const firstCells = (useTab ? lines[0].split('\t') : lines[0].split(',')).map(v=>v.trim());
   if(firstCells.includes('표준코드') || firstCells.includes('공급업체') || firstCells.includes('사업자등록번호')) return 'inbound';
-  if(firstCells.length >= 23) return 'inbound';
-  if(firstCells.length >= 15 && firstCells.length <= 22) return 'supply';
+  const n = firstCells.length;
+  // 헤더가 없으면(첫 줄이 곧바로 데이터면), 열 개수만으로 애매한 21~23열 구간은 idx19 자리의
+  // 날짜 길이로 한 번 더 확인합니다 — 공급내역신고자료는 사용기한이 6자리(YYMMDD), 입고현황조회는
+  // 유효기간이 8자리(YYYYMMDD)라 이 위치의 숫자 길이만 봐도 구분할 수 있어요.
+  if(n >= 21 && n <= 23){
+    const digits19 = String(firstCells[19] || '').replace(/\D/g, '');
+    if(digits19.length === 8) return 'inbound';
+    if(digits19.length === 6) return 'supply';
+  }
+  if(n >= 23) return 'inbound';
+  if(n >= 15 && n <= 22) return 'supply';
   return null;
 }
 function switchPayinputMode(mode){
@@ -6315,9 +6326,9 @@ const PHARMREG_PROFILES = {
   '유한양행': { headerRows: 1, idx: { stdCode:7, qty:12, unit:13, amount:14, lotNo:10, expiry:11, itemName:8 },
     forceVatMode: '별도', rawAlreadyExclusive: true,
     note:'이 회사 단가·실금액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
-  '뉴신팜': { headerRows: 1, idx: { stdCode:1, qty:4, unit:null, amount:null, lotNo:6, expiry:7, itemName:2 }, codeTable:'priceByStd',
+  '뉴신팜': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd',
     note:'이 회사 자료엔 단가가 없어서, 저장해둔 코드표(표준코드→단가)에서 단가를 가져와요.' },
-  '티알엔': { headerRows: 1, idx: { stdCode:1, qty:4, unit:null, amount:null, lotNo:6, expiry:7, itemName:2 }, codeTable:'priceByStd',
+  '티알엔': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd',
     note:'이 회사 자료엔 단가가 없어서, 저장해둔 코드표(표준코드→단가)에서 단가를 가져와요.' },
   '일동제약': { dynamicHeader: { need: ['상품명','수량','단가'], map: { itemName:'상품명', itemSpec:'포장단위', qty:'수량', unit:'단가', amount:'공급가액', lotNo:'제조번호', expiry:'유통기한' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_ildong', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
@@ -6325,15 +6336,15 @@ const PHARMREG_PROFILES = {
   '에이치케이이노엔': { dynamicHeader: { need: ['품목','규격','수량'], map: { itemName:'품목', itemSpec:'규격', lotNo:'Lot.NO', expiry:'유효기간', qty:'수량', unit:'단가', amount:'공급가액' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
     note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
-  '한독': { headerRows: 1, idx: { stdCode:12, qty:17, unit:18, amount:19, lotNo:15, expiry:16, itemName:14 } },
-  '온라인팜': { headerRows: 1, idx: { stdCode:5, qty:9, unit:null, amount:14, lotNo:7, expiry:8, itemName:6 } },
+  '한독': { dynamicHeader: { need: ['의약품표준코드','판매수량','단가'], map: { stdCode:'의약품표준코드', itemName:'제품명', lotNo:'배치', expiry:'유효기간', qty:'판매수량', unit:'단가', amount:'판매가격' } } },
+  '온라인팜': { dynamicHeader: { need: ['의약품표준코드','수량','제조번호'], map: { stdCode:'의약품표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간', amount:'공급가액' } } },
   '종근당': { headerRows: 1, idx: { stdCode:4, qty:6, unit:8, amount:null, lotNo:11, expiry:12, itemName:5 },
     note:'이 회사는 표준코드 컬럼이 따로 없어서, 품목코드를 표준코드로 그대로 사용해요(원본 수식과 동일).' },
-  '휴온스': { headerRows: 1, idx: { stdCode:3, qty:9, unit:10, amount:null, lotNo:7, expiry:8, itemName:4 },
+  '휴온스': { dynamicHeader: { need: ['표준코드','수량','단가'], map: { stdCode:'표준코드', itemName:'제품명', lotNo:'제조번호', expiry:'유효일자', qty:'수량', unit:'단가' } },
     note:'원본 엑셀 수식은 실금액 칸에 단가를 잘못 넣고 있어서(수식 오류로 보여요), 여기서는 수량×단가로 정확히 계산했어요.' },
   '팜베이': { headerRows: 1, idx: { stdCode:10, qty:6, unit:5, amount:7, lotNo:8, expiry:9, itemName:3 } },
   '태준제약': { headerRows: 1, idx: { stdCode:1, qty:4, unit:5, amount:6, lotNo:7, expiry:8, itemName:2 } },
-  '유나이티드': { headerRows: 1, idx: { stdCode:2, qty:5, unit:null, amount:7, lotNo:8, expiry:9, itemName:1 } },
+  '유나이티드': { dynamicHeader: { need: ['표준코드','수량','단가'], map: { stdCode:'표준코드', itemName:'품명', qty:'수량', amount:'금액', lotNo:'제조번호', expiry:'유효기간' } } },
   '메디카코리아': { dynamicHeader: { need: ['품명','규격','수량'], map: { itemName:'품명', itemSpec:'규격', qty:'수량', amount:'금액', note:'비고' } },
     codeTableMatch: 'nameSpecConcat', noteSplitLotExpiry: true,
     note:'이 회사는 표준코드가 없어서, 저장해둔 제약사상품정보(코드표)의 제품명+포장단위를 이 명세서의 품명+규격과 맞춰서 표준코드를 찾아요. 비고칸은 "제조번호/사용기한" 형식으로 자동 나눠요.' },
@@ -6977,6 +6988,48 @@ async function loadPharmregCodeTables(){
     }
   }catch(e){}
 }
+// 제약사상품정보 표에서, 제품코드가 채워져 있는데 표준코드가 비어있는 줄을 찾아서
+// 제품코드마스터DB의 '코드' 컬럼과 매칭해 표준코드를 자동으로 채워줍니다.
+async function fillPharmregStdCodeFromProductCode(uploadId){
+  const us = uploadState[uploadId];
+  if(!us || !us.rows || !us.rows.length){ alert('먼저 제약사상품정보 데이터를 올려주세요.'); return; }
+  const pm = uploadState['productMaster'];
+  if(!pm){ alert('제품코드마스터DB가 아직 없어요.'); return; }
+  const pmIdxCode = pm.headers.indexOf('코드');
+  const pmIdxStd = pm.headers.indexOf('표준코드');
+  if(pmIdxCode === -1 || pmIdxStd === -1){ alert('제품코드마스터DB에서 코드/표준코드 컬럼을 찾지 못했어요.'); return; }
+  const codeToStd = new Map();
+  pm.rows.forEach(r=>{
+    const code = String(r[pmIdxCode]||'').trim();
+    if(code && !codeToStd.has(code)) codeToStd.set(code, String(r[pmIdxStd]||'').trim());
+  });
+
+  const norm = us.headers.map(pharmregNormCell);
+  const idxCode = norm.findIndex(v=>v.includes('제품코드')||v.includes('전산코드')||v.includes('자사코드'));
+  const idxStd = norm.findIndex(v=>v==='표준코드'||v==='의약품표준코드');
+  if(idxCode === -1 || idxStd === -1){ alert('이 표에서 제품코드/표준코드 컬럼을 찾지 못했어요.'); return; }
+
+  let filled = 0;
+  us.rows.forEach(row=>{
+    const code = String(row[idxCode]||'').trim();
+    const curStd = String(row[idxStd]||'').trim();
+    if(code && !curStd && codeToStd.has(code)){
+      const std = codeToStd.get(code);
+      if(std){ row[idxStd] = std; filled++; }
+    }
+  });
+  renderUploadTable(uploadId);
+  updateUploadMeta(uploadId);
+  await saveUpload(uploadId);
+  alert(filled ? `표준코드 ${filled}건을 채웠어요.` : '제품코드마스터DB와 매칭되는(표준코드가 비어있던) 줄이 없었어요.');
+  const company = (document.getElementById('pharmregCompany')||{}).value || '';
+  if(pharmregRawRows.length && PHARMREG_UPLOADTABLE_COMPANIES[company] === uploadId){
+    computePharmregResults();
+    renderPharmregModeInfo();
+    renderPharmregTable();
+  }
+}
+
 function renderPharmregCodeTableInfo(company){
   const el = document.getElementById('pharmregCodeTableInfo');
   const rows = pharmregCodeTables[company] || [];
@@ -7042,7 +7095,7 @@ function updatePharmregDongaSupplyAreaVisibility(){
 }
 
 // 일동제약은 명세서를 붙여넣기 대신 파일 업로드로 받습니다.
-const PHARMREG_FILE_INPUT_COMPANIES = ['일동제약'];
+const PHARMREG_FILE_INPUT_COMPANIES = ['뉴신팜','유나이티드','동아에스티','온라인팜','일동제약','티알엔','한독','휴온스'];
 let pharmregMainFileName = '';
 function updatePharmregInputModeVisibility(){
   const company = document.getElementById('pharmregCompany').value;
@@ -7187,6 +7240,8 @@ async function initPharmregTab(){
   bindPharmregTab();
   renderPharmregCalcTable();
   renderPharmregCompanyButtons();
+  document.getElementById('fillstd-pharminfo_hk').addEventListener('click', ()=> fillPharmregStdCodeFromProductCode('pharminfo_hk'));
+  document.getElementById('fillstd-pharminfo_ildong').addEventListener('click', ()=> fillPharmregStdCodeFromProductCode('pharminfo_ildong'));
   await loadPharmregColumnWidths();
   await loadPharmregCodeTables();
   updatePharmregCodeTableAreaVisibility();
