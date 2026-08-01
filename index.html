@@ -551,7 +551,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-07-28</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-01</div>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
       <button class="btn" id="exportBtn">⬇ Excel 다운로드</button>
@@ -3739,12 +3739,6 @@ function renderStockHistoryYearFilter(){
   if(countEl) countEl.textContent = years.length ? `${years.length}개 연도 · ${stockHistory.length}개월 데이터` : '';
 }
 
-function getFilteredStockHistory(){
-  const sel = document.getElementById('stockHistoryYearFilter');
-  const year = sel ? sel.value : '';
-  return year ? stockHistory.filter(h=>h.month.slice(0,4)===year) : stockHistory;
-}
-
 // ---------- 막대 그래프 공용 호버 툴팁 ----------
 // containerEl 안의 svg .chart-bar 요소에 data-tt-month/data-tt-label/data-tt-color/data-tt-val 속성을 채워두면
 // 마우스를 올렸을 때 그 정보를 담은 툴팁을 컨테이너 위에 띄워줍니다. 같은 컨테이너에는 한 번만 연결하면 됩니다.
@@ -3869,12 +3863,6 @@ function renderStockChart(){
 }
 
 // ---------- 파손재고현황(월별 파손재고 전월 대비 증감율) ----------
-function getFilteredStockHistoryForDamage(){
-  const sel = document.getElementById('stockDamageYearFilter');
-  const year = sel ? sel.value : '';
-  return year ? stockHistory.filter(h=>h.month.slice(0,4)===year) : stockHistory;
-}
-
 function renderStockHistoryDamageYearFilter(){
   const sel = document.getElementById('stockDamageYearFilter');
   if(!sel) return;
@@ -7487,9 +7475,9 @@ dropZone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropZone.classL
 dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', (e)=>{
   e.preventDefault(); dropZone.classList.remove('dragover');
-  if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  if(e.dataTransfer.files.length) handleReturnFormFile(e.dataTransfer.files[0]);
 });
-fileInput.addEventListener('change', (e)=>{ if(e.target.files.length) handleFile(e.target.files[0]); });
+fileInput.addEventListener('change', (e)=>{ if(e.target.files.length) handleReturnFormFile(e.target.files[0]); });
 
 const returnFormPasteApplyBtn = document.getElementById('returnFormPasteApply');
 if(returnFormPasteApplyBtn){
@@ -7500,7 +7488,7 @@ if(returnFormPasteApplyBtn){
   });
 }
 
-function handleFile(file){
+function handleReturnFormFile(file){
   uploadStatus.className = 'status-line';
   uploadStatus.textContent = '읽는 중...';
   const reader = new FileReader();
@@ -7898,25 +7886,6 @@ function itemsAoaRows(formatType){
       it.qty, it.lot, it.exp, it.note||''
     ];
   });
-}
-function buildAoa(formatType){
-  const m = state.meta;
-  const aoa = [];
-  aoa.push([m.title]);
-  aoa.push(['반품요청일', m.date]);
-  aoa.push([]);
-  aoa.push(['수신처', m.recv.org, '', '발신처', m.sender.org]);
-  aoa.push(['수신인', m.recv.org + m.recv.personSuffix, '', '발신인', m.sender.person]);
-  aoa.push(['TEL', m.recv.tel, '', 'TEL', m.sender.tel]);
-  aoa.push(['FAX', m.recv.fax, '', 'FAX', m.sender.fax]);
-  aoa.push([]);
-  aoa.push(['다미스코드','표준코드','제 품 명','규 격','총수량','제조번호별 수량','제조번호','유효기간','비고']);
-  itemsAoaRows(formatType).forEach(r => aoa.push(r));
-  aoa.push(['합계','','','', state.sumQty, state.sumQty,'','','']);
-  aoa.push([]);
-  aoa.push([m.footerMsg]);
-  aoa.push(['※ 발송처 : ' + m.sender.addr]);
-  return aoa;
 }
 
 async function downloadReturnFormXlsx(formatType){
