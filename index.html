@@ -330,6 +330,7 @@
     background:var(--line-strong);
   }
   .section-block.accent-order::before{ background:var(--accent-grad); }
+  .section-block.accent-summary::before{ background:linear-gradient(90deg,#2a3d66,#5c74a8); }
   .section-block.accent-stock::before{ background:linear-gradient(90deg,#c1791b,#e0aa5a); }
   .section-block.accent-master::before{ background:linear-gradient(90deg,#6a3fa0,#9b7bd1); }
   .section-block.accent-supply::before{ background:linear-gradient(90deg,#1a8f6b,#5cc9a3); }
@@ -340,6 +341,36 @@
   .tabs-group-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:none; box-shadow:0 0 0 3px rgba(47,95,214,0.14); }
   .kpis.kpis-3{ grid-template-columns:1fr; gap:6px; }
   .kpi .val small{ font-size:9px; color:var(--ink-dim); font-weight:600; margin-left:2px; }
+
+  /* 경영요약 — 디자인 ② 다크 차트형 */
+  .sumdark-wrap{ background:#0f1620; border-radius:14px; padding:16px; color:#e7ecf5; }
+  .sumdark-kpis{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+  .sumdark-kpi{ flex:1; min-width:130px; background:#141d2b; border:1px solid #223047; border-radius:10px; padding:12px 14px; }
+  .sumdark-kpi .label{ font-size:12px; color:#8fa0bd; margin-bottom:6px; }
+  .sumdark-kpi .val{ font-size:21px; font-weight:800; }
+  .sumdark-kpi.red .val{ color:#ff6b6b; }
+  .sumdark-kpi.amber .val{ color:#f0b23f; }
+  .sumdark-kpi.teal .val{ color:#3ec9a7; }
+  .sumdark-section-title{ font-size:12.5px; font-weight:700; color:#c7d2e3; margin:16px 0 8px; }
+  .sumdark-barrow{ display:flex; align-items:flex-end; gap:16px; padding:8px 4px 0; }
+  .sumdark-bar{ flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .sumdark-bar .bar-fill{ width:100%; border-radius:6px 6px 0 0; min-height:2px; }
+  .sumdark-bar .bar-label{ font-size:11px; color:#8fa0bd; }
+  .sumdark-bar .bar-val{ font-size:12px; font-weight:700; color:#e7ecf5; }
+
+  /* 경영요약 — 디자인 ③ 라이트 테이블형 */
+  .sumlight-wrap{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; }
+  .sumlight-kpis{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+  .sumlight-kpi{ flex:1; min-width:130px; border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:var(--panel-2); }
+  .sumlight-kpi .label{ font-size:12px; color:var(--ink-dim); margin-bottom:4px; }
+  .sumlight-kpi .val{ font-size:19px; font-weight:800; }
+  .sumlight-badge{ display:inline-block; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; }
+  .sumlight-badge.warn{ background:#fdecea; color:#c0392b; }
+  .sumlight-badge.soon{ background:#fdf3e0; color:#a9761f; }
+  .sumlight-badge.unmatched{ background:#f3e8fd; color:#6a3fa0; }
+  .sumlight-action{ border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:16px; }
+  .sumlight-action-item{ display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .sumlight-action-item:last-child{ border-bottom:none; }
 
   /* stock table grouped header colors (재고 및 파손재고현황) */
   thead th.grp-stock1{ background: rgba(47,95,214,0.12); color:var(--teal-ink); border-bottom:1px solid rgba(47,95,214,0.25); }
@@ -543,7 +574,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 15:29</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 16:25</div>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
       <button class="btn" id="exportBtn">⬇ Excel 다운로드</button>
@@ -554,12 +585,18 @@
   <div class="dash-layout">
     <div class="sidebar">
       <div class="tabs-groups">
+        <div class="section-block accent-summary">
+          <div class="tabs-group-title"><span class="dot" style="background:#2a3d66;"></span>경영요약</div>
+          <div class="tabs">
+            <div class="tab active" data-tab="summary"><span class="tab-ic">🏠</span>경영요약</div>
+          </div>
+        </div>
         <div class="section-block accent-order">
           <div class="tabs-group-title"><span class="dot"></span>발주</div>
           <div class="kpis" id="kpiRow"></div>
           <div class="tabs">
             <div class="tab" data-tab="mgrstatus"><span class="tab-ic">🧑‍💼</span>품절현황</div>
-            <div class="tab active" data-tab="list"><span class="tab-ic">📋</span>품절 현황 목록</div>
+            <div class="tab" data-tab="list"><span class="tab-ic">📋</span>품절 현황 목록</div>
             <div class="tab" data-tab="payinput"><span class="tab-ic">🧾</span>매입전표입력(엑셀)</div>
           </div>
         </div>
@@ -583,12 +620,69 @@
           <div class="tabs-group-title"><span class="dot" style="background:#1a8f6b;"></span>테스트중</div>
           <div class="tabs">
             <div class="tab" data-tab="productlookup"><span class="tab-ic">↩️</span>반품신청서(소분-테스트중)</div>
+            <div class="tab" data-tab="pricehistory"><span class="tab-ic">💰</span>매입단가 변동 이력(테스트중)</div>
+            <div class="tab" data-tab="checklist"><span class="tab-ic">✅</span>확인요망 통합함(테스트중)</div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="main-content">
+
+      <!-- 경영요약 TAB: 이미 각 탭에서 계산된 값들을 한 화면에 모아 보여주는 조회 전용 요약 화면 -->
+      <div class="panel active" id="panel-summary">
+        <div class="sub-section">
+          <div class="sub-section-title">경영요약</div>
+          <div class="foot-note" style="margin-bottom:8px;">품절현황·재고및반품·확인요망 통합함에서 이미 계산된 값들을 한 화면에 모아 보여줘요(조회 전용이에요 — 값을 고치려면 각 원래 탭에서 해주세요) · 다른 탭에서 데이터를 새로 올리거나 계산하면, 이 화면을 다시 들어올 때 자동으로 최신값으로 갱신돼요 · 아래에서 화면 스타일 3가지 중 하나를 고를 수 있어요(고른 스타일은 이 기기에 저장돼요).</div>
+          <div class="foot-row" style="gap:8px; margin-bottom:14px;">
+            <button class="btn" id="summaryStyleBtnDefault" data-style="default">① 기본형</button>
+            <button class="btn" id="summaryStyleBtnDark" data-style="dark">② 다크 차트형</button>
+            <button class="btn" id="summaryStyleBtnLight" data-style="light">③ 라이트 테이블형</button>
+          </div>
+        </div>
+
+        <div id="summaryStyleDefault">
+          <div class="sub-section">
+            <div class="kpis" id="summaryKpiRow1" style="margin-bottom:10px;"></div>
+            <div class="kpis kpis-3" id="summaryKpiRow2"></div>
+          </div>
+          <div class="sub-section">
+            <div class="sub-section-title" style="font-size:13px;">확인요망 통합함 요약</div>
+            <div id="summaryChecklistBreakdown" class="foot-note"></div>
+          </div>
+        </div>
+
+        <div id="summaryStyleDark" style="display:none;">
+          <div class="sub-section">
+            <div class="sumdark-wrap">
+              <div class="sumdark-kpis" id="sumdarkKpis"></div>
+              <div class="sumdark-section-title">월별 매출액 추이</div>
+              <div id="sumdarkTrendChart"></div>
+              <div class="sumdark-section-title">확인요망 통합함 — 사유별 건수</div>
+              <div class="sumdark-barrow" id="sumdarkBars"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="summaryStyleLight" style="display:none;">
+          <div class="sub-section">
+            <div class="sumlight-wrap">
+              <div class="sumlight-kpis" id="sumlightKpis"></div>
+              <div class="sub-section-title" style="font-size:13px;">확인요망 통합함 상세</div>
+              <div class="table-scroll">
+                <table id="table-sumlight">
+                  <thead><tr><th>상태</th><th>출처</th><th>제품코드</th><th>상품명</th><th>매입단가</th><th>마진</th><th>사용기한</th></tr></thead>
+                  <tbody id="body-sumlight"></tbody>
+                </table>
+              </div>
+              <div class="sumlight-action">
+                <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입단가 상승 TOP 5</div>
+                <div id="sumlightPriceUp"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- LIST TAB -->
       <!-- 담당자별 품절 현황 TAB -->
@@ -694,7 +788,7 @@
         </div>
       </div>
 
-      <div class="panel active" id="panel-list">
+      <div class="panel" id="panel-list">
 
         <div class="sticky-toolbar" id="listStickyHeader">
           <div class="sub-section-title" style="margin-bottom:8px;">거래처별 품절현황</div>
@@ -1090,6 +1184,55 @@
           <div class="foot-note">매칭되지 않은 코드도 결과에 빨간색으로 표시돼요(제품코드마스터DB 업데이트가 필요하다는 뜻이에요) · 대체가 일어난 줄은 비고에 원래 표준코드가 함께 표시돼요.</div>
         </div>
 
+      </div>
+
+      <!-- 매입단가 변동 이력(테스트중) TAB: 공급내역신고/입고현황조회/약가등재 결과가 확정될 때마다 그 제품의 매입단가를
+           날짜·출처와 함께 기록해두고, 제품코드로 검색해서 시간에 따른 단가 변화를 볼 수 있게 합니다 -->
+      <div class="panel" id="panel-pricehistory">
+        <div class="sub-section">
+          <div class="sub-section-title">매입단가 변동 이력</div>
+          <div class="foot-note" style="margin-bottom:8px;">공급내역신고·입고현황조회·약가등재에서 결과를 계산할 때마다, 그 시점의 실제 매입단가(우선처에서 매입한 단가 — 제품코드마스터DB의 일반가/참고가가 아니에요)가 제품코드별로 자동 기록돼요 · 아래에 제품코드나 상품명을 입력하면 그 품목의 단가 변화 이력을 볼 수 있어요.</div>
+          <div class="toolbar">
+            <input type="text" id="priceHistorySearch" placeholder="제품코드 또는 상품명으로 검색...">
+            <span class="count-badge" id="priceHistoryCount"></span>
+          </div>
+          <div class="table-scroll">
+            <table id="table-priceHistory">
+              <thead><tr><th>제품코드</th><th>상품명</th><th>최근 매입단가</th><th>최초 대비 증감</th><th>기록 건수</th></tr></thead>
+              <tbody id="body-priceHistoryList"></tbody>
+            </table>
+          </div>
+          <div class="foot-note" style="margin-top:10px;">위 목록에서 품목을 클릭하면 아래에 날짜별 상세 이력이 나와요.</div>
+          <div id="priceHistoryDetailWrap" style="display:none; margin-top:10px;">
+            <div class="sub-section-title" id="priceHistoryDetailTitle" style="font-size:13px;"></div>
+            <div class="table-scroll">
+              <table id="table-priceHistoryDetail">
+                <thead><tr><th>날짜</th><th>출처</th><th>매입단가</th><th>직전 대비</th></tr></thead>
+                <tbody id="body-priceHistoryDetail"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 확인요망 통합함(테스트중) TAB: 공급내역신고/입고현황조회/약가등재에 각각 흩어져 표시되던 '확인요망'(마진 이상)·
+           '임박'(사용기한)·'미매칭' 품목을 한 화면에 모아 보여줍니다 -->
+      <div class="panel" id="panel-checklist">
+        <div class="sub-section">
+          <div class="sub-section-title">확인요망 통합함</div>
+          <div class="foot-note" style="margin-bottom:8px;">공급내역신고·입고현황조회·약가등재 세 화면에 각각 계산돼 있는 마진 확인요망·사용기한 임박·미매칭 품목을 한 곳에 모아 보여줘요(각 탭에서 결과 계산을 먼저 해야 여기 나타나요) · 이 목록 자체는 조회 전용이고, 수정은 원래 탭에서 해주세요.</div>
+          <div class="toolbar">
+            <span class="count-badge" id="checklistCount"></span>
+            <div class="spacer"></div>
+            <button class="btn" id="checklistRefreshBtn">🔄 새로고침</button>
+          </div>
+          <div class="table-scroll">
+            <table id="table-checklist">
+              <thead><tr><th>출처</th><th>상태</th><th>제품코드</th><th>상품명</th><th>매입단가</th><th>마진</th><th>사용기한</th></tr></thead>
+              <tbody id="body-checklist"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- 매입전표입력(엑셀) TAB: 공급내역신고 자료 / 제약사사이트 자료 중 선택해서 사용합니다(전체 형식은 화면에 안 보여도 자동판별로 계속 인식돼요) -->
@@ -1966,6 +2109,9 @@ function bindGlobalEvents(){
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
       tab.classList.add('active');
       document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      if(tab.dataset.tab === 'checklist') renderChecklist();
+      if(tab.dataset.tab === 'pricehistory') renderPriceHistoryList();
+      if(tab.dataset.tab === 'summary') renderSummaryDashboard();
     });
   });
 
@@ -4684,6 +4830,7 @@ function finalizeSupplyMode(){
   renderSupplyModeInfo();
   renderSupplyTable();
   renderSupplyEditsList();
+  recordPriceHistory('공급내역신고', supplyFinalRows);
 }
 
 // 매입전표 합계액(계산기)에 입력한 진짜 합계와 결과값 합계 사이에 반올림 등으로 몇십 원 이내
@@ -5373,6 +5520,7 @@ function finalizeInboundMode(){
   renderInboundModeInfo();
   renderInboundTable();
   renderInboundEditsList();
+  recordPriceHistory('입고현황조회', inboundFinalRows);
 }
 
 // 매입전표 합계액(계산기)에 입력한 진짜 합계와 결과값 합계 사이에 반올림 등으로 몇십 원 이내
@@ -6178,6 +6326,350 @@ async function initPlookupTab(){
   renderPlookupTable();
 }
 
+// ================= 매입단가 변동 이력(테스트중) =================
+// 공급내역신고/입고현황조회/약가등재에서 결과가 확정될 때마다(finalizeXMode), 그 시점의 실제 매입단가를
+// 제품코드별로 기록해둡니다(같은 날 같은 출처·제품코드는 최신 값으로 덮어써서 재계산해도 중복이 안 쌓여요).
+const PRICE_HISTORY_STORAGE_KEY = 'shared_price_history_log_v1';
+let priceHistoryLog = []; // { code, name, unit, source, date }
+let priceHistorySelectedCode = null;
+
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+
+function recordPriceHistory(source, rows){
+  if(!rows || !rows.length) return;
+  const date = todayKey();
+  rows.forEach(r=>{
+    const code = r.productCode;
+    const unit = Number(r.unit);
+    if(!code || !unit || isNaN(unit) || unit<=0) return; // 미매칭·단가없음 품목은 기록하지 않습니다.
+    const i = priceHistoryLog.findIndex(h=>h.code===code && h.source===source && h.date===date);
+    const entry = { code, name: r.productName||'', unit, source, date };
+    if(i===-1) priceHistoryLog.push(entry); else priceHistoryLog[i] = entry;
+  });
+  savePriceHistoryLog();
+}
+async function savePriceHistoryLog(){
+  try{ await window.storage.set(PRICE_HISTORY_STORAGE_KEY, JSON.stringify(priceHistoryLog), true); }catch(e){}
+}
+async function loadPriceHistoryLog(){
+  try{
+    const res = await window.storage.get(PRICE_HISTORY_STORAGE_KEY, true);
+    if(res && res.value) priceHistoryLog = JSON.parse(res.value) || [];
+  }catch(e){ priceHistoryLog = []; }
+}
+
+function priceHistoryGroups(){
+  const map = new Map();
+  priceHistoryLog.forEach(h=>{
+    if(!map.has(h.code)) map.set(h.code, []);
+    map.get(h.code).push(h);
+  });
+  map.forEach(list=> list.sort((a,b)=> a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  return map;
+}
+
+function renderPriceHistoryList(){
+  const q = (document.getElementById('priceHistorySearch').value||'').trim().toLowerCase();
+  const groups = priceHistoryGroups();
+  let rows = Array.from(groups.entries()).map(([code, list])=>{
+    const last = list[list.length-1];
+    const first = list[0];
+    const diff = last.unit - first.unit;
+    return { code, name: last.name, lastUnit: last.unit, diff, count: list.length };
+  });
+  if(q) rows = rows.filter(r => r.code.toLowerCase().includes(q) || (r.name||'').toLowerCase().includes(q));
+  rows.sort((a,b)=> Math.abs(b.diff) - Math.abs(a.diff));
+  document.getElementById('priceHistoryCount').textContent = `${rows.length.toLocaleString()}품목`;
+  const body = document.getElementById('body-priceHistoryList');
+  body.innerHTML = rows.map(r=>{
+    const diffColor = r.diff > 0 ? 'var(--red)' : (r.diff < 0 ? 'var(--teal)' : 'var(--ink-faint)');
+    const diffTxt = r.diff === 0 ? '변동없음' : `${r.diff>0?'+':''}${fmtNum(r.diff)}원`;
+    return `<tr data-code="${escapeAttr(r.code)}" style="cursor:pointer;">
+      <td>${r.code}</td><td>${r.name}</td><td>${fmtNum(r.lastUnit)}원</td>
+      <td style="color:${diffColor}; font-weight:700;">${diffTxt}</td><td>${r.count}</td>
+    </tr>`;
+  }).join('');
+  body.querySelectorAll('tr').forEach(tr=>{
+    tr.addEventListener('click', ()=>{ priceHistorySelectedCode = tr.dataset.code; renderPriceHistoryDetail(); });
+  });
+  if(priceHistorySelectedCode && !groups.has(priceHistorySelectedCode)){
+    priceHistorySelectedCode = null;
+    document.getElementById('priceHistoryDetailWrap').style.display = 'none';
+  }
+}
+
+function renderPriceHistoryDetail(){
+  if(!priceHistorySelectedCode) return;
+  const groups = priceHistoryGroups();
+  const list = groups.get(priceHistorySelectedCode) || [];
+  document.getElementById('priceHistoryDetailWrap').style.display = 'block';
+  document.getElementById('priceHistoryDetailTitle').textContent = `${priceHistorySelectedCode} — ${(list[0]&&list[0].name)||''} 상세 이력`;
+  const body = document.getElementById('body-priceHistoryDetail');
+  body.innerHTML = list.map((h, idx)=>{
+    const prev = idx>0 ? list[idx-1].unit : null;
+    const diff = prev===null ? null : h.unit - prev;
+    const diffTxt = diff===null ? '-' : (diff===0 ? '변동없음' : `${diff>0?'+':''}${fmtNum(diff)}원`);
+    const diffColor = diff>0 ? 'var(--red)' : (diff<0 ? 'var(--teal)' : 'var(--ink-faint)');
+    return `<tr><td>${h.date}</td><td>${h.source}</td><td>${fmtNum(h.unit)}원</td><td style="color:${diffColor};">${diffTxt}</td></tr>`;
+  }).join('');
+}
+
+function initPriceHistoryTab(){
+  document.getElementById('priceHistorySearch').addEventListener('input', renderPriceHistoryList);
+  renderPriceHistoryList();
+}
+
+// ================= 확인요망 통합함(테스트중) =================
+// 공급내역신고/입고현황조회/약가등재 각 탭의 확정된 결과(*FinalRows)에서 마진 확인요망·사용기한 임박·미매칭만
+// 뽑아 한 화면에 모아 보여줍니다(조회 전용 — 이 화면에서 직접 수정하지 않고 원래 탭에서 수정해요).
+function checklistRowsFrom(source, rows, marginLow, marginHigh, checkUnmatched){
+  if(!rows) return [];
+  const out = [];
+  rows.forEach(r=>{
+    const isUnmatched = checkUnmatched && !r.productCode;
+    const isMarginWarn = !isUnmatched && r.margin!==null && r.margin!==undefined && !isNaN(r.margin) && (r.margin<=marginLow || r.margin>=marginHigh);
+    const monthsLeft = monthsUntilExpiry(r.expiry);
+    const isSoon = !isUnmatched && monthsLeft!==null && monthsLeft<9;
+    if(!isUnmatched && !isMarginWarn && !isSoon) return;
+    const status = isUnmatched ? '미매칭' : (isMarginWarn ? '확인요망' : '임박');
+    out.push({ source, status, code: r.productCode||'', name: r.productName||'', unit: r.unit, margin: r.margin, expiry: r.expiry });
+  });
+  return out;
+}
+
+function computeChecklistRows(){
+  let rows = [];
+  rows = rows.concat(checklistRowsFrom('공급내역신고', typeof supplyFinalRows!=='undefined'?supplyFinalRows:[], 0.04, 0.12, false));
+  rows = rows.concat(checklistRowsFrom('입고현황조회', typeof inboundFinalRows!=='undefined'?inboundFinalRows:[], 0.04, 0.12, false));
+  rows = rows.concat(checklistRowsFrom('약가등재', typeof pharmregFinalRows!=='undefined'?pharmregFinalRows:[], 0.04, 0.13, true));
+  const statusRank = s => s==='미매칭' ? 0 : (s==='확인요망' ? 1 : 2);
+  rows.sort((a,b)=> statusRank(a.status) - statusRank(b.status));
+  return rows;
+}
+
+function renderChecklist(){
+  const rows = computeChecklistRows();
+  document.getElementById('checklistCount').textContent = `${rows.length.toLocaleString()}건`;
+  const body = document.getElementById('body-checklist');
+  body.innerHTML = rows.map(r=>{
+    const color = r.status==='미매칭' ? 'var(--red)' : (r.status==='확인요망' ? 'var(--red)' : 'var(--amber)');
+    const marginTxt = (r.margin===null||r.margin===undefined||isNaN(r.margin)) ? '' : (Math.round(r.margin*10000)/100).toLocaleString()+'%';
+    return `<tr>
+      <td>${r.source}</td><td style="color:${color}; font-weight:800;">${r.status}</td>
+      <td>${r.code}</td><td>${r.name}</td><td>${r.unit?fmtNum(r.unit)+'원':''}</td><td>${marginTxt}</td><td>${r.expiry||''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function initChecklistTab(){
+  document.getElementById('checklistRefreshBtn').addEventListener('click', renderChecklist);
+  renderChecklist();
+}
+
+// ================= 경영요약 =================
+// 품절현황(listData)·재고현황(stockData)·확인요망 통합함(computeChecklistRows)에서 이미 계산된 값들을
+// 그대로 다시 읽어와 한 화면에 모아 보여줍니다(별도 계산 로직을 새로 만들지 않고 재사용해요).
+function renderSummaryDashboard(){
+  const el1 = document.getElementById('summaryKpiRow1');
+  const el2 = document.getElementById('summaryKpiRow2');
+  if(!el1 || !el2) return;
+
+  const soSum = listData.reduce((a,r)=>a+(Number(r.stockout)||0),0);
+  const soNoOrderSum = listData.reduce((a,r)=>a+(Number(r.noOrder)||0),0);
+  const soOrderedSum = soSum - soNoOrderSum;
+  const soRate = soSum ? (soOrderedSum/soSum*100) : 0;
+
+  const totalStock = stockData.reduce((a,r)=>a+(Number(r.curStockTotal)||0),0);
+  const totalSales = stockData.reduce((a,r)=>a+(Number(r.salesTotal)||0),0);
+  const totalDamaged = stockData.reduce((a,r)=>a+(Number(r.curDamaged)||0),0);
+  const damageRate = totalStock ? (totalDamaged/totalStock*100) : 0;
+
+  const checklistRows = computeChecklistRows();
+  const warnCount = checklistRows.filter(r=>r.status==='확인요망').length;
+  const soonCount = checklistRows.filter(r=>r.status==='임박').length;
+  const unmatchedCount = checklistRows.filter(r=>r.status==='미매칭').length;
+
+  const kpis1 = [
+    { label:'전체 품절', val: soSum.toLocaleString(), cls:'red', icon:'🔴' },
+    { label:'품절발주율', val: soRate.toFixed(1)+'%', cls:'red rate', icon:'📊' },
+    { label:'확인요망(마진)', val: warnCount.toLocaleString()+'건', cls:'red', icon:'⚠️' },
+    { label:'사용기한 임박', val: soonCount.toLocaleString()+'건', cls:'amber', icon:'⏰' },
+  ];
+  el1.innerHTML = kpis1.map(k=>`
+    <div class="kpi ${k.cls}">
+      <div class="icon">${k.icon}</div>
+      <div class="label">${k.label}</div>
+      <div class="val">${k.val}</div>
+    </div>`).join('');
+
+  const kpis2 = [
+    { label:'전체재고액', val: Math.round(totalStock/1000).toLocaleString(), cls:'teal' },
+    { label:'매출액', val: Math.round(totalSales/1000).toLocaleString(), cls:'teal' },
+    { label:'파손재고액', val: Math.round(totalDamaged/1000).toLocaleString(), cls:'red' },
+  ];
+  el2.innerHTML = kpis2.map(k=>`
+    <div class="kpi ${k.cls}">
+      <div class="label">${k.label}</div>
+      <div class="val">${k.val}<small>천원</small></div>
+    </div>`).join('');
+
+  document.getElementById('summaryChecklistBreakdown').innerHTML =
+    `미매칭 <b style="color:var(--red);">${unmatchedCount}건</b> · 확인요망(마진) <b style="color:var(--red);">${warnCount}건</b> · 사용기한 임박 <b style="color:var(--amber);">${soonCount}건</b> · 파손비율 <b>${damageRate.toFixed(1)}%</b>`;
+
+  renderSummaryDark();
+  renderSummaryLight();
+}
+
+// ---------- 경영요약 디자인 ② 다크 차트형 ----------
+function renderSummaryDark(){
+  const el = document.getElementById('sumdarkKpis');
+  if(!el) return;
+  const totalStock = stockData.reduce((a,r)=>a+(Number(r.curStockTotal)||0),0);
+  const totalSales = stockData.reduce((a,r)=>a+(Number(r.salesTotal)||0),0);
+  const totalDamaged = stockData.reduce((a,r)=>a+(Number(r.curDamaged)||0),0);
+  const checklistRows = computeChecklistRows();
+  const warnCount = checklistRows.filter(r=>r.status==='확인요망').length;
+  const soonCount = checklistRows.filter(r=>r.status==='임박').length;
+  const unmatchedCount = checklistRows.filter(r=>r.status==='미매칭').length;
+
+  const kpis = [
+    { label:'전체재고액(천원)', val: Math.round(totalStock/1000).toLocaleString(), cls:'teal' },
+    { label:'매출액(천원)', val: Math.round(totalSales/1000).toLocaleString(), cls:'teal' },
+    { label:'파손재고액(천원)', val: Math.round(totalDamaged/1000).toLocaleString(), cls:'red' },
+    { label:'확인요망 합계', val: (warnCount+soonCount+unmatchedCount).toLocaleString()+'건', cls:'amber' },
+  ];
+  el.innerHTML = kpis.map(k=>`
+    <div class="sumdark-kpi ${k.cls}">
+      <div class="label">${k.label}</div>
+      <div class="val">${k.val}</div>
+    </div>`).join('');
+
+  // 월별 매출액 추이(최근 6개월) — 재고현황에 이미 쌓여있는 stockHistory를 그대로 사용해요.
+  const months = stockHistory.slice(-6);
+  const chartEl = document.getElementById('sumdarkTrendChart');
+  if(chartEl){
+    if(months.length < 2){
+      chartEl.innerHTML = `<div style="color:#8fa0bd; font-size:12.5px; padding:16px 4px;">재고현황에 월별 데이터가 2개월 이상 쌓이면 여기 추이가 나와요.</div>`;
+    } else {
+      const w=560, h=120, padL=8, padR=8, padT=10, padB=22;
+      const chartW=w-padL-padR, chartH=h-padT-padB;
+      const vals = months.map(m=>m.totalSales||0);
+      const maxV = Math.max(1, ...vals);
+      const stepX = chartW/(months.length-1);
+      const pts = vals.map((v,i)=> [padL+stepX*i, padT+chartH*(1-v/maxV)]);
+      const path = pts.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+      const areaPath = path + ` L${pts[pts.length-1][0].toFixed(1)},${(padT+chartH).toFixed(1)} L${pts[0][0].toFixed(1)},${(padT+chartH).toFixed(1)} Z`;
+      const labels = months.map((m,i)=> `<text x="${pts[i][0].toFixed(1)}" y="${h-6}" font-size="10" fill="#8fa0bd" text-anchor="middle">${m.month.slice(2)}</text>`).join('');
+      const dots = pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#3ec9a7"></circle>`).join('');
+      chartEl.innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%; height:120px;">
+        <path d="${areaPath}" fill="rgba(62,201,167,0.15)" stroke="none"></path>
+        <path d="${path}" fill="none" stroke="#3ec9a7" stroke-width="2"></path>
+        ${dots}${labels}
+      </svg>`;
+    }
+  }
+
+  // 확인요망 통합함 사유별 건수를 막대로 표시 (고정 픽셀 높이로 계산해서 CSS 정렬 문제를 피해요)
+  const barsEl = document.getElementById('sumdarkBars');
+  if(barsEl){
+    const barData = [
+      { label:'미매칭', val: unmatchedCount, color:'#8a5cf5' },
+      { label:'확인요망(마진)', val: warnCount, color:'#ff6b6b' },
+      { label:'사용기한 임박', val: soonCount, color:'#f0b23f' },
+    ];
+    const maxBar = Math.max(1, ...barData.map(b=>b.val));
+    barsEl.innerHTML = barData.map(b=>{
+      const px = Math.max(4, Math.round(b.val/maxBar*70));
+      return `<div class="sumdark-bar">
+        <div class="bar-val">${b.val}</div>
+        <div class="bar-fill" style="height:${px}px; background:${b.color};"></div>
+        <div class="bar-label">${b.label}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ---------- 경영요약 디자인 ③ 라이트 테이블형 ----------
+function renderSummaryLight(){
+  const el = document.getElementById('sumlightKpis');
+  if(!el) return;
+  const totalStock = stockData.reduce((a,r)=>a+(Number(r.curStockTotal)||0),0);
+  const checklistRows = computeChecklistRows();
+  const warnCount = checklistRows.filter(r=>r.status==='확인요망').length;
+  const soonCount = checklistRows.filter(r=>r.status==='임박').length;
+  const unmatchedCount = checklistRows.filter(r=>r.status==='미매칭').length;
+
+  const kpis = [
+    { label:'전체재고액', val: Math.round(totalStock/1000).toLocaleString()+'천원' },
+    { label:'확인요망(마진)', val: warnCount.toLocaleString()+'건' },
+    { label:'사용기한 임박', val: soonCount.toLocaleString()+'건' },
+    { label:'미매칭', val: unmatchedCount.toLocaleString()+'건' },
+  ];
+  el.innerHTML = kpis.map(k=>`
+    <div class="sumlight-kpi">
+      <div class="label">${k.label}</div>
+      <div class="val">${k.val}</div>
+    </div>`).join('');
+
+  const badgeFor = status => status==='미매칭' ? '<span class="sumlight-badge unmatched">미매칭</span>'
+    : status==='확인요망' ? '<span class="sumlight-badge warn">확인요망</span>'
+    : '<span class="sumlight-badge soon">임박</span>';
+  const body = document.getElementById('body-sumlight');
+  if(body){
+    body.innerHTML = checklistRows.map(r=>{
+      const marginTxt = (r.margin===null||r.margin===undefined||isNaN(r.margin)) ? '' : (Math.round(r.margin*10000)/100).toLocaleString()+'%';
+      return `<tr>
+        <td>${badgeFor(r.status)}</td><td>${r.source}</td><td>${r.code}</td><td>${r.name}</td>
+        <td>${r.unit?fmtNum(r.unit)+'원':''}</td><td>${marginTxt}</td><td>${r.expiry||''}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // 매입단가 상승 TOP 5 (매입단가 변동 이력에서)
+  const priceUpEl = document.getElementById('sumlightPriceUp');
+  if(priceUpEl){
+    const groups = priceHistoryGroups();
+    let ups = Array.from(groups.entries()).map(([code, list])=>{
+      const first = list[0], last = list[list.length-1];
+      return { code, name:last.name, diff: last.unit-first.unit };
+    }).filter(x=>x.diff>0);
+    ups.sort((a,b)=> b.diff-a.diff);
+    ups = ups.slice(0,5);
+    priceUpEl.innerHTML = ups.length ? ups.map(u=>`
+      <div class="sumlight-action-item">
+        <span>${u.code} ${u.name}</span>
+        <span style="color:var(--red); font-weight:700;">+${fmtNum(u.diff)}원</span>
+      </div>`).join('') : `<div class="foot-note">아직 단가가 오른 품목 기록이 없어요.</div>`;
+  }
+}
+
+// ---------- 경영요약 스타일 전환(기본형/다크 차트형/라이트 테이블형) ----------
+const SUMMARY_STYLE_KEY = 'summary_style_pref_v1';
+function applySummaryStyle(style){
+  document.getElementById('summaryStyleDefault').style.display = style==='default' ? 'block' : 'none';
+  document.getElementById('summaryStyleDark').style.display = style==='dark' ? 'block' : 'none';
+  document.getElementById('summaryStyleLight').style.display = style==='light' ? 'block' : 'none';
+  ['Default','Dark','Light'].forEach(s=>{
+    const btn = document.getElementById('summaryStyleBtn'+s);
+    const isActive = s.toLowerCase() === style;
+    btn.style.background = isActive ? 'var(--accent)' : '';
+    btn.style.color = isActive ? '#fff' : '';
+    btn.style.borderColor = isActive ? 'var(--accent)' : '';
+  });
+  try{ window.storage.set(SUMMARY_STYLE_KEY, style, false); }catch(e){}
+}
+async function initSummaryStyleSwitcher(){
+  let style = 'default';
+  try{
+    const res = await window.storage.get(SUMMARY_STYLE_KEY, false);
+    if(res && res.value) style = res.value;
+  }catch(e){ /* 저장된 선택 없음 — 기본형으로 시작 */ }
+  ['Default','Dark','Light'].forEach(s=>{
+    document.getElementById('summaryStyleBtn'+s).addEventListener('click', ()=> applySummaryStyle(s.toLowerCase()));
+  });
+  applySummaryStyle(style);
+}
+
 const PHARMREG_STORAGE_KEY = 'stockout_dashboard_pharmreg_raw_v1';
 const PHARMREG_MODES = [
   { id:'포함', label:'포함' },
@@ -6740,6 +7232,7 @@ function finalizePharmregMode(){
   renderPharmregModeInfo();
   renderPharmregTable();
   renderPharmregEditsList();
+  recordPriceHistory('약가등재', pharmregFinalRows);
 }
 
 // 매입전표 합계액(계산기)에 입력한 진짜 합계와 결과값 합계 사이에 반올림 등으로 몇십 원 이내
@@ -7376,6 +7869,7 @@ createPharminfoUploadBlock('pharminfo_tr', '표준코드/제품명/단가 열로
 
 init();
 initUploadTabs().then(async ()=>{
+  await loadPriceHistoryLog();
   await loadStockHistory();
   await loadMonthlyStockArchive();
   // 예전에 다른 계산식(÷1000 포함)으로 저장된 월별 스냅샷이 남아있을 수 있어, 보관된 창고 원본으로
@@ -7408,6 +7902,10 @@ initUploadTabs().then(async ()=>{
   });
   await initPlookupTab();
   await initPharmregTab();
+  initPriceHistoryTab();
+  initChecklistTab();
+  await initSummaryStyleSwitcher();
+  renderSummaryDashboard();
 });
 document.getElementById('stockHistoryYearFilter').addEventListener('change', renderStockChart);
 document.getElementById('stockDamageYearFilter').addEventListener('change', renderStockDamageChart);
