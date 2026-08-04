@@ -368,36 +368,6 @@
   .kpis.kpis-3{ grid-template-columns:1fr; gap:6px; }
   .kpi .val small{ font-size:9px; color:var(--ink-dim); font-weight:600; margin-left:2px; }
 
-  /* 메인화면 — 디자인 ② 다크 차트형 */
-  .sumdark-wrap{ background:#0f1620; border-radius:14px; padding:16px; color:#e7ecf5; }
-  .sumdark-kpis{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
-  .sumdark-kpi{ flex:1; min-width:130px; background:#141d2b; border:1px solid #223047; border-radius:10px; padding:12px 14px; }
-  .sumdark-kpi .label{ font-size:12px; color:#8fa0bd; margin-bottom:6px; }
-  .sumdark-kpi .val{ font-size:21px; font-weight:800; }
-  .sumdark-kpi.red .val{ color:#ff6b6b; }
-  .sumdark-kpi.amber .val{ color:#f0b23f; }
-  .sumdark-kpi.teal .val{ color:#3ec9a7; }
-  .sumdark-section-title{ font-size:12.5px; font-weight:700; color:#c7d2e3; margin:16px 0 8px; }
-  .sumdark-barrow{ display:flex; align-items:flex-end; gap:16px; padding:8px 4px 0; }
-  .sumdark-bar{ flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
-  .sumdark-bar .bar-fill{ width:100%; border-radius:6px 6px 0 0; min-height:2px; }
-  .sumdark-bar .bar-label{ font-size:11px; color:#8fa0bd; }
-  .sumdark-bar .bar-val{ font-size:12px; font-weight:700; color:#e7ecf5; }
-
-  /* 메인화면 — 디자인 ③ 라이트 테이블형 */
-  .sumlight-wrap{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; }
-  .sumlight-kpis{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
-  .sumlight-kpi{ flex:1; min-width:130px; border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:var(--panel-2); }
-  .sumlight-kpi .label{ font-size:12px; color:var(--ink-dim); margin-bottom:4px; }
-  .sumlight-kpi .val{ font-size:19px; font-weight:800; }
-  .sumlight-badge{ display:inline-block; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; }
-  .sumlight-badge.warn{ background:#fdecea; color:#c0392b; }
-  .sumlight-badge.soon{ background:#fdf3e0; color:#a9761f; }
-  .sumlight-badge.unmatched{ background:#f3e8fd; color:#6a3fa0; }
-  .sumlight-action{ border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:16px; }
-  .sumlight-action-item{ display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px; }
-  .sumlight-action-item:last-child{ border-bottom:none; }
-
   /* stock table grouped header colors (재고 및 파손재고현황) */
   thead th.grp-stock1{ background: rgba(47,95,214,0.12); color:var(--teal-ink); border-bottom:1px solid rgba(47,95,214,0.25); }
   #stockTable td.num{ text-align:right; }
@@ -600,7 +570,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 16:50</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 19:20</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -660,54 +630,13 @@
       <div class="panel active" id="panel-summary">
         <div class="sub-section">
           <div class="sub-section-title">메인화면</div>
-          <div class="foot-note" style="margin-bottom:8px;">품절현황·재고및반품·확인요망 통합함에서 이미 계산된 값들을 한 화면에 모아 보여줘요(조회 전용이에요 — 값을 고치려면 각 원래 탭에서 해주세요) · 다른 탭에서 데이터를 새로 올리거나 계산하면, 이 화면을 다시 들어올 때 자동으로 최신값으로 갱신돼요 · 아래에서 화면 스타일 3가지 중 하나를 고를 수 있어요(고른 스타일은 이 기기에 저장돼요).</div>
-          <div class="foot-row" style="gap:8px; margin-bottom:14px;">
-            <button class="btn" id="summaryStyleBtnDefault" data-style="default">① 기본형</button>
-            <button class="btn" id="summaryStyleBtnDark" data-style="dark">② 다크 차트형</button>
-            <button class="btn" id="summaryStyleBtnLight" data-style="light">③ 라이트 테이블형</button>
-          </div>
+          <div class="foot-note" style="margin-bottom:8px;">품절현황·재고및반품·확인요망 통합함에서 이미 계산된 값들을 한 화면에 모아 보여줘요(조회 전용이에요 — 값을 고치려면 각 원래 탭에서 해주세요) · 다른 탭에서 데이터를 새로 올리거나 계산하면, 이 화면을 다시 들어올 때 자동으로 최신값으로 갱신돼요.</div>
+          <div class="kpis" id="summaryKpiRow1" style="margin-bottom:10px;"></div>
+          <div class="kpis kpis-3" id="summaryKpiRow2"></div>
         </div>
-
-        <div id="summaryStyleDefault">
-          <div class="sub-section">
-            <div class="kpis" id="summaryKpiRow1" style="margin-bottom:10px;"></div>
-            <div class="kpis kpis-3" id="summaryKpiRow2"></div>
-          </div>
-          <div class="sub-section">
-            <div class="sub-section-title" style="font-size:13px;">확인요망 통합함 요약</div>
-            <div id="summaryChecklistBreakdown" class="foot-note"></div>
-          </div>
-        </div>
-
-        <div id="summaryStyleDark" style="display:none;">
-          <div class="sub-section">
-            <div class="sumdark-wrap">
-              <div class="sumdark-kpis" id="sumdarkKpis"></div>
-              <div class="sumdark-section-title">월별 매출액 추이</div>
-              <div id="sumdarkTrendChart"></div>
-              <div class="sumdark-section-title">확인요망 통합함 — 사유별 건수</div>
-              <div class="sumdark-barrow" id="sumdarkBars"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="summaryStyleLight" style="display:none;">
-          <div class="sub-section">
-            <div class="sumlight-wrap">
-              <div class="sumlight-kpis" id="sumlightKpis"></div>
-              <div class="sub-section-title" style="font-size:13px;">확인요망 통합함 상세</div>
-              <div class="table-scroll">
-                <table id="table-sumlight">
-                  <thead><tr><th>상태</th><th>출처</th><th>제품코드</th><th>상품명</th><th>매입단가</th><th>마진</th><th>사용기한</th></tr></thead>
-                  <tbody id="body-sumlight"></tbody>
-                </table>
-              </div>
-              <div class="sumlight-action">
-                <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">매입단가 상승 TOP 5</div>
-                <div id="sumlightPriceUp"></div>
-              </div>
-            </div>
-          </div>
+        <div class="sub-section">
+          <div class="sub-section-title" style="font-size:13px;">확인요망 통합함 요약</div>
+          <div id="summaryChecklistBreakdown" class="foot-note"></div>
         </div>
       </div>
 
@@ -927,6 +856,21 @@
             </table>
           </div>
           <div class="foot-note">DB업데이트(재고 및 반품)에서 우선처별 재고 및 매입실적 시트를 광주·의정부 각 1개씩 업로드하면(엑셀 파일명에서 연도·월을 자동으로 인식해요), 그 달 자료가 창고별로 쌓여요 · 위에서 연도·월을 고르면 그 달을 당월로, 바로 전달을 전월로 자동으로 짝지어 엑셀 '통합' 시트가 계산하는 방식 그대로 매출액합계·채무총액·전월재고·당월재고합계·재고증감비율·외상대비재고비율·전월파손재고·당월파손재고·파손재고감소율(전체 현황)을 계산해요 (예: 7월을 고르면 6월=전월, 7월=당월) · 광주·의정부를 합산한 결과만 보여드리고 창고별 세부 항목은 표시하지 않아요 · 발주담당자·반품담당자는 마스터DB &gt; 거래처정보마스터DB 값을 그대로 보여줘요 (조회 전용 표입니다).</div>
+        </div>
+
+        <div class="sub-section">
+          <div class="sub-section-title">제약사별 반품 처리 현황</div>
+          <div class="foot-note" style="margin-bottom:8px;">제품코드마스터DB의 제약사 목록을 기준으로, 회사별 반품 접수·발송·완료 여부를 체크하고 체크한 날짜를 자동으로 남겨요 · 반품주기 칸은 클릭해서 직접 입력할 수 있어요(예: 매주/격주/월1회) · 여기서 체크·저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요.</div>
+          <div class="toolbar">
+            <input type="text" id="search-returnCycle" placeholder="제약사 검색...">
+            <span class="count-badge" id="count-returnCycle"></span>
+          </div>
+          <div class="table-scroll">
+            <table id="table-returnCycle">
+              <thead><tr><th>제약사</th><th>접수</th><th>발송</th><th>완료</th><th>반품주기</th></tr></thead>
+              <tbody id="body-returnCycle"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -2597,6 +2541,7 @@ async function finishUploadProcessing(id, parsed){
     computePharmregResults(); renderPharmregModeInfo(); renderPharmregTable();
   }
   if(STOCK_WAREHOUSES.some(p=>p.id===id)) { refreshStockViews(); }
+  if(id === 'productMaster' && typeof renderReturnCycleTable === 'function') renderReturnCycleTable();
 }
 
 // 붙여넣은 텍스트(탭 또는 콤마 구분, 첫 줄=헤더)를 {headers, rows}로 바꿉니다. essentialColumns.colIndexes가
@@ -3805,6 +3750,95 @@ function renderStockTable(){
     });
     return `<tr>${tds}</tr>`;
   }).join('');
+}
+
+// ================= 제약사별 반품 처리 현황(재고 및 파손재고현황 탭) =================
+// 제품코드마스터DB의 '제약사' 열에서 회사 목록을 뽑고, 회사별로 반품 접수·발송·완료 체크와
+// 체크한 날짜, 반품주기(자유 입력)를 저장합니다. 모든 사람이 같이 보는 공유 데이터예요.
+const RETURN_CYCLE_STORAGE_KEY = 'shared_return_cycle_tracker_v1';
+let returnCycleTracker = {}; // { [제약사]: { received:{checked,date}, sent:{checked,date}, complete:{checked,date}, cycle:'' } }
+
+async function loadReturnCycleTracker(){
+  try{
+    const res = await window.storage.get(RETURN_CYCLE_STORAGE_KEY, true);
+    if(res && res.value) returnCycleTracker = JSON.parse(res.value) || {};
+  }catch(e){ returnCycleTracker = {}; }
+}
+async function saveReturnCycleTracker(){
+  try{ await window.storage.set(RETURN_CYCLE_STORAGE_KEY, JSON.stringify(returnCycleTracker), true); }catch(e){}
+}
+function ensureReturnCycleEntry(company){
+  if(!returnCycleTracker[company]){
+    returnCycleTracker[company] = { received:{checked:false,date:''}, sent:{checked:false,date:''}, complete:{checked:false,date:''}, cycle:'' };
+  }
+  return returnCycleTracker[company];
+}
+function returnCycleManufacturerList(){
+  const pm = uploadState['productMaster'];
+  if(!pm || !pm.headers || !pm.rows) return [];
+  const idx = pm.headers.indexOf('제약사');
+  if(idx === -1) return [];
+  const set = new Set();
+  pm.rows.forEach(r=>{ const v = String(r[idx]||'').trim(); if(v) set.add(v); });
+  return Array.from(set).sort((a,b)=> a.localeCompare(b,'ko'));
+}
+
+function renderReturnCycleTable(){
+  const body = document.getElementById('body-returnCycle');
+  if(!body) return;
+  const q = (document.getElementById('search-returnCycle').value||'').trim().toLowerCase();
+  let list = returnCycleManufacturerList();
+  if(!list.length){
+    document.getElementById('count-returnCycle').textContent = '';
+    body.innerHTML = `<tr><td colspan="5" class="foot-note" style="text-align:left;">마스터DB &gt; 제품코드마스터DB에 '제약사' 열이 있는 데이터를 올리면 여기에 회사 목록이 나와요.</td></tr>`;
+    return;
+  }
+  if(q) list = list.filter(c=> c.toLowerCase().includes(q));
+  document.getElementById('count-returnCycle').textContent = `${list.length.toLocaleString()}개사`;
+
+  const stepCell = (company, key) => {
+    const e = ensureReturnCycleEntry(company)[key];
+    const dateTxt = e.checked && e.date ? `<div style="font-size:11px; color:var(--ink-faint); margin-top:2px;">${e.date}</div>` : '';
+    return `<td style="text-align:center;">
+      <input type="checkbox" class="returnCycleCheck" data-company="${escapeAttr(company)}" data-key="${key}" ${e.checked?'checked':''}>
+      ${dateTxt}
+    </td>`;
+  };
+
+  body.innerHTML = list.map(company=>{
+    const entry = ensureReturnCycleEntry(company);
+    return `<tr>
+      <td>${company}</td>
+      ${stepCell(company,'received')}
+      ${stepCell(company,'sent')}
+      ${stepCell(company,'complete')}
+      <td class="editable" contenteditable="true" data-company="${escapeAttr(company)}" data-cycle="1">${entry.cycle||''}</td>
+    </tr>`;
+  }).join('');
+
+  body.querySelectorAll('.returnCycleCheck').forEach(cb=>{
+    cb.addEventListener('change', async ()=>{
+      const company = cb.dataset.company, key = cb.dataset.key;
+      const entry = ensureReturnCycleEntry(company);
+      entry[key].checked = cb.checked;
+      entry[key].date = cb.checked ? todayKey() : '';
+      await saveReturnCycleTracker();
+      renderReturnCycleTable();
+    });
+  });
+  body.querySelectorAll('td[data-cycle]').forEach(td=>{
+    td.addEventListener('blur', async ()=>{
+      const company = td.dataset.company;
+      ensureReturnCycleEntry(company).cycle = td.textContent.trim();
+      await saveReturnCycleTracker();
+    });
+  });
+}
+
+async function initReturnCycleTracker(){
+  await loadReturnCycleTracker();
+  document.getElementById('search-returnCycle').addEventListener('input', renderReturnCycleTable);
+  renderReturnCycleTable();
 }
 
 
@@ -6542,180 +6576,6 @@ function renderSummaryDashboard(){
 
   document.getElementById('summaryChecklistBreakdown').innerHTML =
     `미매칭 <b style="color:var(--red);">${unmatchedCount}건</b> · 확인요망(마진) <b style="color:var(--red);">${warnCount}건</b> · 사용기한 임박 <b style="color:var(--amber);">${soonCount}건</b> · 파손비율 <b>${damageRate.toFixed(1)}%</b>`;
-
-  renderSummaryDark();
-  renderSummaryLight();
-}
-
-// ---------- 메인화면 디자인 ② 다크 차트형 ----------
-function renderSummaryDark(){
-  const el = document.getElementById('sumdarkKpis');
-  if(!el) return;
-  const totalStock = stockData.reduce((a,r)=>a+(Number(r.curStockTotal)||0),0);
-  const totalSales = stockData.reduce((a,r)=>a+(Number(r.salesTotal)||0),0);
-  const totalDamaged = stockData.reduce((a,r)=>a+(Number(r.curDamaged)||0),0);
-  const checklistRows = computeChecklistRows();
-  const warnCount = checklistRows.filter(r=>r.status==='확인요망').length;
-  const soonCount = checklistRows.filter(r=>r.status==='임박').length;
-  const unmatchedCount = checklistRows.filter(r=>r.status==='미매칭').length;
-
-  const kpis = [
-    { label:'전체재고액(천원)', val: Math.round(totalStock/1000).toLocaleString(), cls:'teal' },
-    { label:'매출액(천원)', val: Math.round(totalSales/1000).toLocaleString(), cls:'teal' },
-    { label:'파손재고액(천원)', val: Math.round(totalDamaged/1000).toLocaleString(), cls:'red' },
-    { label:'확인요망 합계', val: (warnCount+soonCount+unmatchedCount).toLocaleString()+'건', cls:'amber' },
-  ];
-  el.innerHTML = kpis.map(k=>`
-    <div class="sumdark-kpi ${k.cls}">
-      <div class="label">${k.label}</div>
-      <div class="val">${k.val}</div>
-    </div>`).join('');
-
-  // 월별 매출액 추이(최근 6개월) — 재고현황에 이미 쌓여있는 stockHistory를 그대로 사용해요.
-  const months = stockHistory.slice(-6);
-  const chartEl = document.getElementById('sumdarkTrendChart');
-  if(chartEl){
-    if(months.length < 2){
-      chartEl.innerHTML = `<div style="color:#8fa0bd; font-size:12.5px; padding:16px 4px;">재고현황에 월별 데이터가 2개월 이상 쌓이면 여기 추이가 나와요.</div>`;
-    } else {
-      const w=560, h=120, padL=8, padR=8, padT=10, padB=22;
-      const chartW=w-padL-padR, chartH=h-padT-padB;
-      const vals = months.map(m=>m.totalSales||0);
-      const maxV = Math.max(1, ...vals);
-      const stepX = chartW/(months.length-1);
-      const pts = vals.map((v,i)=> [padL+stepX*i, padT+chartH*(1-v/maxV)]);
-      const path = pts.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
-      const areaPath = path + ` L${pts[pts.length-1][0].toFixed(1)},${(padT+chartH).toFixed(1)} L${pts[0][0].toFixed(1)},${(padT+chartH).toFixed(1)} Z`;
-      const labels = months.map((m,i)=> `<text x="${pts[i][0].toFixed(1)}" y="${h-6}" font-size="10" fill="#8fa0bd" text-anchor="middle">${m.month.slice(2)}</text>`).join('');
-      const dots = pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#3ec9a7"></circle>`).join('');
-      chartEl.innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%; height:120px;">
-        <path d="${areaPath}" fill="rgba(62,201,167,0.15)" stroke="none"></path>
-        <path d="${path}" fill="none" stroke="#3ec9a7" stroke-width="2"></path>
-        ${dots}${labels}
-      </svg>`;
-    }
-  }
-
-  // 확인요망 통합함 사유별 건수를 막대로 표시 (고정 픽셀 높이로 계산해서 CSS 정렬 문제를 피해요)
-  const barsEl = document.getElementById('sumdarkBars');
-  if(barsEl){
-    const barData = [
-      { label:'미매칭', val: unmatchedCount, color:'#8a5cf5' },
-      { label:'확인요망(마진)', val: warnCount, color:'#ff6b6b' },
-      { label:'사용기한 임박', val: soonCount, color:'#f0b23f' },
-    ];
-    const maxBar = Math.max(1, ...barData.map(b=>b.val));
-    barsEl.innerHTML = barData.map(b=>{
-      const px = Math.max(4, Math.round(b.val/maxBar*70));
-      return `<div class="sumdark-bar">
-        <div class="bar-val">${b.val}</div>
-        <div class="bar-fill" style="height:${px}px; background:${b.color};"></div>
-        <div class="bar-label">${b.label}</div>
-      </div>`;
-    }).join('');
-  }
-}
-
-// ---------- 메인화면 디자인 ③ 라이트 테이블형 ----------
-function renderSummaryLight(){
-  const el = document.getElementById('sumlightKpis');
-  if(!el) return;
-  const totalStock = stockData.reduce((a,r)=>a+(Number(r.curStockTotal)||0),0);
-  const checklistRows = computeChecklistRows();
-  const warnCount = checklistRows.filter(r=>r.status==='확인요망').length;
-  const soonCount = checklistRows.filter(r=>r.status==='임박').length;
-  const unmatchedCount = checklistRows.filter(r=>r.status==='미매칭').length;
-
-  const kpis = [
-    { label:'전체재고액', val: Math.round(totalStock/1000).toLocaleString()+'천원' },
-    { label:'확인요망(마진)', val: warnCount.toLocaleString()+'건' },
-    { label:'사용기한 임박', val: soonCount.toLocaleString()+'건' },
-    { label:'미매칭', val: unmatchedCount.toLocaleString()+'건' },
-  ];
-  el.innerHTML = kpis.map(k=>`
-    <div class="sumlight-kpi">
-      <div class="label">${k.label}</div>
-      <div class="val">${k.val}</div>
-    </div>`).join('');
-
-  const badgeFor = status => status==='미매칭' ? '<span class="sumlight-badge unmatched">미매칭</span>'
-    : status==='확인요망' ? '<span class="sumlight-badge warn">확인요망</span>'
-    : '<span class="sumlight-badge soon">임박</span>';
-  const body = document.getElementById('body-sumlight');
-  if(body){
-    body.innerHTML = checklistRows.map(r=>{
-      const marginTxt = (r.margin===null||r.margin===undefined||isNaN(r.margin)) ? '' : (Math.round(r.margin*10000)/100).toLocaleString()+'%';
-      return `<tr>
-        <td>${badgeFor(r.status)}</td><td>${r.source}</td><td>${r.code}</td><td>${r.name}</td>
-        <td>${r.unit?fmtNum(r.unit)+'원':''}</td><td>${marginTxt}</td><td>${r.expiry||''}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  // 매입단가 상승 TOP 5 (매입단가 변동 이력에서)
-  const priceUpEl = document.getElementById('sumlightPriceUp');
-  if(priceUpEl){
-    const groups = priceHistoryGroups();
-    let ups = Array.from(groups.entries()).map(([code, list])=>{
-      const first = list[0], last = list[list.length-1];
-      return { code, name:last.name, diff: last.unit-first.unit };
-    }).filter(x=>x.diff>0);
-    ups.sort((a,b)=> b.diff-a.diff);
-    ups = ups.slice(0,5);
-    priceUpEl.innerHTML = ups.length ? ups.map(u=>`
-      <div class="sumlight-action-item">
-        <span>${u.code} ${u.name}</span>
-        <span style="color:var(--red); font-weight:700;">+${fmtNum(u.diff)}원</span>
-      </div>`).join('') : `<div class="foot-note">아직 단가가 오른 품목 기록이 없어요.</div>`;
-  }
-}
-
-// ---------- 메인화면 스타일 전환(기본형/다크 차트형/라이트 테이블형) ----------
-// ---------- 전체 앱 다크/라이트 테마 전환 (헤더의 항상 보이는 버튼) ----------
-const APP_THEME_KEY = 'app_theme_pref_v1';
-function applyAppTheme(theme){
-  document.documentElement.setAttribute('data-theme', theme);
-  const btn = document.getElementById('themeToggleBtn');
-  if(btn) btn.textContent = theme==='dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
-  try{ window.storage.set(APP_THEME_KEY, theme, false); }catch(e){}
-}
-async function initAppTheme(){
-  let theme = 'light';
-  try{
-    const res = await window.storage.get(APP_THEME_KEY, false);
-    if(res && res.value) theme = res.value;
-  }catch(e){ /* 저장된 선택 없음 — 라이트로 시작 */ }
-  applyAppTheme(theme);
-  document.getElementById('themeToggleBtn').addEventListener('click', ()=>{
-    const current = document.documentElement.getAttribute('data-theme');
-    applyAppTheme(current==='dark' ? 'light' : 'dark');
-  });
-}
-
-const SUMMARY_STYLE_KEY = 'summary_style_pref_v1';
-function applySummaryStyle(style){
-  document.getElementById('summaryStyleDefault').style.display = style==='default' ? 'block' : 'none';
-  document.getElementById('summaryStyleDark').style.display = style==='dark' ? 'block' : 'none';
-  document.getElementById('summaryStyleLight').style.display = style==='light' ? 'block' : 'none';
-  ['Default','Dark','Light'].forEach(s=>{
-    const btn = document.getElementById('summaryStyleBtn'+s);
-    const isActive = s.toLowerCase() === style;
-    btn.style.background = isActive ? 'var(--accent)' : '';
-    btn.style.color = isActive ? '#fff' : '';
-    btn.style.borderColor = isActive ? 'var(--accent)' : '';
-  });
-  try{ window.storage.set(SUMMARY_STYLE_KEY, style, false); }catch(e){}
-}
-async function initSummaryStyleSwitcher(){
-  let style = 'default';
-  try{
-    const res = await window.storage.get(SUMMARY_STYLE_KEY, false);
-    if(res && res.value) style = res.value;
-  }catch(e){ /* 저장된 선택 없음 — 기본형으로 시작 */ }
-  ['Default','Dark','Light'].forEach(s=>{
-    document.getElementById('summaryStyleBtn'+s).addEventListener('click', ()=> applySummaryStyle(s.toLowerCase()));
-  });
-  applySummaryStyle(style);
 }
 
 const PHARMREG_STORAGE_KEY = 'stockout_dashboard_pharmreg_raw_v1';
@@ -7930,6 +7790,7 @@ initUploadTabs().then(async ()=>{
   buildStockFilterOptions();
   renderStockTable();
   renderStockKpis();
+  await initReturnCycleTracker();
   renderStockHistoryYearFilter();
   renderStockChart();
   renderStockHistoryDamageYearFilter();
@@ -7953,7 +7814,6 @@ initUploadTabs().then(async ()=>{
   await initPharmregTab();
   initPriceHistoryTab();
   initChecklistTab();
-  await initSummaryStyleSwitcher();
   renderSummaryDashboard();
 });
 document.getElementById('stockHistoryYearFilter').addEventListener('change', renderStockChart);
