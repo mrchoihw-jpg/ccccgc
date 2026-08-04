@@ -570,7 +570,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 19:20</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 19:29</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -6576,6 +6576,27 @@ function renderSummaryDashboard(){
 
   document.getElementById('summaryChecklistBreakdown').innerHTML =
     `미매칭 <b style="color:var(--red);">${unmatchedCount}건</b> · 확인요망(마진) <b style="color:var(--red);">${warnCount}건</b> · 사용기한 임박 <b style="color:var(--amber);">${soonCount}건</b> · 파손비율 <b>${damageRate.toFixed(1)}%</b>`;
+}
+
+// ---------- 전체 앱 다크/라이트 테마 전환 (헤더의 항상 보이는 버튼) ----------
+const APP_THEME_KEY = 'app_theme_pref_v1';
+function applyAppTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent = theme==='dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
+  try{ window.storage.set(APP_THEME_KEY, theme, false); }catch(e){}
+}
+async function initAppTheme(){
+  let theme = 'light';
+  try{
+    const res = await window.storage.get(APP_THEME_KEY, false);
+    if(res && res.value) theme = res.value;
+  }catch(e){ /* 저장된 선택 없음 — 라이트로 시작 */ }
+  applyAppTheme(theme);
+  document.getElementById('themeToggleBtn').addEventListener('click', ()=>{
+    const current = document.documentElement.getAttribute('data-theme');
+    applyAppTheme(current==='dark' ? 'light' : 'dark');
+  });
 }
 
 const PHARMREG_STORAGE_KEY = 'stockout_dashboard_pharmreg_raw_v1';
