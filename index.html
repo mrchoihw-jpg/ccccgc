@@ -543,7 +543,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 15:18</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 15:29</div>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
       <button class="btn" id="exportBtn">⬇ Excel 다운로드</button>
@@ -1079,6 +1079,7 @@
             <div class="spacer"></div>
             <button class="btn" id="plookupExportXlsxBtn" style="background:var(--accent); color:#fff; border-color:var(--accent);">⬇ XLSX 다운로드</button>
             <button class="btn" id="plookupExportXlsBtn" style="background:var(--accent); color:#fff; border-color:var(--accent);">⬇ XLS 다운로드</button>
+            <button class="btn" id="plookupExportSplitListBtn">⬇ 소분 반품리스트(코드·수량만)</button>
           </div>
           <div class="table-scroll">
             <table id="table-plookup">
@@ -6074,6 +6075,34 @@ async function exportPlookupXlsx(){
     columns, rows
   });
 }
+// 소분 반품리스트(대한약사회 양식용): 정확한 컬럼은 아직 확정 전이라, 우선 급여코드/비급여코드/수량만 뽑아둡니다.
+// (양식이 확정되면 이 컬럼 배열에 필요한 항목만 추가하면 됩니다.)
+const PLOOKUP_SPLITLIST_COLUMNS = [
+  { key:'insCode', label:'급여코드(약품코드)' },
+  { key:'nonInsCode', label:'비급여코드' },
+  { key:'qty', label:'수량', num:true },
+];
+function buildPlookupSplitListExportRows(){
+  return plookupResults.map(r=>{
+    const o = {};
+    PLOOKUP_SPLITLIST_COLUMNS.forEach(c=>{
+      let v = r[c.key];
+      if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
+      o[c.key] = (v===null||v===undefined) ? '' : v;
+    });
+    return o;
+  });
+}
+async function exportPlookupSplitListXlsx(){
+  if(!plookupResults.length){ alert('먼저 데이터를 넣고 결과를 계산해주세요.'); return; }
+  const rows = buildPlookupSplitListExportRows();
+  const columns = PLOOKUP_SPLITLIST_COLUMNS.map(c=>({ key:c.key, label:c.label, width:16, numFmt: c.num ? '#,##0' : undefined, center: c.num }));
+  await downloadStyledXlsx({
+    sheetName: '소분반품리스트',
+    fileName: '소분반품리스트_' + new Date().toISOString().slice(0,10) + '.xlsx',
+    columns, rows
+  });
+}
 function exportPlookupXls(){
   if(!plookupResults.length){ alert('먼저 데이터를 넣고 결과를 계산해주세요.'); return; }
   const rows = buildPlookupExportRows();
@@ -6134,6 +6163,7 @@ function bindPlookupTab(){
   });
   document.getElementById('plookupExportXlsxBtn').addEventListener('click', exportPlookupXlsx);
   document.getElementById('plookupExportXlsBtn').addEventListener('click', exportPlookupXls);
+  document.getElementById('plookupExportSplitListBtn').addEventListener('click', exportPlookupSplitListXlsx);
 }
 
 async function initPlookupTab(){
