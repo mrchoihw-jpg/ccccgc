@@ -570,7 +570,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 19:29</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 20:35</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -5009,17 +5009,15 @@ function renderSupplyTable(){
     });
   });
 
-  const rows = [...supplyFinalRows].sort((a,b)=>{
-    const rank = r=>{
-      const m = r.margin;
-      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m <= 0.04 || m >= 0.12);
-      if(marginWarn) return 0;
-      const ml = monthsUntilExpiry(r.expiry);
-      if(ml !== null && ml < 9) return 1;
-      return 2;
-    };
-    return rank(a) - rank(b);
-  });
+  // 마진 확인요망·사용기한 임박 여부를 행마다 한 번만 계산해서 정렬·렌더링에 그대로 재사용합니다
+  // (예전에는 정렬 비교마다, 그리고 렌더링할 때 또 한 번씩 같은 계산을 반복하고 있었어요).
+  const rows = supplyFinalRows.map(r=>{
+    const monthsLeft = monthsUntilExpiry(r.expiry);
+    const isSoon = monthsLeft !== null && monthsLeft < 9;
+    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.12);
+    const rank = isMarginWarn ? 0 : (isSoon ? 1 : 2);
+    return { r, isSoon, isMarginWarn, rank };
+  }).sort((a,b)=> a.rank - b.rank);
   document.getElementById('count-supply').textContent = `${rows.length.toLocaleString()}건`;
 
   const sumEl = document.getElementById('supplySumInfo');
@@ -5032,10 +5030,7 @@ function renderSupplyTable(){
   }
 
   const body = document.getElementById('body-supply');
-  body.innerHTML = rows.map(r=>{
-    const monthsLeft = monthsUntilExpiry(r.expiry);
-    const isSoon = monthsLeft !== null && monthsLeft < 9;
-    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.12);
+  body.innerHTML = rows.map(({r, isSoon, isMarginWarn})=>{
     const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
     const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
     const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
@@ -5314,8 +5309,7 @@ function bindSupplyTab(){
 async function initSupplyTab(){
   bindSupplyTab();
   renderSupplyCalcTable();
-  await loadSupplyColumnWidths();
-  await loadSupplyRaw();
+  await Promise.all([loadSupplyColumnWidths(), loadSupplyRaw()]);
   if(supplyRawRows.length){
     computeSupplyResults();
     updateSupplyPasteInfo();
@@ -5699,17 +5693,14 @@ function renderInboundTable(){
     });
   });
 
-  const rows = [...inboundFinalRows].sort((a,b)=>{
-    const rank = r=>{
-      const m = r.margin;
-      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m <= 0.04 || m >= 0.12);
-      if(marginWarn) return 0;
-      const ml = monthsUntilExpiry(r.expiry);
-      if(ml !== null && ml < 9) return 1;
-      return 2;
-    };
-    return rank(a) - rank(b);
-  });
+  // 마진 확인요망·사용기한 임박 여부를 행마다 한 번만 계산해서 정렬·렌더링에 그대로 재사용합니다.
+  const rows = inboundFinalRows.map(r=>{
+    const monthsLeft = monthsUntilExpiry(r.expiry);
+    const isSoon = monthsLeft !== null && monthsLeft < 9;
+    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.12);
+    const rank = isMarginWarn ? 0 : (isSoon ? 1 : 2);
+    return { r, isSoon, isMarginWarn, rank };
+  }).sort((a,b)=> a.rank - b.rank);
   document.getElementById('count-inbound').textContent = `${rows.length.toLocaleString()}건`;
 
   const sumEl = document.getElementById('inboundSumInfo');
@@ -5722,10 +5713,7 @@ function renderInboundTable(){
   }
 
   const body = document.getElementById('body-inbound');
-  body.innerHTML = rows.map(r=>{
-    const monthsLeft = monthsUntilExpiry(r.expiry);
-    const isSoon = monthsLeft !== null && monthsLeft < 9;
-    const isMarginWarn = r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.12);
+  body.innerHTML = rows.map(({r, isSoon, isMarginWarn})=>{
     const flagLabel = isMarginWarn ? '확인요망' : (isSoon ? '임박' : '');
     const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
     const rowStyle = isMarginWarn ? ' style="color:var(--red);"' : '';
@@ -5931,8 +5919,7 @@ function bindInboundTab(){
 async function initInboundTab(){
   bindInboundTab();
   renderInboundCalcTable();
-  await loadInboundColumnWidths();
-  await loadInboundRaw();
+  await Promise.all([loadInboundColumnWidths(), loadInboundRaw()]);
   if(inboundRawRows.length){
     computeInboundResults();
     updateInboundPasteInfo();
@@ -6378,8 +6365,7 @@ function bindPlookupTab(){
 async function initPlookupTab(){
   bindPlookupTab();
   updatePlookupModeVisibility();
-  await loadPlookupRaw();
-  await loadPlookupDamisRows();
+  await Promise.all([loadPlookupRaw(), loadPlookupDamisRows()]);
   updatePlookupPasteInfo();
   updatePlookupDamisInfo();
   computePlookupResults();
@@ -6390,6 +6376,10 @@ async function initPlookupTab(){
 // ================= 매입단가 변동 이력(테스트중) =================
 // 공급내역신고/입고현황조회/약가등재에서 결과가 확정될 때마다(finalizeXMode), 그 시점의 실제 매입단가를
 // 제품코드별로 기록해둡니다(같은 날 같은 출처·제품코드는 최신 값으로 덮어써서 재계산해도 중복이 안 쌓여요).
+// 숫자를 천단위 콤마로 표시 (반품신청서 인쇄 스크립트 안에도 같은 이름의 함수가 있지만, 그건 별도 스코프에 갇혀 있어
+// 여기서는 안 보이므로 이 화면(메인 앱)에서 쓰는 용도로 똑같이 하나 더 둡니다.
+function fmtNum(n){ if(n===null||n===''||n===undefined) return ''; return Number(n).toLocaleString('ko-KR'); }
+
 const PRICE_HISTORY_STORAGE_KEY = 'shared_price_history_log_v1';
 let priceHistoryLog = []; // { code, name, unit, source, date }
 let priceHistorySelectedCode = null;
@@ -7279,18 +7269,15 @@ function renderPharmregTable(){
     });
   });
 
-  const rows = [...pharmregFinalRows].sort((a,b)=>{
-    const rank = r=>{
-      if(!r.productCode) return 0; // 미매칭 — 맨 위
-      const m = r.margin;
-      const marginWarn = m !== null && m !== undefined && !isNaN(m) && (m <= 0.04 || m >= 0.13);
-      if(marginWarn) return 1;
-      const ml = monthsUntilExpiry(r.expiry);
-      if(ml !== null && ml < 9) return 2;
-      return 3;
-    };
-    return rank(a) - rank(b);
-  });
+  // 미매칭·마진 확인요망·사용기한 임박 여부를 행마다 한 번만 계산해서 정렬·렌더링에 그대로 재사용합니다.
+  const rows = pharmregFinalRows.map(r=>{
+    const isUnmatched = !r.productCode;
+    const monthsLeft = monthsUntilExpiry(r.expiry);
+    const isSoon = monthsLeft !== null && monthsLeft < 9;
+    const isMarginWarn = !isUnmatched && r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.13);
+    const rank = isUnmatched ? 0 : (isMarginWarn ? 1 : (isSoon ? 2 : 3));
+    return { r, isSoon, isUnmatched, isMarginWarn, rank };
+  }).sort((a,b)=> a.rank - b.rank);
   document.getElementById('count-pharmreg').textContent = `${rows.length.toLocaleString()}건`;
 
   const sumEl = document.getElementById('pharmregSumInfo');
@@ -7303,11 +7290,7 @@ function renderPharmregTable(){
   }
 
   const body = document.getElementById('body-pharmreg');
-  body.innerHTML = rows.map(r=>{
-    const monthsLeft = monthsUntilExpiry(r.expiry);
-    const isSoon = monthsLeft !== null && monthsLeft < 9;
-    const isUnmatched = !r.productCode;
-    const isMarginWarn = !isUnmatched && r.margin !== null && r.margin !== undefined && !isNaN(r.margin) && (r.margin <= 0.04 || r.margin >= 0.13);
+  body.innerHTML = rows.map(({r, isSoon, isUnmatched, isMarginWarn})=>{
     const flagLabel = isUnmatched ? '미매칭' : (isMarginWarn ? '확인요망' : (isSoon ? '임박' : ''));
     const flagCell = `<td style="color:var(--red); font-weight:800; text-align:center;">${flagLabel}</td>`;
     const rowStyle = (isUnmatched || isMarginWarn) ? ' style="color:var(--red);"' : '';
@@ -7737,13 +7720,15 @@ async function initPharmregTab(){
     const btn = document.getElementById('fillstd-' + uploadId);
     if(btn) btn.addEventListener('click', ()=> fillPharmregStdCodeFromProductCode(uploadId));
   });
-  await loadPharmregColumnWidths();
-  await loadPharmregCodeTables();
+  await Promise.all([
+    loadPharmregColumnWidths(),
+    loadPharmregCodeTables(),
+    loadPharmregDongaSupply(),
+    loadPharmregRaw()
+  ]);
   updatePharmregCodeTableAreaVisibility();
   updatePharmregUploadTableAreaVisibility();
-  await loadPharmregDongaSupply();
   updatePharmregDongaSupplyAreaVisibility();
-  await loadPharmregRaw();
   updatePharmregInputModeVisibility();
   if(pharmregRawRows.length){
     computePharmregResults();
@@ -7799,9 +7784,7 @@ createPharminfoUploadBlock('pharminfo_tr', '표준코드/제품명/단가 열로
 initAppTheme();
 init();
 initUploadTabs().then(async ()=>{
-  await loadPriceHistoryLog();
-  await loadStockHistory();
-  await loadMonthlyStockArchive();
+  await Promise.all([loadPriceHistoryLog(), loadStockHistory(), loadMonthlyStockArchive()]);
   // 예전에 다른 계산식(÷1000 포함)으로 저장된 월별 스냅샷이 남아있을 수 있어, 보관된 창고 원본으로
   // 모든 달을 지금 계산식으로 다시 돌려 정확한 원 단위로 맞춥니다.
   rebuildStockHistoryFromArchive();
@@ -7821,8 +7804,6 @@ initUploadTabs().then(async ()=>{
   bindDamageManagerModal();
   renderDamageViewMonthSelector();
   renderDamageView();
-  await initSupplyTab();
-  await initInboundTab();
   document.querySelectorAll('input[name="payinputMode"]').forEach(r=>{
     r.addEventListener('change', ()=>{
       const mode = (document.querySelector('input[name="payinputMode"]:checked')||{}).value || 'supply';
@@ -7831,8 +7812,7 @@ initUploadTabs().then(async ()=>{
       document.getElementById('panel-pharmreg').style.display = mode==='pharmreg' ? 'block' : 'none';
     });
   });
-  await initPlookupTab();
-  await initPharmregTab();
+  await Promise.all([initSupplyTab(), initInboundTab(), initPlookupTab(), initPharmregTab()]);
   initPriceHistoryTab();
   initChecklistTab();
   renderSummaryDashboard();
