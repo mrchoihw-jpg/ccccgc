@@ -31,6 +31,32 @@
     --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     --sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
   }
+  /* 전체 앱 다크 테마 — html[data-theme="dark"]일 때 위 변수들을 다크 팔레트로 바꿔치기합니다.
+     .rt-scope(반품신청서 편집화면)와 #printArea(실제 인쇄물)는 항상 흰 종이처럼 보여야 하므로
+     자신만의 --rt-* 변수를 따로 쓰고 있어 이 다크 테마의 영향을 받지 않습니다. */
+  html[data-theme="dark"]{
+    --bg:#0b0f17; --panel:#141b26; --panel-2:#1a2230; --line:#26324a; --line-strong:#34435f;
+    --ink:#e7ecf5; --ink-dim:#a9b6cc; --ink-faint:#7686a3;
+    --red:#ff6b6b; --red-ink:#ff9a9a; --red-bg:rgba(255,107,107,0.16);
+    --amber:#f0b23f; --amber-ink:#f5c469; --amber-bg:rgba(240,178,63,0.16);
+    --teal:#3ec9a7; --teal-ink:#6fe0c4; --teal-bg:rgba(62,201,167,0.14);
+    --accent:#4c7cf0; --accent-grad:linear-gradient(90deg,#3f63c9,#5f86e8);
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md:0 4px 14px rgba(0,0,0,0.4);
+  }
+  html[data-theme="dark"] body{ background-image: radial-gradient(circle at 12% 0%, rgba(76,124,240,0.10), transparent 40%); }
+  html[data-theme="dark"] .kpis{ background:linear-gradient(180deg,#171f2c,#111722); }
+  html[data-theme="dark"] tbody td{ border-bottom-color: var(--line); }
+  html[data-theme="dark"] td.editable:hover{ background:var(--teal-bg); }
+  html[data-theme="dark"] tbody tr:nth-child(even) td:first-child,
+  html[data-theme="dark"] #mgrTable tbody tr:nth-child(even) td{ background: var(--panel-2); }
+  html[data-theme="dark"] #mgrTable td.grp-red,
+  html[data-theme="dark"] #mgrTable tbody tr:nth-child(even) td.grp-red{ background: var(--red-bg); }
+  html[data-theme="dark"] #mgrTable td.grp-amber,
+  html[data-theme="dark"] #mgrTable tbody tr:nth-child(even) td.grp-amber{ background: var(--amber-bg); }
+  html[data-theme="dark"] .bar-track{ background: var(--panel-2); }
+  html[data-theme="dark"] .upload-drop{ border-color: var(--line-strong); }
+  html[data-theme="dark"] .upload-drop:hover{ background: var(--teal-bg); }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -342,7 +368,7 @@
   .kpis.kpis-3{ grid-template-columns:1fr; gap:6px; }
   .kpi .val small{ font-size:9px; color:var(--ink-dim); font-weight:600; margin-left:2px; }
 
-  /* 경영요약 — 디자인 ② 다크 차트형 */
+  /* 메인화면 — 디자인 ② 다크 차트형 */
   .sumdark-wrap{ background:#0f1620; border-radius:14px; padding:16px; color:#e7ecf5; }
   .sumdark-kpis{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
   .sumdark-kpi{ flex:1; min-width:130px; background:#141d2b; border:1px solid #223047; border-radius:10px; padding:12px 14px; }
@@ -358,7 +384,7 @@
   .sumdark-bar .bar-label{ font-size:11px; color:#8fa0bd; }
   .sumdark-bar .bar-val{ font-size:12px; font-weight:700; color:#e7ecf5; }
 
-  /* 경영요약 — 디자인 ③ 라이트 테이블형 */
+  /* 메인화면 — 디자인 ③ 라이트 테이블형 */
   .sumlight-wrap{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; }
   .sumlight-kpis{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
   .sumlight-kpi{ flex:1; min-width:130px; border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:var(--panel-2); }
@@ -574,7 +600,8 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 16:25</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-04 16:50</div>
+    <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
       <button class="btn" id="exportBtn">⬇ Excel 다운로드</button>
@@ -586,9 +613,9 @@
     <div class="sidebar">
       <div class="tabs-groups">
         <div class="section-block accent-summary">
-          <div class="tabs-group-title"><span class="dot" style="background:#2a3d66;"></span>경영요약</div>
+          <div class="tabs-group-title"><span class="dot" style="background:#2a3d66;"></span>메인화면</div>
           <div class="tabs">
-            <div class="tab active" data-tab="summary"><span class="tab-ic">🏠</span>경영요약</div>
+            <div class="tab active" data-tab="summary"><span class="tab-ic">🏠</span>메인화면</div>
           </div>
         </div>
         <div class="section-block accent-order">
@@ -629,10 +656,10 @@
 
     <div class="main-content">
 
-      <!-- 경영요약 TAB: 이미 각 탭에서 계산된 값들을 한 화면에 모아 보여주는 조회 전용 요약 화면 -->
+      <!-- 메인화면 TAB: 이미 각 탭에서 계산된 값들을 한 화면에 모아 보여주는 조회 전용 요약 화면 -->
       <div class="panel active" id="panel-summary">
         <div class="sub-section">
-          <div class="sub-section-title">경영요약</div>
+          <div class="sub-section-title">메인화면</div>
           <div class="foot-note" style="margin-bottom:8px;">품절현황·재고및반품·확인요망 통합함에서 이미 계산된 값들을 한 화면에 모아 보여줘요(조회 전용이에요 — 값을 고치려면 각 원래 탭에서 해주세요) · 다른 탭에서 데이터를 새로 올리거나 계산하면, 이 화면을 다시 들어올 때 자동으로 최신값으로 갱신돼요 · 아래에서 화면 스타일 3가지 중 하나를 고를 수 있어요(고른 스타일은 이 기기에 저장돼요).</div>
           <div class="foot-row" style="gap:8px; margin-bottom:14px;">
             <button class="btn" id="summaryStyleBtnDefault" data-style="default">① 기본형</button>
@@ -4523,7 +4550,7 @@ function renderSupplyCalcTotals(){
 
 function renderSupplyCalcTable(){
   const body = document.getElementById('supplyCalcBody');
-  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:#eef4ff; padding:2px 4px; box-sizing:border-box;';
+  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:var(--teal-bg, #eef4ff); padding:2px 4px; box-sizing:border-box;';
   const totalInputStyle = 'width:100%; border:2px solid var(--red); border-radius:4px; text-align:right; font:inherit; font-weight:800; background:#fff3f0; padding:2px 4px; box-sizing:border-box;';
   let html = '';
   for(let i=0; i<SUPPLY_CALC_ROWS; i++){
@@ -5341,7 +5368,7 @@ function renderInboundCalcTotals(){
 function renderInboundCalcTable(){
   const body = document.getElementById('inboundCalcBody');
   if(!body) return;
-  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:#eef4ff; padding:2px 4px; box-sizing:border-box;';
+  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:var(--teal-bg, #eef4ff); padding:2px 4px; box-sizing:border-box;';
   const totalInputStyle = 'width:100%; border:2px solid var(--red); border-radius:4px; text-align:right; font:inherit; font-weight:800; background:#fff3f0; padding:2px 4px; box-sizing:border-box;';
   let html = '';
   for(let i=0; i<SUPPLY_CALC_ROWS; i++){
@@ -6466,7 +6493,7 @@ function initChecklistTab(){
   renderChecklist();
 }
 
-// ================= 경영요약 =================
+// ================= 메인화면 =================
 // 품절현황(listData)·재고현황(stockData)·확인요망 통합함(computeChecklistRows)에서 이미 계산된 값들을
 // 그대로 다시 읽어와 한 화면에 모아 보여줍니다(별도 계산 로직을 새로 만들지 않고 재사용해요).
 function renderSummaryDashboard(){
@@ -6520,7 +6547,7 @@ function renderSummaryDashboard(){
   renderSummaryLight();
 }
 
-// ---------- 경영요약 디자인 ② 다크 차트형 ----------
+// ---------- 메인화면 디자인 ② 다크 차트형 ----------
 function renderSummaryDark(){
   const el = document.getElementById('sumdarkKpis');
   if(!el) return;
@@ -6589,7 +6616,7 @@ function renderSummaryDark(){
   }
 }
 
-// ---------- 경영요약 디자인 ③ 라이트 테이블형 ----------
+// ---------- 메인화면 디자인 ③ 라이트 테이블형 ----------
 function renderSummaryLight(){
   const el = document.getElementById('sumlightKpis');
   if(!el) return;
@@ -6643,7 +6670,28 @@ function renderSummaryLight(){
   }
 }
 
-// ---------- 경영요약 스타일 전환(기본형/다크 차트형/라이트 테이블형) ----------
+// ---------- 메인화면 스타일 전환(기본형/다크 차트형/라이트 테이블형) ----------
+// ---------- 전체 앱 다크/라이트 테마 전환 (헤더의 항상 보이는 버튼) ----------
+const APP_THEME_KEY = 'app_theme_pref_v1';
+function applyAppTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent = theme==='dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
+  try{ window.storage.set(APP_THEME_KEY, theme, false); }catch(e){}
+}
+async function initAppTheme(){
+  let theme = 'light';
+  try{
+    const res = await window.storage.get(APP_THEME_KEY, false);
+    if(res && res.value) theme = res.value;
+  }catch(e){ /* 저장된 선택 없음 — 라이트로 시작 */ }
+  applyAppTheme(theme);
+  document.getElementById('themeToggleBtn').addEventListener('click', ()=>{
+    const current = document.documentElement.getAttribute('data-theme');
+    applyAppTheme(current==='dark' ? 'light' : 'dark');
+  });
+}
+
 const SUMMARY_STYLE_KEY = 'summary_style_pref_v1';
 function applySummaryStyle(style){
   document.getElementById('summaryStyleDefault').style.display = style==='default' ? 'block' : 'none';
@@ -6787,7 +6835,7 @@ function renderPharmregCalcTotals(){
 
 function renderPharmregCalcTable(){
   const body = document.getElementById('pharmregCalcBody');
-  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:#eef4ff; padding:2px 4px; box-sizing:border-box;';
+  const inputStyle = 'width:100%; border:1px solid #b9cdf0; border-radius:4px; text-align:right; font:inherit; background:var(--teal-bg, #eef4ff); padding:2px 4px; box-sizing:border-box;';
   const totalInputStyle = 'width:100%; border:2px solid var(--red); border-radius:4px; text-align:right; font:inherit; font-weight:800; background:#fff3f0; padding:2px 4px; box-sizing:border-box;';
   let html = '';
   for(let i=0; i<PHARMREG_CALC_ROWS; i++){
@@ -7867,6 +7915,7 @@ createPharminfoUploadBlock('pharminfo_newshin', '표준코드/제품명/단가 �
 createPharminfoUploadBlock('pharminfo_medica', '제품명/포장단위/의약품표준코드 열로 된 엑셀을 올려서 관리하세요(제품명+포장단위를 합쳐서 매칭해요) · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 제품명은 표준코드가 빈 채로 자동 추가돼요.');
 createPharminfoUploadBlock('pharminfo_tr', '표준코드/제품명/단가 열로 된 엑셀을 올려서 관리하세요 — 이 회사는 명세서에 표준코드가 이미 있어서 매칭용이 아니라, 명세서에 없는 <b>단가</b>를 표준코드 기준으로 보완하는 용도예요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요.');
 
+initAppTheme();
 init();
 initUploadTabs().then(async ()=>{
   await loadPriceHistoryLog();
