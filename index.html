@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 10:25</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 11:05</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -6167,7 +6167,7 @@ function renderTempTable(){
   if(tempFinalRows.length){
     const sum = tempFinalRows.reduce((s,r)=> s + (Number(r.amt)||0), 0);
     sumEl.style.display = 'block';
-    sumEl.textContent = `결과값 합계액: ${Math.round(sum).toLocaleString()}원`;
+    sumEl.textContent = `결과값 합계액: ${fmtNum(sum)}원`;
   } else {
     sumEl.style.display = 'none';
   }
@@ -6180,7 +6180,7 @@ function renderTempTable(){
     const mainCells = screenCols.map(c=>{
       let v = r[c.key];
       if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*10000)/100).toLocaleString() + '%'; }
-      else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
+      else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : fmtNum(v); }
       else if(v===null || v===undefined) v = '';
       const isExpiryWarn = c.key === 'expiry' && isSoon;
       const cellStyle = (!isMarginWarn && isExpiryWarn) ? ' style="color:var(--red); font-weight:700;"' : '';
@@ -6222,7 +6222,7 @@ function renderTempTable(){
         return;
       }
       const n = Number(String(td.textContent).replace(/,/g,'').trim());
-      if(isNaN(n)) { td.textContent = Math.round(row[field]).toLocaleString(); return; }
+      if(isNaN(n)) { td.textContent = fmtNum(row[field]); return; }
       row[field] = n;
       td.classList.add('edited');
       const orig = row._orig[field];
@@ -6252,8 +6252,8 @@ function renderTempEditsList(){
       <td>${e.productCode || ''}</td>
       <td>${e.barcode || ''}</td>
       <td>${e.field}</td>
-      <td class="num">${Math.round(e.before).toLocaleString()}</td>
-      <td class="num">${Math.round(e.after).toLocaleString()}</td>
+      <td class="num">${fmtNum(e.before)}</td>
+      <td class="num">${fmtNum(e.after)}</td>
     </tr>`).join('');
 }
 
@@ -6299,7 +6299,7 @@ function buildTempExportRows(){
     TEMP_EXPORT_COLUMNS.forEach(c=>{
       if(c.blank){ o[c.key] = ''; return; }
       let v = r[c.key];
-      if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
+      if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Number(v);
       o[c.key] = (v===null||v===undefined) ? '' : v;
     });
     return o;
@@ -6958,7 +6958,11 @@ function finalizeTempPharmregMode(){
     const m = r.modes[tempPharmregDecision.mode] || { amt:0, unit:0, margin:null };
     return { ...r, unit:m.unit, amt:m.amt, margin:m.margin, _idx: idx, _orig: { unit:m.unit, amt:m.amt, lotNo:r.lotNo, expiry:r.expiry } };
   });
-  reconcileTempPharmregTotals();
+  // 이 회사 명세서의 단가·금액이 이미 확실한 값이면(rawAlreadyExclusive), 매입전표 합계액 계산기와
+  // 억지로 맞추는 보정을 하지 않아요 — 그 보정 때문에 단가가 원본과 1원씩 어긋나는 문제가 있었어요.
+  const tempPharmregCompanyNow = (document.getElementById('tempPharmregCompany')||{}).value || '';
+  const tempPharmregProfileNow = TEMP_PHARMREG_PROFILES[tempPharmregCompanyNow];
+  if(!tempPharmregProfileNow || !tempPharmregProfileNow.rawAlreadyExclusive) reconcileTempPharmregTotals();
   renderTempPharmregModeInfo();
   renderTempPharmregTable();
   renderTempPharmregEditsList();
@@ -7095,7 +7099,7 @@ function renderTempPharmregTable(){
   if(tempPharmregFinalRows.length){
     const sum = tempPharmregFinalRows.reduce((s,r)=> s + (Number(r.amt)||0), 0);
     sumEl.style.display = 'block';
-    sumEl.textContent = `결과값 합계액: ${Math.round(sum).toLocaleString()}원`;
+    sumEl.textContent = `결과값 합계액: ${fmtNum(sum)}원`;
   } else {
     sumEl.style.display = 'none';
   }
@@ -7108,7 +7112,7 @@ function renderTempPharmregTable(){
     const mainCells = screenCols.map(c=>{
       let v = r[c.key];
       if(c.pct){ v = (v===null || v===undefined || isNaN(v)) ? '' : (Math.round(v*10000)/100).toLocaleString() + '%'; }
-      else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : Math.round(v).toLocaleString(); }
+      else if(c.num){ v = (v===null || v===undefined || v==='' || isNaN(v)) ? '' : fmtNum(v); }
       else if(v===null || v===undefined) v = '';
       const isExpiryWarn = c.key === 'expiry' && isSoon;
       const cellStyle = (!isMarginWarn && isExpiryWarn) ? ' style="color:var(--red); font-weight:700;"' : '';
@@ -7150,7 +7154,7 @@ function renderTempPharmregTable(){
         return;
       }
       const n = Number(String(td.textContent).replace(/,/g,'').trim());
-      if(isNaN(n)) { td.textContent = Math.round(row[field]).toLocaleString(); return; }
+      if(isNaN(n)) { td.textContent = fmtNum(row[field]); return; }
       row[field] = n;
       td.classList.add('edited');
       const orig = row._orig[field];
@@ -7180,8 +7184,8 @@ function renderTempPharmregEditsList(){
       <td>${e.productCode || ''}</td>
       <td>${e.barcode || ''}</td>
       <td>${e.field}</td>
-      <td class="num">${Math.round(e.before).toLocaleString()}</td>
-      <td class="num">${Math.round(e.after).toLocaleString()}</td>
+      <td class="num">${fmtNum(e.before)}</td>
+      <td class="num">${fmtNum(e.after)}</td>
     </tr>`).join('');
 }
 
@@ -7225,7 +7229,7 @@ function buildTempPharmregExportRows(){
     TEMP_PHARMREG_EXPORT_COLUMNS.forEach(c=>{
       if(c.blank){ o[c.key] = ''; return; }
       let v = r[c.key];
-      if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Math.round(v);
+      if(c.num) v = (v===null||v===undefined||v===''||isNaN(v)) ? '' : Number(v);
       o[c.key] = (v===null||v===undefined) ? '' : v;
     });
     return o;
