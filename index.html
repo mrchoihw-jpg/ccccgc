@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 09:00</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 09:50</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -1432,6 +1432,99 @@
                 </div>
               </div>
 
+              <div id="pharminfo_newshin-wrap" style="display:none; margin-bottom:10px;">
+                <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보 (뉴신팜)</div>
+                <div class="foot-note" style="margin-bottom:6px;">이 회사 명세서엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드·단가)에서 표준코드로 단가를 찾아와요 · 상품명/제품코드/표준코드/단가 열로 된 엑셀을 올려주세요. · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
+                <div class="upload-bar" id="upload-pharminfo_newshin-bar">
+                  <label class="upload-drop compact" for="file-pharminfo_newshin">
+                    <span class="upload-icon">⬆</span>
+                    <span><b>제약사상품정보</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+                  </label>
+                  <input type="file" id="file-pharminfo_newshin" accept=".xlsx,.xls,.csv" hidden>
+                  <div class="upload-actions">
+                    <button class="btn primary" id="save-pharminfo_newshin" style="display:none;">💾 저장</button>
+                    <button class="btn danger" id="clear-pharminfo_newshin" style="display:none;">데이터 지우기</button>
+                    <div class="upload-meta" id="meta-pharminfo_newshin">아직 업로드된 데이터가 없어요</div>
+                    <div class="save-indicator" id="saveState-pharminfo_newshin" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+                  </div>
+                </div>
+                <div class="toolbar" id="toolbar-pharminfo_newshin" style="display:none;">
+                  <input type="text" id="search-pharminfo_newshin" placeholder="전체 컬럼 검색...">
+                  <span class="count-badge" id="count-pharminfo_newshin"></span>
+                  <div class="spacer"></div>
+                  <button class="btn primary" id="fillstd-pharminfo_newshin">🔎 제품코드로 표준코드 채우기</button>
+                  <div class="pager" id="pager-pharminfo_newshin"></div>
+                </div>
+                <div class="table-scroll" id="scroll-pharminfo_newshin" style="display:none; max-height:260px; overflow-y:auto;">
+                  <table id="table-pharminfo_newshin">
+                    <thead><tr id="head-pharminfo_newshin"></tr></thead>
+                    <tbody id="body-pharminfo_newshin"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div id="pharminfo_medica-wrap" style="display:none; margin-bottom:10px;">
+                <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보 (메디카코리아)</div>
+                <div class="foot-note" style="margin-bottom:6px;">이 회사 명세서엔 표준코드가 없어서, 저장해둔 제약사상품정보(제품명/포장단위/표준코드)의 제품명+포장단위를 명세서의 품명+규격과 맞춰서 표준코드를 찾아요 · 명세서에 있는데 여기 없는 품명은 표준코드가 빈 채로 자동 추가돼요. · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
+                <div class="upload-bar" id="upload-pharminfo_medica-bar">
+                  <label class="upload-drop compact" for="file-pharminfo_medica">
+                    <span class="upload-icon">⬆</span>
+                    <span><b>제약사상품정보</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+                  </label>
+                  <input type="file" id="file-pharminfo_medica" accept=".xlsx,.xls,.csv" hidden>
+                  <div class="upload-actions">
+                    <button class="btn primary" id="save-pharminfo_medica" style="display:none;">💾 저장</button>
+                    <button class="btn danger" id="clear-pharminfo_medica" style="display:none;">데이터 지우기</button>
+                    <div class="upload-meta" id="meta-pharminfo_medica">아직 업로드된 데이터가 없어요</div>
+                    <div class="save-indicator" id="saveState-pharminfo_medica" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+                  </div>
+                </div>
+                <div class="toolbar" id="toolbar-pharminfo_medica" style="display:none;">
+                  <input type="text" id="search-pharminfo_medica" placeholder="전체 컬럼 검색...">
+                  <span class="count-badge" id="count-pharminfo_medica"></span>
+                  <div class="spacer"></div>
+                  <button class="btn primary" id="fillstd-pharminfo_medica">🔎 제품코드로 표준코드 채우기</button>
+                  <div class="pager" id="pager-pharminfo_medica"></div>
+                </div>
+                <div class="table-scroll" id="scroll-pharminfo_medica" style="display:none; max-height:260px; overflow-y:auto;">
+                  <table id="table-pharminfo_medica">
+                    <thead><tr id="head-pharminfo_medica"></tr></thead>
+                    <tbody id="body-pharminfo_medica"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div id="pharminfo_tr-wrap" style="display:none; margin-bottom:10px;">
+                <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보 (티알엔)</div>
+                <div class="foot-note" style="margin-bottom:6px;">이 회사 명세서엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드·단가)에서 표준코드로 단가를 찾아와요 · 상품명/제품코드/표준코드/단가 열로 된 엑셀을 올려주세요. · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
+                <div class="upload-bar" id="upload-pharminfo_tr-bar">
+                  <label class="upload-drop compact" for="file-pharminfo_tr">
+                    <span class="upload-icon">⬆</span>
+                    <span><b>제약사상품정보</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+                  </label>
+                  <input type="file" id="file-pharminfo_tr" accept=".xlsx,.xls,.csv" hidden>
+                  <div class="upload-actions">
+                    <button class="btn primary" id="save-pharminfo_tr" style="display:none;">💾 저장</button>
+                    <button class="btn danger" id="clear-pharminfo_tr" style="display:none;">데이터 지우기</button>
+                    <div class="upload-meta" id="meta-pharminfo_tr">아직 업로드된 데이터가 없어요</div>
+                    <div class="save-indicator" id="saveState-pharminfo_tr" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
+                  </div>
+                </div>
+                <div class="toolbar" id="toolbar-pharminfo_tr" style="display:none;">
+                  <input type="text" id="search-pharminfo_tr" placeholder="전체 컬럼 검색...">
+                  <span class="count-badge" id="count-pharminfo_tr"></span>
+                  <div class="spacer"></div>
+                  <button class="btn primary" id="fillstd-pharminfo_tr">🔎 제품코드로 표준코드 채우기</button>
+                  <div class="pager" id="pager-pharminfo_tr"></div>
+                </div>
+                <div class="table-scroll" id="scroll-pharminfo_tr" style="display:none; max-height:260px; overflow-y:auto;">
+                  <table id="table-pharminfo_tr">
+                    <thead><tr id="head-pharminfo_tr"></tr></thead>
+                    <tbody id="body-pharminfo_tr"></tbody>
+                  </table>
+                </div>
+              </div>
+
               <div id="pharminfo-extra-wraps"></div>
 
               <div class="sub-section-title" style="font-size:13px; margin-bottom:4px;">제약사명세서 자료</div>
@@ -1739,70 +1832,10 @@
                 </div>
               </div>
 
-              <!-- 에이치케이이노엔/일동제약: 제약사상품정보를 엑셀 업로드+표로 관리(상품명/제품코드/표준코드), 명세서 미매칭 품목은 자동 추가 -->
-              <div id="pharminfo_hk-wrap" style="display:none; margin-bottom:10px;">
-                <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
-                <div class="upload-bar" id="upload-pharminfo_hk-bar">
-                  <label class="upload-drop compact" for="file-pharminfo_hk">
-                    <span class="upload-icon">⬆</span>
-                    <span><b>제약사상품정보</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-                  </label>
-                  <input type="file" id="file-pharminfo_hk" accept=".xlsx,.xls,.csv" hidden>
-                  <div class="upload-actions">
-                    <button class="btn primary" id="save-pharminfo_hk" style="display:none;">💾 저장</button>
-                    <button class="btn danger" id="clear-pharminfo_hk" style="display:none;">데이터 지우기</button>
-                    <div class="upload-meta" id="meta-pharminfo_hk">아직 업로드된 데이터가 없어요</div>
-                    <div class="save-indicator" id="saveState-pharminfo_hk" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
-                  </div>
-                </div>
-                <div class="toolbar" id="toolbar-pharminfo_hk" style="display:none;">
-                  <input type="text" id="search-pharminfo_hk" placeholder="전체 컬럼 검색...">
-                  <span class="count-badge" id="count-pharminfo_hk"></span>
-                  <div class="spacer"></div>
-                  <button class="btn primary" id="fillstd-pharminfo_hk">🔎 제품코드로 표준코드 채우기</button>
-                  <div class="pager" id="pager-pharminfo_hk"></div>
-                </div>
-                <div class="table-scroll" id="scroll-pharminfo_hk" style="display:none; max-height:260px; overflow-y:auto;">
-                  <table id="table-pharminfo_hk">
-                    <thead><tr id="head-pharminfo_hk"></tr></thead>
-                    <tbody id="body-pharminfo_hk"></tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div id="pharminfo_ildong-wrap" style="display:none; margin-bottom:10px;">
-                <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
-                <div class="upload-bar" id="upload-pharminfo_ildong-bar">
-                  <label class="upload-drop compact" for="file-pharminfo_ildong">
-                    <span class="upload-icon">⬆</span>
-                    <span><b>제약사상품정보</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
-                  </label>
-                  <input type="file" id="file-pharminfo_ildong" accept=".xlsx,.xls,.csv" hidden>
-                  <div class="upload-actions">
-                    <button class="btn primary" id="save-pharminfo_ildong" style="display:none;">💾 저장</button>
-                    <button class="btn danger" id="clear-pharminfo_ildong" style="display:none;">데이터 지우기</button>
-                    <div class="upload-meta" id="meta-pharminfo_ildong">아직 업로드된 데이터가 없어요</div>
-                    <div class="save-indicator" id="saveState-pharminfo_ildong" style="display:none;"><span class="save-dot"></span><span>대기 중</span></div>
-                  </div>
-                </div>
-                <div class="toolbar" id="toolbar-pharminfo_ildong" style="display:none;">
-                  <input type="text" id="search-pharminfo_ildong" placeholder="전체 컬럼 검색...">
-                  <span class="count-badge" id="count-pharminfo_ildong"></span>
-                  <div class="spacer"></div>
-                  <button class="btn primary" id="fillstd-pharminfo_ildong">🔎 제품코드로 표준코드 채우기</button>
-                  <div class="pager" id="pager-pharminfo_ildong"></div>
-                </div>
-                <div class="table-scroll" id="scroll-pharminfo_ildong" style="display:none; max-height:260px; overflow-y:auto;">
-                  <table id="table-pharminfo_ildong">
-                    <thead><tr id="head-pharminfo_ildong"></tr></thead>
-                    <tbody id="body-pharminfo_ildong"></tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div id="pharminfo-extra-wraps"></div>
+              <!-- 제약사상품정보(뉴신팜/메디카코리아/HK/일동/티알엔)는 다미스·스카이젯 두 탭이 완전히 같은 저장 데이터를
+                   보고 있어서, 업로드 화면을 여기 따로 두면 DOM id가 겹치는 버그가 생겨요. 그래서 관리 화면은
+                   매입전표입력(엑셀)-다미스 쪽 한 곳에만 두고, 여기서는 안내만 보여줘요. -->
+              <div class="foot-note" style="margin-bottom:10px; padding:10px 12px; border:1px solid var(--line); border-radius:8px;">📎 제약사상품정보(상품명↔표준코드 매핑, 뉴신팜·메디카코리아·에이치케이이노엔·일동제약·티알엔)는 <b>매입전표입력(엑셀)-다미스</b> 탭에서 관리해요. 거기서 한 번 올려두면 이 탭(스카이젯)에서도 표준코드 찾을 때 그대로 자동 적용돼요 — 따로 두 번 올리실 필요 없어요.</div>
 
               <div class="sub-section-title" style="font-size:13px; margin-bottom:4px;">제약사명세서 자료</div>
               <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 위에서 고른 제약사 형식에 맞춰 표준코드·수량·단가·제조번호·유효기간·제품명 열을 정확한 위치로 찾아서 다미스제품코드마스터DB와 매칭해요(회사마다 실제 서식을 직접 확인해서 만든 것이라 위치를 추측하지 않아요) · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·다미스제품코드마스터DB에서 자동으로 불러와요.</div>
@@ -2973,7 +3006,7 @@ function byteLengthOf(value){
 // window.storage 저장은 일시적으로 실패할 수 있어(공식 안내상 "always use try-catch"),
 // 실패 시 짧게 대기했다가 몇 번 더 시도합니다. 마지막에도 실패하면 에러를 그대로 던집니다.
 async function storageSetWithRetry(key, value, shared, retries){
-  retries = retries === undefined ? 2 : retries;
+  retries = retries === undefined ? 5 : retries;
   let lastErr = null;
   for(let attempt=0; attempt<=retries; attempt++){
     try{
@@ -2983,7 +3016,7 @@ async function storageSetWithRetry(key, value, shared, retries){
     }catch(e){
       lastErr = e;
     }
-    if(attempt < retries) await new Promise(r=>setTimeout(r, 400 + attempt*500));
+    if(attempt < retries) await new Promise(r=>setTimeout(r, 600 + attempt*700));
   }
   throw lastErr || new Error('알 수 없는 저장 오류');
 }
