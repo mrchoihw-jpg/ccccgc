@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 23:43</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-08 05:24</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -5290,7 +5290,8 @@ function computeSupplyResults(){
   const vendorMap = buildVendorTaxMap();
   supplySelectedVendor = null;
 
-  supplyComputed = supplyRawRows.map(f=>{
+  // 엑셀에서 복사할 때 뒤쪽 빈 줄까지 같이 선택되는 경우가 많아서, 셀이 전부 빈 줄은 결과에서 빼요.
+  supplyComputed = supplyRawRows.filter(f => f.some(v => String(v||'').trim() !== '')).map(f=>{
     const get = i => (f[i] !== undefined ? f[i] : '');
     const vendorTaxNo = String(get(1) || '').replace(/\D/g,'');
     const barcodeRaw = String(get(10) || '').trim();
@@ -6041,7 +6042,8 @@ function computeTempResults(){
   tempSelectedVendor = null;
   const isInbound = tempInputFormat === 'inbound';
 
-  tempComputed = tempRawRows.map(f=>{
+  // 엑셀에서 복사할 때 뒤쪽 빈 줄까지 같이 선택되는 경우가 많아서, 셀이 전부 빈 줄은 결과에서 빼요.
+  tempComputed = tempRawRows.filter(f => f.some(v => String(v||'').trim() !== '')).map(f=>{
     const get = i => (f[i] !== undefined ? f[i] : '');
     let vendorTaxNo, barcodeRaw, qty, rawAmt, rawUnit, lotNoRaw, expiryRaw, nameRaw;
     if(isInbound){
@@ -7850,7 +7852,8 @@ function computeInboundResults(){
   const vendorMap = buildVendorTaxMap();
   inboundSelectedVendor = null;
 
-  inboundComputed = inboundRawRows.map(f=>{
+  // 엑셀에서 복사할 때 뒤쪽 빈 줄까지 같이 선택되는 경우가 많아서, 셀이 전부 빈 줄은 결과에서 빼요.
+  inboundComputed = inboundRawRows.filter(f => f.some(v => String(v||'').trim() !== '')).map(f=>{
     const get = i => (f[i] !== undefined ? f[i] : '');
     // 입고현황조회 형식(헤더 있는 A~W): B(1)=사업자등록번호(공급업체), K(10)=표준코드명칭, L(11)=표준코드,
     // N(13)=공급수량, P(15)=공급단가, Q(16)=공급금액, S(18)=제조번호, T(19)=유효기간("YY-MM-DD")
