@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 05:45</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 06:30</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -609,7 +609,7 @@
           <div class="tabs">
             <div class="tab" data-tab="mgrstatus"><span class="tab-ic">🧑‍💼</span>품절현황</div>
             <div class="tab" data-tab="list"><span class="tab-ic">📋</span>품절 현황 목록</div>
-            <div class="tab" data-tab="payinput"><span class="tab-ic">🧾</span>매입전표입력(엑셀)</div>
+            <div class="tab" data-tab="payinput"><span class="tab-ic">🧾</span>매입전표입력(엑셀)-다미스</div>
             <div class="tab" data-tab="temp"><span class="tab-ic">🧪</span>매입전표입력(엑셀)-스카이젯</div>
           </div>
         </div>
@@ -878,7 +878,7 @@
 
         <div class="sub-section">
           <div class="sub-section-title">제약사별 반품 처리 현황</div>
-          <div class="foot-note" style="margin-bottom:8px;">제품코드마스터DB의 제약사 목록을 기준으로, 회사별 반품 접수·발송·완료 여부를 체크하고 체크한 날짜를 자동으로 남겨요 · 반품주기 칸은 클릭해서 직접 입력할 수 있어요(예: 매주/격주/월1회) · 여기서 체크·저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요.</div>
+          <div class="foot-note" style="margin-bottom:8px;">다미스제품코드마스터DB의 제약사 목록을 기준으로, 회사별 반품 접수·발송·완료 여부를 체크하고 체크한 날짜를 자동으로 남겨요 · 반품주기 칸은 클릭해서 직접 입력할 수 있어요(예: 매주/격주/월1회) · 여기서 체크·저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요.</div>
           <div class="toolbar">
             <input type="text" id="search-returnCycle" placeholder="제약사 검색...">
             <span class="count-badge" id="count-returnCycle"></span>
@@ -994,15 +994,15 @@
         </div>
       </div>
 
-      <!-- 마스터DB TAB: 제품코드마스터DB(업로드·초기화만) / 거래처정보마스터DB(업로드+수기수정+신규거래처 자동추가) -->
+      <!-- 마스터DB TAB: 다미스제품코드마스터DB(업로드·초기화만) / 거래처정보마스터DB(업로드+수기수정+신규거래처 자동추가) -->
       <div class="panel" id="panel-masterdb">
 
         <div class="sub-section">
-          <div class="sub-section-title">제품코드마스터DB</div>
+          <div class="sub-section-title">다미스제품코드마스터DB</div>
           <div class="upload-bar" id="upload-productMaster-bar">
             <label class="upload-drop compact" for="file-productMaster">
               <span class="upload-icon">⬆</span>
-              <span><b>제품코드마스터DB</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
+              <span><b>다미스제품코드마스터DB</b> 엑셀/CSV 파일을 올려서 갱신하세요</span>
               <span class="upload-source">'CM2070I_상품에서 내린 자료 업로드'</span>
             </label>
             <input type="file" id="file-productMaster" accept=".xlsx,.xls,.csv" hidden>
@@ -1029,7 +1029,7 @@
 
         <div class="sub-section">
           <div class="sub-section-title">스카이젯제품코드마스터DB</div>
-          <div class="foot-note" style="margin-bottom:8px;">스카이젯(ERP) 쪽 제품정보 파일이에요 · 표준코드를 기준으로 매입전표입력(엑셀)-스카이젯의 제품코드·제품명을 채우는 데 쓰여요 · 제품코드마스터DB와는 완전히 별개의 표예요.</div>
+          <div class="foot-note" style="margin-bottom:8px;">스카이젯(ERP) 쪽 제품정보 파일이에요 · 표준코드를 기준으로 매입전표입력(엑셀)-스카이젯의 제품코드·제품명을 채우는 데 쓰여요 · 다미스제품코드마스터DB와는 완전히 별개의 표예요.</div>
           <div class="upload-bar" id="upload-skyjetMaster-bar">
             <label class="upload-drop compact" for="file-skyjetMaster">
               <span class="upload-icon">⬆</span>
@@ -1139,17 +1139,17 @@
               <tbody id="body-vendorMaster"></tbody>
             </table>
           </div>
-          <div class="foot-note">제품코드마스터DB와는 코드 체계가 달라(우연히 값이 겹칠 수 있어요) 서로 자동으로 연동하지 않고 완전히 독립적으로 관리돼요 · 셀을 클릭하면 바로 수정·저장돼요 · <b>품절 현황 목록의 발주담당자·배송지구분·결제기준일·회전</b>과 <b>재고 및 파손재고현황의 발주담당자·반품담당자</b>는 이제 항상 이 표의 값을 그대로 가져다 써요 (여기서 수정하면 그쪽에도 바로 반영돼요).</div>
+          <div class="foot-note">다미스제품코드마스터DB와는 코드 체계가 달라(우연히 값이 겹칠 수 있어요) 서로 자동으로 연동하지 않고 완전히 독립적으로 관리돼요 · 셀을 클릭하면 바로 수정·저장돼요 · <b>품절 현황 목록의 발주담당자·배송지구분·결제기준일·회전</b>과 <b>재고 및 파손재고현황의 발주담당자·반품담당자</b>는 이제 항상 이 표의 값을 그대로 가져다 써요 (여기서 수정하면 그쪽에도 바로 반영돼요).</div>
         </div>
 
       </div>
 
-      <!-- 반품신청서(소분-테스트중) TAB: 표준코드/약품코드+수량을 붙여넣으면 제품코드마스터DB에서 조회하고, 소분 품목은 같은 약품코드의 다른 품목으로 자동 대체합니다 -->
+      <!-- 반품신청서(소분-테스트중) TAB: 표준코드/약품코드+수량을 붙여넣으면 다미스제품코드마스터DB에서 조회하고, 소분 품목은 같은 약품코드의 다른 품목으로 자동 대체합니다 -->
       <div class="panel" id="panel-productlookup">
 
         <div class="sub-section">
           <div class="sub-section-title">반품신청서(소분-테스트중)</div>
-          <div class="foot-note" style="margin-bottom:8px;">아래 4가지 중 조회 방식을 고르세요 · <b>다미스자료 기준(완제품코드)</b>는 WH2060E_구매반품검사·승인결과 엑셀 파일을 그대로 업로드, <b>보험코드 기준</b> 두 가지는 코드·수량을 붙여넣기(급여코드=약품코드/비급여코드 둘 다 찾아봐요) · 완제품코드 조회에서 소분 품목이 걸리면, 같은 약품코드를 쓰는 소분이 아닌 품목(제품코드마스터DB에 먼저 나오는 순서)으로 자동 대체해요 · 소분코드 조회는 반대로 소분 품목만 찾아줘요 · <b>합산</b>은 다미스자료·보험코드(완제품코드) 두 조회의 결과를 합쳐서 같은 품목의 수량을 더해 보여줘요(소분코드 조회 결과는 포함 안 됨) · 이 메뉴는 아직 반품신청서 서식 출력(인쇄·PDF)까지는 연결되지 않은 테스트 버전이에요.</div>
+          <div class="foot-note" style="margin-bottom:8px;">아래 4가지 중 조회 방식을 고르세요 · <b>다미스자료 기준(완제품코드)</b>는 WH2060E_구매반품검사·승인결과 엑셀 파일을 그대로 업로드, <b>보험코드 기준</b> 두 가지는 코드·수량을 붙여넣기(급여코드=약품코드/비급여코드 둘 다 찾아봐요) · 완제품코드 조회에서 소분 품목이 걸리면, 같은 약품코드를 쓰는 소분이 아닌 품목(다미스제품코드마스터DB에 먼저 나오는 순서)으로 자동 대체해요 · 소분코드 조회는 반대로 소분 품목만 찾아줘요 · <b>합산</b>은 다미스자료·보험코드(완제품코드) 두 조회의 결과를 합쳐서 같은 품목의 수량을 더해 보여줘요(소분코드 조회 결과는 포함 안 됨) · 이 메뉴는 아직 반품신청서 서식 출력(인쇄·PDF)까지는 연결되지 않은 테스트 버전이에요.</div>
           <div class="foot-row" style="gap:16px; margin-bottom:8px; flex-wrap:wrap; justify-content:flex-start;">
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="damis" checked> 다미스자료 기준(완제품코드)</label>
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="plookupMode" value="ins_full"> 보험코드 기준(완제품코드)</label>
@@ -1201,18 +1201,18 @@
               <tbody id="body-plookup"></tbody>
             </table>
           </div>
-          <div class="foot-note">매칭되지 않은 코드도 결과에 빨간색으로 표시돼요(제품코드마스터DB 업데이트가 필요하다는 뜻이에요) · 대체가 일어난 줄은 비고에 원래 표준코드가 함께 표시돼요.</div>
+          <div class="foot-note">매칭되지 않은 코드도 결과에 빨간색으로 표시돼요(다미스제품코드마스터DB 업데이트가 필요하다는 뜻이에요) · 대체가 일어난 줄은 비고에 원래 표준코드가 함께 표시돼요.</div>
         </div>
 
       </div>
 
-      <!-- 제품정보조회(테스트용) TAB: 제품코드마스터DB(약품코드/비급여코드/표준코드/대표코드) 기준으로
+      <!-- 제품정보조회(테스트용) TAB: 다미스제품코드마스터DB(약품코드/비급여코드/표준코드/대표코드) 기준으로
            보험코드를 넣으면 그 코드에 딸린 표준코드들을 전부 찾아주고, 그 중 대표코드와 같은 표준코드를
-           '소분용'으로 표시합니다. 조회 전용이고 새 업로드 없이 기존 제품코드마스터DB를 그대로 씁니다. -->
+           '소분용'으로 표시합니다. 조회 전용이고 새 업로드 없이 기존 다미스제품코드마스터DB를 그대로 씁니다. -->
       <div class="panel" id="panel-productinfo">
         <div class="sub-section">
           <div class="sub-section-title">제품정보조회(테스트용)</div>
-          <div class="foot-note" style="margin-bottom:8px;">마스터DB &gt; 제품코드마스터DB를 기준으로 조회해요(약품코드·비급여코드·표준코드·대표코드·상품명 열이 있어야 해요) · 보험코드(급여코드=약품코드 또는 비급여코드)를 한 줄에 하나씩 붙여넣고 조회하면, 그 코드에 해당하는 표준코드를 전부 찾아서 그 중 대표코드와 같은 표준코드에 '소분용' 표시를 붙여줘요.</div>
+          <div class="foot-note" style="margin-bottom:8px;">마스터DB &gt; 다미스제품코드마스터DB를 기준으로 조회해요(약품코드·비급여코드·표준코드·대표코드·상품명 열이 있어야 해요) · 보험코드(급여코드=약품코드 또는 비급여코드)를 한 줄에 하나씩 붙여넣고 조회하면, 그 코드에 해당하는 표준코드를 전부 찾아서 그 중 대표코드와 같은 표준코드에 '소분용' 표시를 붙여줘요.</div>
           <textarea id="productInfoPasteArea" placeholder="보험코드를 한 줄에 하나씩 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:120px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
           <div class="foot-row" style="justify-content:space-between; margin-top:8px;">
             <div id="productInfoPasteInfo" style="color:var(--ink-dim); font-size:12.5px;">아직 붙여넣은 데이터가 없어요</div>
@@ -1239,11 +1239,11 @@
 
       <!-- 제품정보검색2(테스트용) TAB: 제품정보조회(위)는 보험코드 하나로 딱 짚어 찾는 용도였다면,
            이건 반대로 "제약사가 어디인지, 소분인지" 같은 조건으로 필터링해서 여러 개를 훑어보는 용도입니다.
-           제품코드마스터DB에 분류명·제형·단종여부 같은 열이 추가되면 그 필터도 자동으로 나타나요. -->
+           다미스제품코드마스터DB에 분류명·제형·단종여부 같은 열이 추가되면 그 필터도 자동으로 나타나요. -->
       <div class="panel" id="panel-productsearch2">
         <div class="sub-section">
           <div class="sub-section-title">제품정보검색2(테스트용)</div>
-          <div class="foot-note" style="margin-bottom:8px;">위의 제품정보조회가 "보험코드 하나로 콕 짚어 찾기"였다면, 이건 "조건으로 걸러서 여러 개 훑어보기"예요 · 제품코드마스터DB를 기준으로 하고, 상품명·분류·제형처럼 표에 있는 열이 늘어나면 아래 필터도 자동으로 하나씩 늘어나요.</div>
+          <div class="foot-note" style="margin-bottom:8px;">위의 제품정보조회가 "보험코드 하나로 콕 짚어 찾기"였다면, 이건 "조건으로 걸러서 여러 개 훑어보기"예요 · 다미스제품코드마스터DB를 기준으로 하고, 상품명·분류·제형처럼 표에 있는 열이 늘어나면 아래 필터도 자동으로 하나씩 늘어나요.</div>
           <div class="toolbar" style="flex-wrap:wrap; gap:8px;">
             <input type="text" id="search-productSearch2" placeholder="상품명 또는 코드로 검색...">
             <select id="filterMaker-productSearch2"><option value="">전체 제약사</option></select>
@@ -1262,7 +1262,7 @@
             </table>
           </div>
           <div id="pager-productSearch2" class="pager"></div>
-          <div class="foot-note">지금은 약품코드·비급여코드·표준코드·대표코드·상품명·소분·제약사만 인식해요 · 분류명·제형·단종여부 같은 열을 제품코드마스터DB 엑셀에 추가해서 올리면 필터가 자동으로 늘어나요.</div>
+          <div class="foot-note">지금은 약품코드·비급여코드·표준코드·대표코드·상품명·소분·제약사만 인식해요 · 분류명·제형·단종여부 같은 열을 다미스제품코드마스터DB 엑셀에 추가해서 올리면 필터가 자동으로 늘어나요.</div>
         </div>
       </div>
 
@@ -1271,7 +1271,7 @@
       <div class="panel" id="panel-pricehistory">
         <div class="sub-section">
           <div class="sub-section-title">매입단가 변동 이력</div>
-          <div class="foot-note" style="margin-bottom:8px;">공급내역신고·입고현황조회·약가등재에서 결과를 계산할 때마다, 그 시점의 실제 매입단가(우선처에서 매입한 단가 — 제품코드마스터DB의 일반가/참고가가 아니에요)가 제품코드별로 자동 기록돼요 · 아래에 제품코드나 상품명을 입력하면 그 품목의 단가 변화 이력을 볼 수 있어요.</div>
+          <div class="foot-note" style="margin-bottom:8px;">공급내역신고·입고현황조회·약가등재에서 결과를 계산할 때마다, 그 시점의 실제 매입단가(우선처에서 매입한 단가 — 다미스제품코드마스터DB의 일반가/참고가가 아니에요)가 제품코드별로 자동 기록돼요 · 아래에 제품코드나 상품명을 입력하면 그 품목의 단가 변화 이력을 볼 수 있어요.</div>
           <div class="toolbar">
             <input type="text" id="priceHistorySearch" placeholder="제품코드 또는 상품명으로 검색...">
             <span class="count-badge" id="priceHistoryCount"></span>
@@ -1372,7 +1372,7 @@
               <!-- 에이치케이이노엔/일동제약: 제약사상품정보를 엑셀 업로드+표로 관리(상품명/제품코드/표준코드), 명세서 미매칭 품목은 자동 추가 -->
               <div id="pharminfo_hk-wrap" style="display:none; margin-bottom:10px;">
                 <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
+                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
                 <div class="upload-bar" id="upload-pharminfo_hk-bar">
                   <label class="upload-drop compact" for="file-pharminfo_hk">
                     <span class="upload-icon">⬆</span>
@@ -1403,7 +1403,7 @@
 
               <div id="pharminfo_ildong-wrap" style="display:none; margin-bottom:10px;">
                 <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
+                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
                 <div class="upload-bar" id="upload-pharminfo_ildong-bar">
                   <label class="upload-drop compact" for="file-pharminfo_ildong">
                     <span class="upload-icon">⬆</span>
@@ -1435,7 +1435,7 @@
               <div id="pharminfo-extra-wraps"></div>
 
               <div class="sub-section-title" style="font-size:13px; margin-bottom:4px;">제약사명세서 자료</div>
-              <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 위에서 고른 제약사 형식에 맞춰 표준코드·수량·단가·제조번호·유효기간·제품명 열을 정확한 위치로 찾아서 제품코드마스터DB와 매칭해요(회사마다 실제 서식을 직접 확인해서 만든 것이라 위치를 추측하지 않아요) · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 위에서 고른 제약사 형식에 맞춰 표준코드·수량·단가·제조번호·유효기간·제품명 열을 정확한 위치로 찾아서 다미스제품코드마스터DB와 매칭해요(회사마다 실제 서식을 직접 확인해서 만든 것이라 위치를 추측하지 않아요) · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·다미스제품코드마스터DB에서 자동으로 불러와요.</div>
               <div id="pharmregProfileInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
               <div id="pharmregPasteWrap">
                 <textarea id="pharmregPasteArea" placeholder="제약사 거래명세서 데이터를 헤더 포함해서 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:140px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
@@ -1478,7 +1478,7 @@
               <tbody id="body-pharmreg"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빨간 줄로 표시돼요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액·제조번호·사용기한</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 매칭 안 된 품목은 맨 위에 '미매칭'으로 표시되고, 마진이 4% 이하이거나 13% 이상이면 '확인요망'으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드로 다미스제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빨간 줄로 표시돼요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액·제조번호·사용기한</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 매칭 안 된 품목은 맨 위에 '미매칭'으로 표시되고, 마진이 4% 이하이거나 13% 이상이면 '확인요망'으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="pharmregEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1506,7 +1506,7 @@
               <div id="supplyCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 입고현황조회 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·다미스제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 입고현황조회 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
               <div class="foot-row" style="margin-bottom:6px;">
                 <label class="upload-drop compact" for="supplyFileInput" style="flex:1 1 0;">
                   <span class="upload-icon">⬆</span>
@@ -1542,7 +1542,7 @@
               <tbody id="body-supply"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 다미스제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="supplyEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1570,7 +1570,7 @@
               <div id="inboundCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 공급내역신고자료 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">'입고현황조회' 화면의 데이터를 헤더 포함해서(또는 헤더 없이) 그대로 복사해 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·다미스제품코드마스터DB에서 자동으로 불러와요 · <b>위 선택을 안 바꿔도</b> 공급내역신고자료 형식을 붙여넣으면 자동으로 알아채서 그쪽으로 넘겨 계산해요.</div>
               <div class="foot-row" style="margin-bottom:6px;">
                 <label class="upload-drop compact" for="inboundFileInput" style="flex:1 1 0;">
                   <span class="upload-icon">⬆</span>
@@ -1606,7 +1606,7 @@
               <tbody id="body-inbound"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 다미스제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="inboundEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1627,7 +1627,7 @@
       <div class="panel" id="panel-temp">
         <div class="sub-section">
           <div class="sub-section-title">매입전표입력(엑셀)-스카이젯</div>
-          <div class="foot-note" style="margin-bottom:8px;">매입전표입력(엑셀)과 완전히 동일한 기능이에요 — 다만 여기 붙여넣은 데이터와 계산 결과는 <b>이 탭만의 별도 저장 공간</b>에 저장돼서, 진짜 매입전표입력 데이터에는 전혀 영향을 안 줘요(테스트·임시 확인용) · XLSX/XLS 다운로드를 누르면 제품코드·제품명·수량·할증·단가·제조번호·유효기한·기존제품코드·제조일자·표준코드 10개 열로 된 엑셀이 제약사명 파일로 나와요.</div>
+          <div class="foot-note" style="margin-bottom:8px;">매입전표입력(엑셀)-다미스와 완전히 동일한 기능이에요 — 다만 여기 붙여넣은 데이터와 계산 결과는 <b>이 탭만의 별도 저장 공간</b>에 저장돼서, 진짜 매입전표입력 데이터에는 전혀 영향을 안 줘요(테스트·임시 확인용) · XLSX/XLS 다운로드를 누르면 제품코드·제품명·수량·할증·단가·제조번호·유효기한·기존제품코드·제조일자·표준코드 10개 열로 된 엑셀이 제약사명 파일로 나와요.</div>
           <div class="foot-row" style="gap:16px; justify-content:flex-start;">
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="tempPayinputMode" value="supply" checked> 공급내역신고 자료</label>
             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="tempPayinputMode" value="tempPharmreg"> 제약사사이트 자료</label>
@@ -1646,7 +1646,7 @@
               <div id="tempCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요</div>
+              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·다미스제품코드마스터DB에서 자동으로 불러와요</div>
               <div class="foot-row" style="margin-bottom:6px;">
                 <label class="upload-drop compact" for="tempFileInput" style="flex:1 1 0;">
                   <span class="upload-icon">⬆</span>
@@ -1682,7 +1682,7 @@
               <tbody id="body-temp"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드(바코드)로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드(바코드)로 다미스제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빈 칸으로 남아요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액</b> 셀은 클릭해서 직접 수정할 수 있고, <b>제조번호·사용기한</b>도 공란이면 클릭해서 채워 넣을 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 마진이 4% 이하이거나 12% 이상이면 붉은색으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="tempEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -1742,7 +1742,7 @@
               <!-- 에이치케이이노엔/일동제약: 제약사상품정보를 엑셀 업로드+표로 관리(상품명/제품코드/표준코드), 명세서 미매칭 품목은 자동 추가 -->
               <div id="pharminfo_hk-wrap" style="display:none; margin-bottom:10px;">
                 <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
+                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
                 <div class="upload-bar" id="upload-pharminfo_hk-bar">
                   <label class="upload-drop compact" for="file-pharminfo_hk">
                     <span class="upload-icon">⬆</span>
@@ -1773,7 +1773,7 @@
 
               <div id="pharminfo_ildong-wrap" style="display:none; margin-bottom:10px;">
                 <div class="sub-section-title" style="font-size:13px; margin-bottom:6px;">제약사상품정보</div>
-                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
+                <div class="foot-note" style="margin-bottom:6px;">상품명/제품코드/표준코드 열로 된 엑셀을 올려서 관리하세요 · 표 안 셀을 클릭하면 바로 수정할 수 있어요 · 명세서에 있는데 여기 없는 상품명은 표준코드가 빈 채로 자동 추가돼요 · 그 옆 제품코드 칸에 코드를 입력한 다음 <b>"제품코드로 표준코드 채우기"</b> 버튼을 누르면, 다미스제품코드마스터DB에서 표준코드를 찾아 자동으로 채워줘요.</div>
                 <div class="upload-bar" id="upload-pharminfo_ildong-bar">
                   <label class="upload-drop compact" for="file-pharminfo_ildong">
                     <span class="upload-icon">⬆</span>
@@ -1805,7 +1805,7 @@
               <div id="pharminfo-extra-wraps"></div>
 
               <div class="sub-section-title" style="font-size:13px; margin-bottom:4px;">제약사명세서 자료</div>
-              <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 위에서 고른 제약사 형식에 맞춰 표준코드·수량·단가·제조번호·유효기간·제품명 열을 정확한 위치로 찾아서 제품코드마스터DB와 매칭해요(회사마다 실제 서식을 직접 확인해서 만든 것이라 위치를 추측하지 않아요) · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·제품코드마스터DB에서 자동으로 불러와요.</div>
+              <div class="foot-note" style="margin-bottom:8px;">제약사 사이트에서 받은 거래명세서(또는 자료·원장) 데이터를 헤더 포함해서 그대로 복사해 아래 칸에 붙여넣으세요 · 위에서 고른 제약사 형식에 맞춰 표준코드·수량·단가·제조번호·유효기간·제품명 열을 정확한 위치로 찾아서 다미스제품코드마스터DB와 매칭해요(회사마다 실제 서식을 직접 확인해서 만든 것이라 위치를 추측하지 않아요) · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·다미스제품코드마스터DB에서 자동으로 불러와요.</div>
               <div id="tempPharmregProfileInfo" class="foot-note" style="margin-bottom:8px; display:none;"></div>
               <div id="tempPharmregPasteWrap">
                 <textarea id="tempPharmregPasteArea" placeholder="제약사 거래명세서 데이터를 헤더 포함해서 붙여넣으세요 (Ctrl+V)" style="width:100%; min-height:140px; font-family:var(--mono); font-size:12px; padding:10px; border:1px solid var(--line); border-radius:8px; box-sizing:border-box;"></textarea>
@@ -1848,7 +1848,7 @@
               <tbody id="body-tempPharmreg"></tbody>
             </table>
           </div>
-          <div class="foot-note">표준코드로 제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빨간 줄로 표시돼요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액·제조번호·사용기한</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 매칭 안 된 품목은 맨 위에 '미매칭'으로 표시되고, 마진이 4% 이하이거나 13% 이상이면 '확인요망'으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
+          <div class="foot-note">표준코드로 다미스제품코드마스터DB와 매칭해 다미스코드명·구매비고를 채워요, 매칭되지 않으면 빨간 줄로 표시돼요(소분='Y'이거나 구매금지일이 있는 품목은 매칭 대상에서 제외돼요) · <b>매입단가·실금액·제조번호·사용기한</b> 셀은 클릭해서 직접 수정할 수 있어요(수정한 내역은 아래 목록·오른쪽 비고란에 표시돼요) · 매칭 안 된 품목은 맨 위에 '미매칭'으로 표시되고, 마진이 4% 이하이거나 13% 이상이면 '확인요망'으로 표시돼요 · 사용기한이 9개월 미만 남으면 맨 왼쪽에 '임박' 표시가 붙어요 · 컬럼 경계를 드래그하면 너비가 저장돼요(다운로드 파일에는 임박 표시·비고란 모두 포함되지 않아요).</div>
           <div class="sub-section" id="tempPharmregEditsSection" style="display:none; margin-top:14px;">
             <div class="sub-section-title" style="font-size:13px;">수정 내역</div>
             <div class="table-scroll">
@@ -2610,7 +2610,7 @@ const UPLOAD_CONFIGS = {
   // 마스터DB: 제품코드/거래처정보 공용 기초 데이터베이스. 다른 대시보드(매입엑셀파일 등)와 같은 저장 키 규칙(shared_*_master_v1)을
   // 써서, 나중에 다른 도구에서도 같은 키로 읽어 연동할 수 있게 준비해둡니다. 제품코드와 거래처코드는 체계가 달라
   // (우연히 겹칠 수 있음) 서로 자동으로 연동하지 않고 완전히 독립적으로 관리합니다.
-  productMaster: { sheetNames: ['Sheet','제품코드','상품코드','제품코드마스터'], storageKey: 'shared_product_master_v1', label: '제품코드마스터DB', readOnly: true },
+  productMaster: { sheetNames: ['Sheet','제품코드','상품코드','제품코드마스터'], storageKey: 'shared_product_master_v1', label: '다미스제품코드마스터DB', readOnly: true },
   skyjetMaster:  { sheetNames: ['제품','Sheet1','제품정보'], storageKey: 'shared_skyjet_master_v1', label: '스카이젯제품코드마스터DB', readOnly: true },
   vendorMaster:  { sheetNames: ['Sheet1','거래처','거래처정보','거래처마스터'], storageKey: 'shared_vendor_master_v1', label: '거래처정보마스터DB', headerHint: '매입처명', noPagination: true },
   // 제약사등록자료(테스트중): 표준코드가 없는 회사의 제약사상품정보(상품명/제품코드/표준코드)를 엑셀 업로드+표 형태로
@@ -2822,7 +2822,7 @@ function setUploadProcessing(id, isProcessing, fileName){
     if(dropLabel) dropLabel.classList.add('processing');
     if(fileInput) fileInput.disabled = true;
     const bigFileNote = id === 'productMaster'
-      ? ' (제품코드마스터DB는 데이터가 많아 읽는 데만 20~30초, 저장까지 합치면 1분 가까이 걸릴 수 있어요 — 창을 닫지 말고 기다려주세요)'
+      ? ' (다미스제품코드마스터DB는 데이터가 많아 읽는 데만 20~30초, 저장까지 합치면 1분 가까이 걸릴 수 있어요 — 창을 닫지 말고 기다려주세요)'
       : ' (페이지는 멈추지 않으니 다른 작업을 하며 기다리셔도 됩니다)';
     if(meta) meta.innerHTML = `⏳ <b>${fileName}</b> 처리 중이에요… 대용량 파일은 다소 시간이 걸릴 수 있어요${bigFileNote}`;
   } else {
@@ -2851,7 +2851,7 @@ async function handleFile(id, file){
   setUploadProcessing(id, false);
 }
 
-// 제품코드마스터DB 전용: 대표코드와 표준코드가 같은 품목은 소분 품목으로 간주해 소분열을 'Y'로 자동 보정합니다.
+// 다미스제품코드마스터DB 전용: 대표코드와 표준코드가 같은 품목은 소분 품목으로 간주해 소분열을 'Y'로 자동 보정합니다.
 // (매입전표입력 소분제외 로직, 반품신청서 소분 조회 등 소분열을 읽는 모든 기능에 그대로 반영됩니다.)
 function autoMarkSplitByRepCode(entry){
   if(!entry || !entry.headers || !entry.rows) return;
@@ -3280,7 +3280,7 @@ function bindUploadTab(id){
   });
 }
 
-// 제품코드마스터DB와 거래처정보마스터DB는 서로 다른 종류의 코드 체계를 쓰고
+// 다미스제품코드마스터DB와 거래처정보마스터DB는 서로 다른 종류의 코드 체계를 쓰고
 // (제품코드가 거래처코드와 우연히 겹칠 수 있음) 자동으로 섞이면 안 되므로,
 // 두 마스터DB는 완전히 독립적으로 관리합니다 — 자동으로 새 행을 만들지 않습니다.
 // 다만 발주담당자/반품담당자 업로드는 거래처정보마스터DB에 '이미 있는' 행을 찾아
@@ -4106,7 +4106,7 @@ function renderStockTable(){
 }
 
 // ================= 제약사별 반품 처리 현황(재고 및 파손재고현황 탭) =================
-// 제품코드마스터DB의 '제약사' 열에서 회사 목록을 뽑고, 회사별로 반품 접수·발송·완료 체크와
+// 다미스제품코드마스터DB의 '제약사' 열에서 회사 목록을 뽑고, 회사별로 반품 접수·발송·완료 체크와
 // 체크한 날짜, 반품주기(자유 입력)를 저장합니다. 모든 사람이 같이 보는 공유 데이터예요.
 const RETURN_CYCLE_STORAGE_KEY = 'shared_return_cycle_tracker_v1';
 let returnCycleTracker = {}; // { [제약사]: { received:{checked,date}, sent:{checked,date}, complete:{checked,date}, cycle:'' } }
@@ -4143,7 +4143,7 @@ function renderReturnCycleTable(){
   let list = returnCycleManufacturerList();
   if(!list.length){
     document.getElementById('count-returnCycle').textContent = '';
-    body.innerHTML = `<tr><td colspan="5" class="foot-note" style="text-align:left;">마스터DB &gt; 제품코드마스터DB에 '제약사' 열이 있는 데이터를 올리면 여기에 회사 목록이 나와요.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="5" class="foot-note" style="text-align:left;">마스터DB &gt; 다미스제품코드마스터DB에 '제약사' 열이 있는 데이터를 올리면 여기에 회사 목록이 나와요.</td></tr>`;
     return;
   }
   if(q) list = list.filter(c=> c.toLowerCase().includes(q));
@@ -5078,14 +5078,15 @@ function buildProductBarcodeMap(){
 }
 
 // 스카이젯제품코드마스터DB에서 표준코드 → {code(보험코드), name(제품명)}를 찾기 위한 맵을 만듭니다.
-// 매입전표입력(엑셀)-스카이젯에서만 쓰여요(진짜 공급내역신고는 기존 제품코드마스터DB를 그대로 써요).
+// 매입전표입력(엑셀)-스카이젯에서만 쓰여요(진짜 공급내역신고는 기존 다미스제품코드마스터DB를 그대로 써요).
 function buildSkyjetBarcodeMap(){
   const map = new Map();
   const sm = uploadState['skyjetMaster'];
   if(!sm || !sm.headers || !sm.rows) return map;
   const idxStd = sm.headers.indexOf('표준코드');
-  const idxCode = sm.headers.indexOf('보험코드');
+  const idxCode = sm.headers.indexOf('제품코드');
   const idxName = sm.headers.indexOf('제품명');
+  const idxOtherCode = sm.headers.indexOf('기타코드');
   if(idxStd === -1) return map;
   sm.rows.forEach(r=>{
     const std = String(r[idxStd] || '').trim();
@@ -5093,7 +5094,8 @@ function buildSkyjetBarcodeMap(){
     if(!map.has(std)){
       map.set(std, {
         code: idxCode!==-1 ? String(r[idxCode]||'').trim() : '',
-        name: idxName!==-1 ? String(r[idxName]||'').trim() : ''
+        name: idxName!==-1 ? String(r[idxName]||'').trim() : '',
+        otherCode: idxOtherCode!==-1 ? String(r[idxOtherCode]||'').trim() : ''
       });
     }
   });
@@ -5184,7 +5186,7 @@ function computeSupplyResults(){
     const expiry = expiryRaw ? ('20' + expiryRaw.padStart(6,'0')) : '';
 
     const prod = lookupProductByBarcode(barcodeRaw, productIndex, get(9));
-    // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
+    // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 다미스제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
     const barcode = prod && prod.barcode ? prod.barcode : barcodeRaw;
     const vend = vendorMap.get(vendorTaxNo) || null;
     if(vend && !supplySelectedVendor) supplySelectedVendor = vend;
@@ -5310,7 +5312,7 @@ function renderSupplyModeInfo(){
   const vendorPart = supplySelectedVendor && supplySelectedVendor.name ? `거래처: <b>${supplySelectedVendor.name}</b> · ` : '';
   const matched = supplyFinalRows.filter(r=>r.productCode).length;
   const matchPart = supplyFinalRows.length
-    ? ` · 제품코드마스터DB 매칭: <b>${matched}/${supplyFinalRows.length}건</b>${matched < supplyFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
+    ? ` · 다미스제품코드마스터DB 매칭: <b>${matched}/${supplyFinalRows.length}건</b>${matched < supplyFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
     : '';
   const reconciledCount = Array.from(supplyEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
   const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
@@ -5897,7 +5899,7 @@ function computeTempResults(){
     const expiry = expiryRaw ? ('20' + expiryRaw.padStart(6,'0')) : '';
 
     const prod = lookupProductByBarcode(barcodeRaw, productIndex, get(9));
-    // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
+    // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 다미스제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
     const barcode = prod && prod.barcode ? prod.barcode : barcodeRaw;
     const vend = vendorMap.get(vendorTaxNo) || null;
     if(vend && !tempSelectedVendor) tempSelectedVendor = vend;
@@ -5924,8 +5926,8 @@ function computeTempResults(){
     });
 
     return {
-      productCode: skyjetProd && skyjetProd.code ? skyjetProd.code : (prod ? prod.code : ''),
-      masterCode: prod ? prod.code : '', // 기존제품코드 열 전용: 항상 제품코드마스터DB(표준코드 매칭) 기준
+      productCode: skyjetProd ? skyjetProd.code : '',
+      masterCode: skyjetProd ? skyjetProd.otherCode : '', // 기존제품코드 열 전용: 스카이젯제품코드마스터DB의 기타코드
       barcode, dealType: 1, damageType: 1, qty, discount: '',
       lotNo, expiry,
       productName: skyjetProd && skyjetProd.name ? skyjetProd.name : get(9),
@@ -6026,7 +6028,7 @@ function renderTempModeInfo(){
   const vendorPart = tempSelectedVendor && tempSelectedVendor.name ? `거래처: <b>${tempSelectedVendor.name}</b> · ` : '';
   const matched = tempFinalRows.filter(r=>r.productCode).length;
   const matchPart = tempFinalRows.length
-    ? ` · 제품코드마스터DB 매칭: <b>${matched}/${tempFinalRows.length}건</b>${matched < tempFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
+    ? ` · 다미스제품코드마스터DB 매칭: <b>${matched}/${tempFinalRows.length}건</b>${matched < tempFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
     : '';
   const reconciledCount = Array.from(tempEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
   const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
@@ -6228,7 +6230,7 @@ function updateTempPasteInfo(){
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일(XLSX/XLS)은 항상 Sheet1.xls 매입등록 양식(제품코드·제품명·수량·할증·단가·제조번호·
 // 유효기한·기존제품코드·제조일자·표준코드)을 그대로 따릅니다. 제품코드·할증·제조일자는 이 데이터로는
-// 채울 수 없어서 항상 공란으로 두고, 기존제품코드는 표준코드로 제품코드마스터DB를 찾은 값이에요.
+// 채울 수 없어서 항상 공란으로 두고, 기존제품코드는 표준코드로 다미스제품코드마스터DB를 찾은 값이에요.
 const TEMP_EXPORT_COLUMNS = [
   { key:'productCode', label:'제품코드', blank:true },
   { key:'productName', label:'제품명' },
@@ -6554,17 +6556,17 @@ function tempPharmregNormCell(v){
 const TEMP_PHARMREG_PROFILES = {
   '유한양행': { headerRows: 1, idx: { stdCode:7, qty:12, unit:13, amount:14, lotNo:10, expiry:11, itemName:8 },
     forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 단가·실금액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    note:'이 회사 단가·실금액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '뉴신팜': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd', codeTableUploadId: 'pharminfo_newshin',
     note:'이 회사 자료엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드→단가)에서 단가를 가져와요.' },
   '티알엔': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd', codeTableUploadId: 'pharminfo_tr',
     note:'이 회사 자료엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드→단가)에서 단가를 가져와요.' },
   '일동제약': { dynamicHeader: { need: ['상품명','수량','단가'], map: { itemName:'상품명', itemSpec:'포장단위', qty:'수량', unit:'단가', amount:'공급가액', lotNo:'제조번호', expiry:'유통기한' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_ildong', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보에서 상품명으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가돼요. 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보에서 상품명으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가돼요. 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '에이치케이이노엔': { dynamicHeader: { need: ['품목','규격','수량'], map: { itemName:'품목', itemSpec:'규격', lotNo:'Lot.NO', expiry:'유효기간', qty:'수량', unit:'단가', amount:'공급가액' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '한독': { dynamicHeader: { need: ['의약품표준코드','판매수량','단가'], map: { stdCode:'의약품표준코드', itemName:'제품명', lotNo:'배치', expiry:'유효기간', qty:'판매수량', unit:'단가', amount:'판매가격' } } },
   '온라인팜': { dynamicHeader: { need: ['의약품표준코드','수량','제조번호'], map: { stdCode:'의약품표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간', amount:'공급가액' } } },
   '종근당': { headerRows: 1, idx: { stdCode:4, qty:6, unit:8, amount:null, lotNo:11, expiry:12, itemName:5 },
@@ -6683,6 +6685,7 @@ function renderTempPharmregProfileInfo(company, profile){
 
 function computeTempPharmregResults(){
   const productIndex = buildProductBarcodeMap();
+  const skyjetIndex = buildSkyjetBarcodeMap();
   const vendorNameMap = buildTempPharmregVendorNameMap();
   tempPharmregSelectedVendor = null;
   tempPharmregComputed = [];
@@ -6784,6 +6787,8 @@ function computeTempPharmregResults(){
     const prod = lookupProductByBarcode(stdCode, productIndex, itemName);
     const barcode = prod && prod.barcode ? prod.barcode : stdCode;
     const generalPrice = prod ? Number(prod.price)||0 : 0;
+    // 제품코드·제품명·기존제품코드는 스카이젯제품코드마스터DB에서 표준코드로 찾아요.
+    const skyjetProd = skyjetIndex.get(barcode) || null;
 
     const modes = {};
     if(profile.rawAlreadyExclusive){
@@ -6812,11 +6817,11 @@ function computeTempPharmregResults(){
     }
 
     tempPharmregComputed.push({
-      productCode: prod ? prod.code : '',
-      masterCode: prod ? prod.code : '', // 기존제품코드 열 전용
+      productCode: skyjetProd ? skyjetProd.code : '',
+      masterCode: skyjetProd ? skyjetProd.otherCode : '', // 기존제품코드 열 전용: 스카이젯제품코드마스터DB의 기타코드
       barcode, dealType: 1, damageType: 1, qty, discount: '',
       lotNo, expiry,
-      productName: itemName,
+      productName: skyjetProd && skyjetProd.name ? skyjetProd.name : itemName,
       maker: prod ? prod.maker : '',
       note: prod ? prod.note : '', longout: prod ? prod.longout : '',
       generalPrice, modes
@@ -6948,7 +6953,7 @@ function renderTempPharmregModeInfo(){
   const vendorPart = tempPharmregSelectedVendor && tempPharmregSelectedVendor.name ? `거래처: <b>${tempPharmregSelectedVendor.name}</b> · ` : '';
   const matched = tempPharmregFinalRows.filter(r=>r.productCode).length;
   const matchPart = tempPharmregFinalRows.length
-    ? ` · 제품코드마스터DB 매칭: <b>${matched}/${tempPharmregFinalRows.length}건</b>${matched < tempPharmregFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
+    ? ` · 다미스제품코드마스터DB 매칭: <b>${matched}/${tempPharmregFinalRows.length}건</b>${matched < tempPharmregFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
     : '';
   const reconciledCount = Array.from(tempPharmregEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
   const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
@@ -7232,15 +7237,15 @@ async function loadTempPharmregCodeTables(){
   }catch(e){}
 }
 // 제약사상품정보 표에서, 제품코드가 채워져 있는데 표준코드가 비어있는 줄을 찾아서
-// 제품코드마스터DB의 '코드' 컬럼과 매칭해 표준코드를 자동으로 채워줍니다.
+// 다미스제품코드마스터DB의 '코드' 컬럼과 매칭해 표준코드를 자동으로 채워줍니다.
 async function fillTempPharmregStdCodeFromProductCode(uploadId){
   const us = uploadState[uploadId];
   if(!us || !us.rows || !us.rows.length){ alert('먼저 제약사상품정보 데이터를 올려주세요.'); return; }
   const pm = uploadState['productMaster'];
-  if(!pm){ alert('제품코드마스터DB가 아직 없어요.'); return; }
+  if(!pm){ alert('다미스제품코드마스터DB가 아직 없어요.'); return; }
   const pmIdxCode = pm.headers.indexOf('코드');
   const pmIdxStd = pm.headers.indexOf('표준코드');
-  if(pmIdxCode === -1 || pmIdxStd === -1){ alert('제품코드마스터DB에서 코드/표준코드 컬럼을 찾지 못했어요.'); return; }
+  if(pmIdxCode === -1 || pmIdxStd === -1){ alert('다미스제품코드마스터DB에서 코드/표준코드 컬럼을 찾지 못했어요.'); return; }
   const codeToStd = new Map();
   pm.rows.forEach(r=>{
     const code = String(r[pmIdxCode]||'').trim();
@@ -7264,7 +7269,7 @@ async function fillTempPharmregStdCodeFromProductCode(uploadId){
   renderUploadTable(uploadId);
   updateUploadMeta(uploadId);
   await saveUpload(uploadId);
-  alert(filled ? `표준코드 ${filled}건을 채웠어요.` : '제품코드마스터DB와 매칭되는(표준코드가 비어있던) 줄이 없었어요.');
+  alert(filled ? `표준코드 ${filled}건을 채웠어요.` : '다미스제품코드마스터DB와 매칭되는(표준코드가 비어있던) 줄이 없었어요.');
   const company = (document.getElementById('tempPharmregCompany')||{}).value || '';
   if(tempPharmregRawRows.length && TEMP_PHARMREG_UPLOADTABLE_COMPANIES[company] === uploadId){
     computeTempPharmregResults();
@@ -7372,7 +7377,7 @@ function renderTempPharmregCompanyButtons(){
   const select = document.getElementById('tempPharmregCompany');
   const options = Array.from(select.options).map(o=>({ value: o.value || o.textContent, label: o.textContent }));
   const current = select.value;
-  const chipStyle = (active) => `padding:6px 14px; border-radius:999px; border:1px solid ${active?'var(--accent)':'var(--line)'}; background:${active?'var(--accent)':'#fff'}; color:${active?'#fff':'var(--ink)'}; font-size:13px; cursor:pointer; font-weight:${active?'700':'400'};`;
+  const chipStyle = (active) => `padding:6px 14px; border-radius:999px; border:1px solid ${active?'var(--accent)':'var(--line)'}; background:${active?'var(--accent)':'var(--panel)'}; color:${active?'#fff':'var(--ink)'}; font-size:13px; cursor:pointer; font-weight:${active?'700':'400'};`;
   let html = '';
   options.forEach(({value, label})=>{
     html += `<button type="button" class="tempPharmreg-chip" data-company="${value}" style="${chipStyle(current===value)}">${label}${value==='동아에스티'?' 🔗':''}</button>`;
@@ -7680,7 +7685,7 @@ function computeInboundResults(){
     const expiry = expiryRaw ? ('20' + expiryRaw.padStart(6,'0')) : '';
 
     const prod = lookupProductByBarcode(barcodeRaw, productIndex, get(10));
-    // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
+    // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 다미스제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
     const barcode = prod && prod.barcode ? prod.barcode : barcodeRaw;
     const vend = vendorMap.get(vendorTaxNo) || null;
     if(vend && !inboundSelectedVendor) inboundSelectedVendor = vend;
@@ -7806,7 +7811,7 @@ function renderInboundModeInfo(){
   const vendorPart = inboundSelectedVendor && inboundSelectedVendor.name ? `거래처: <b>${inboundSelectedVendor.name}</b> · ` : '';
   const matched = inboundFinalRows.filter(r=>r.productCode).length;
   const matchPart = inboundFinalRows.length
-    ? ` · 제품코드마스터DB 매칭: <b>${matched}/${inboundFinalRows.length}건</b>${matched < inboundFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
+    ? ` · 다미스제품코드마스터DB 매칭: <b>${matched}/${inboundFinalRows.length}건</b>${matched < inboundFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
     : '';
   const reconciledCount = Array.from(inboundEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
   const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
@@ -8119,7 +8124,7 @@ async function initInboundTab(){
 //   다미스자료 기준(완제품코드): WH2060E_구매반품검사&승인결과 엑셀 업로드 → 표준코드+수량 추출
 //   보험코드 기준(완제품코드)/소분코드: 코드+수량 붙여넣기(급여코드=약품코드 또는 비급여코드로 매칭)
 //   합산(보험코드 기준(소분코드)제외): 위 다미스자료·보험코드(완제품코드) 결과를 같은 품목끼리 수량 합산
-// 소분 처리: 완제품코드 조회에서 소분 품목이 걸리면 같은 약품코드의 소분 아닌 품목(제품코드마스터DB에
+// 소분 처리: 완제품코드 조회에서 소분 품목이 걸리면 같은 약품코드의 소분 아닌 품목(다미스제품코드마스터DB에
 // 먼저 나오는 순서)으로 자동 대체하고, 소분코드 조회는 반대로 소분 품목을 찾아줍니다.
 const PLOOKUP_STORAGE_KEY = 'stockout_dashboard_plookup_raw_v1';
 const PLOOKUP_DAMIS_STORAGE_KEY = 'stockout_dashboard_plookup_damis_v1';
@@ -8173,7 +8178,7 @@ function buildProductLookupMaps(){
       const k = String(r[idxDrug]).trim();
       if(!insMap.has(k)) insMap.set(k, r);
       if(!drugGroups.has(k)) drugGroups.set(k, []);
-      drugGroups.get(k).push(r); // 제품코드마스터DB에 나온 순서 그대로 쌓입니다(맨 앞이 '상위').
+      drugGroups.get(k).push(r); // 다미스제품코드마스터DB에 나온 순서 그대로 쌓입니다(맨 앞이 '상위').
     }
     if(idxNonIns!==-1 && r[idxNonIns]!==null && r[idxNonIns]!==undefined && String(r[idxNonIns]).trim()!==''){
       const k = String(r[idxNonIns]).trim();
@@ -8247,11 +8252,11 @@ function mergePlookupResultsByCode(results){
   });
 }
 
-// 매칭 안 된 코드도 결과에 표시해서, 제품코드마스터DB를 업데이트해야 하는지 바로 알 수 있게 합니다.
+// 매칭 안 된 코드도 결과에 표시해서, 다미스제품코드마스터DB를 업데이트해야 하는지 바로 알 수 있게 합니다.
 function plookupUnmatchedRow(inputCode, qty){
   return {
     inputCode, productCode: '', productName: '', spec: '', qty, maker: '', price: '',
-    stdCode: '', insCode: '', nonInsCode: '', note: '⚠ 매칭 안 됨 (제품코드마스터DB 확인 필요)'
+    stdCode: '', insCode: '', nonInsCode: '', note: '⚠ 매칭 안 됨 (다미스제품코드마스터DB 확인 필요)'
   };
 }
 
@@ -8562,7 +8567,7 @@ async function initPlookupTab(){
 }
 
 // ================= 제품정보조회(테스트용) =================
-// 새 업로드나 저장소 없이, 이미 올려둔 제품코드마스터DB(약품코드/비급여코드/표준코드/대표코드/상품명)만 보고
+// 새 업로드나 저장소 없이, 이미 올려둔 다미스제품코드마스터DB(약품코드/비급여코드/표준코드/대표코드/상품명)만 보고
 // 보험코드로 조회합니다. 표준코드가 대표코드와 같은 행이면 '소분용'으로 표시해요.
 // (붙여넣은 코드는 세션 동안만 유지되는 조회 전용 도구라 별도로 저장하지 않습니다.)
 let productInfoQueryCodes = [];
@@ -8604,7 +8609,7 @@ function renderProductInfoTable(){
   document.getElementById('count-productInfo').textContent = `${productInfoResults.length.toLocaleString()}건`;
   body.innerHTML = productInfoResults.map(r=>{
     if(!r.matched){
-      return `<tr style="color:var(--red);"><td>${r.code}</td><td colspan="4">일치하는 제품코드마스터DB 항목이 없어요</td></tr>`;
+      return `<tr style="color:var(--red);"><td>${r.code}</td><td colspan="4">일치하는 다미스제품코드마스터DB 항목이 없어요</td></tr>`;
     }
     const tag = r.isSplit ? `<span style="color:#fff; background:var(--accent); padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700;">소분용</span>` : '';
     return `<tr><td>${r.code}</td><td>${r.std}</td><td>${r.rep}</td><td>${r.name}</td><td>${tag}</td></tr>`;
@@ -8637,9 +8642,9 @@ function initProductInfoTab(){
 
 // ================= 제품정보검색2(테스트용) =================
 // 제품정보조회(위)가 보험코드 하나로 콕 짚어 찾는 도구였다면, 이건 조건(제약사/소분/기타)으로 걸러서
-// 여러 개를 훑어보는 도구입니다. 새 업로드 없이 기존 제품코드마스터DB를 그대로 씁니다.
+// 여러 개를 훑어보는 도구입니다. 새 업로드 없이 기존 다미스제품코드마스터DB를 그대로 씁니다.
 const PRODUCTSEARCH2_BASE_COLS = ['상품명','제약사','약품코드','비급여코드','표준코드','대표코드','소분'];
-// 아직 제품코드마스터DB에 없어도 되는 선택 열: 나중에 엑셀에 이 이름으로 열을 추가하면 자동으로 필터·표에 나타나요.
+// 아직 다미스제품코드마스터DB에 없어도 되는 선택 열: 나중에 엑셀에 이 이름으로 열을 추가하면 자동으로 필터·표에 나타나요.
 const PRODUCTSEARCH2_OPTIONAL_COLS = ['분류명','제형','구분','단종여부'];
 let productSearch2Page = 0;
 const PRODUCTSEARCH2_PAGE_SIZE = 50;
@@ -8711,7 +8716,7 @@ function renderProductSearch2Table(){
   const setup = productSearch2Setup();
   if(!setup){
     head.innerHTML = '';
-    body.innerHTML = `<tr><td class="foot-note" style="text-align:left;">마스터DB &gt; 제품코드마스터DB를 먼저 올려주세요.</td></tr>`;
+    body.innerHTML = `<tr><td class="foot-note" style="text-align:left;">마스터DB &gt; 다미스제품코드마스터DB를 먼저 올려주세요.</td></tr>`;
     document.getElementById('count-productSearch2').textContent = '';
     document.getElementById('pager-productSearch2').innerHTML = '';
     return;
@@ -9184,17 +9189,17 @@ function pharmregNormCell(v){
 const PHARMREG_PROFILES = {
   '유한양행': { headerRows: 1, idx: { stdCode:7, qty:12, unit:13, amount:14, lotNo:10, expiry:11, itemName:8 },
     forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 단가·실금액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    note:'이 회사 단가·실금액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '뉴신팜': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd', codeTableUploadId: 'pharminfo_newshin',
     note:'이 회사 자료엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드→단가)에서 단가를 가져와요.' },
   '티알엔': { dynamicHeader: { need: ['표준코드','수량','제조번호'], map: { stdCode:'표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간' } }, codeTable:'priceByStd', codeTableUploadId: 'pharminfo_tr',
     note:'이 회사 자료엔 단가가 없어서, 저장해둔 제약사상품정보(표준코드→단가)에서 단가를 가져와요.' },
   '일동제약': { dynamicHeader: { need: ['상품명','수량','단가'], map: { itemName:'상품명', itemSpec:'포장단위', qty:'수량', unit:'단가', amount:'공급가액', lotNo:'제조번호', expiry:'유통기한' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_ildong', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보에서 상품명으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가돼요. 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보에서 상품명으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가돼요. 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '에이치케이이노엔': { dynamicHeader: { need: ['품목','규격','수량'], map: { itemName:'품목', itemSpec:'규격', lotNo:'Lot.NO', expiry:'유효기간', qty:'수량', unit:'단가', amount:'공급가액' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '한독': { dynamicHeader: { need: ['의약품표준코드','판매수량','단가'], map: { stdCode:'의약품표준코드', itemName:'제품명', lotNo:'배치', expiry:'유효기간', qty:'판매수량', unit:'단가', amount:'판매가격' } } },
   '온라인팜': { dynamicHeader: { need: ['의약품표준코드','수량','제조번호'], map: { stdCode:'의약품표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간', amount:'공급가액' } } },
   '종근당': { headerRows: 1, idx: { stdCode:4, qty:6, unit:8, amount:null, lotNo:11, expiry:12, itemName:5 },
@@ -9563,7 +9568,7 @@ function renderPharmregModeInfo(){
   const vendorPart = pharmregSelectedVendor && pharmregSelectedVendor.name ? `거래처: <b>${pharmregSelectedVendor.name}</b> · ` : '';
   const matched = pharmregFinalRows.filter(r=>r.productCode).length;
   const matchPart = pharmregFinalRows.length
-    ? ` · 제품코드마스터DB 매칭: <b>${matched}/${pharmregFinalRows.length}건</b>${matched < pharmregFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
+    ? ` · 다미스제품코드마스터DB 매칭: <b>${matched}/${pharmregFinalRows.length}건</b>${matched < pharmregFinalRows.length ? ' (매칭 안 된 건은 표준코드·다미스코드명 칸이 비어있어요)' : ''}`
     : '';
   const reconciledCount = Array.from(pharmregEditsMap.values()).filter(e=>e.field==='실금액(오차보정)').length;
   const reconcilePart = reconciledCount ? ` · 매입전표 합계액과 맞추기 위해 <b>${reconciledCount}개 품목</b>의 실금액을 자동 보정했어요 (비고란 참고)` : '';
@@ -9834,15 +9839,15 @@ async function loadPharmregCodeTables(){
   }catch(e){}
 }
 // 제약사상품정보 표에서, 제품코드가 채워져 있는데 표준코드가 비어있는 줄을 찾아서
-// 제품코드마스터DB의 '코드' 컬럼과 매칭해 표준코드를 자동으로 채워줍니다.
+// 다미스제품코드마스터DB의 '코드' 컬럼과 매칭해 표준코드를 자동으로 채워줍니다.
 async function fillPharmregStdCodeFromProductCode(uploadId){
   const us = uploadState[uploadId];
   if(!us || !us.rows || !us.rows.length){ alert('먼저 제약사상품정보 데이터를 올려주세요.'); return; }
   const pm = uploadState['productMaster'];
-  if(!pm){ alert('제품코드마스터DB가 아직 없어요.'); return; }
+  if(!pm){ alert('다미스제품코드마스터DB가 아직 없어요.'); return; }
   const pmIdxCode = pm.headers.indexOf('코드');
   const pmIdxStd = pm.headers.indexOf('표준코드');
-  if(pmIdxCode === -1 || pmIdxStd === -1){ alert('제품코드마스터DB에서 코드/표준코드 컬럼을 찾지 못했어요.'); return; }
+  if(pmIdxCode === -1 || pmIdxStd === -1){ alert('다미스제품코드마스터DB에서 코드/표준코드 컬럼을 찾지 못했어요.'); return; }
   const codeToStd = new Map();
   pm.rows.forEach(r=>{
     const code = String(r[pmIdxCode]||'').trim();
@@ -9866,7 +9871,7 @@ async function fillPharmregStdCodeFromProductCode(uploadId){
   renderUploadTable(uploadId);
   updateUploadMeta(uploadId);
   await saveUpload(uploadId);
-  alert(filled ? `표준코드 ${filled}건을 채웠어요.` : '제품코드마스터DB와 매칭되는(표준코드가 비어있던) 줄이 없었어요.');
+  alert(filled ? `표준코드 ${filled}건을 채웠어요.` : '다미스제품코드마스터DB와 매칭되는(표준코드가 비어있던) 줄이 없었어요.');
   const company = (document.getElementById('pharmregCompany')||{}).value || '';
   if(pharmregRawRows.length && PHARMREG_UPLOADTABLE_COMPANIES[company] === uploadId){
     computePharmregResults();
@@ -9974,7 +9979,7 @@ function renderPharmregCompanyButtons(){
   const select = document.getElementById('pharmregCompany');
   const options = Array.from(select.options).map(o=>({ value: o.value || o.textContent, label: o.textContent }));
   const current = select.value;
-  const chipStyle = (active) => `padding:6px 14px; border-radius:999px; border:1px solid ${active?'var(--accent)':'var(--line)'}; background:${active?'var(--accent)':'#fff'}; color:${active?'#fff':'var(--ink)'}; font-size:13px; cursor:pointer; font-weight:${active?'700':'400'};`;
+  const chipStyle = (active) => `padding:6px 14px; border-radius:999px; border:1px solid ${active?'var(--accent)':'var(--line)'}; background:${active?'var(--accent)':'var(--panel)'}; color:${active?'#fff':'var(--ink)'}; font-size:13px; cursor:pointer; font-weight:${active?'700':'400'};`;
   let html = '';
   options.forEach(({value, label})=>{
     html += `<button type="button" class="pharmreg-chip" data-company="${value}" style="${chipStyle(current===value)}">${label}${value==='동아에스티'?' 🔗':''}</button>`;
