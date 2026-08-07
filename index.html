@@ -6275,7 +6275,8 @@ async function exportTempXlsx(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, (tempDecision ? tempDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
   XLSX.writeFile(wb, tempExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
 }
 
@@ -6287,7 +6288,8 @@ function exportTempXls(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, (tempDecision ? tempDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
   XLSX.writeFile(wb, tempExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
 }
 
@@ -7196,7 +7198,8 @@ async function exportTempPharmregXlsx(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_PHARMREG_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, (tempPharmregDecision ? tempPharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
   XLSX.writeFile(wb, tempPharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
 }
 
@@ -7208,7 +7211,8 @@ function exportTempPharmregXls(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_PHARMREG_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, (tempPharmregDecision ? tempPharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
+  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
   XLSX.writeFile(wb, tempPharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
 }
 
