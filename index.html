@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 11:05</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 12:05</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -1739,7 +1739,7 @@
               <div id="tempCalcWarning" style="display:none; color:var(--red); font-size:12px; font-weight:700; margin-top:6px;"></div>
             </div>
             <div style="flex:2 1 0; min-width:320px;">
-              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료' 시트의 데이터(헤더 없이 A~V, 22개 열)를 그대로 복사해서 아래 칸에 붙여넣거나, 파일로 올려도 돼요 · 다미스코드/제품정보는 마스터DB의 거래처정보마스터DB·다미스제품코드마스터DB에서 자동으로 불러와요</div>
+              <div class="foot-note" style="margin-bottom:8px;">엑셀 '공급내역신고자료'(건별, 헤더 없이 22개 열) 또는 '입고현황조회'(전체, 23개 열 — 헤더가 있어도 없어도 돼요) 데이터를 그대로 복사해서 아래 칸에 붙여넣거나, 파일로 올려도 돼요 — 어느 쪽인지는 자동으로 알아채요 · 제품코드·제품명·기존제품코드는 스카이젯제품코드마스터DB에서, 거래처 정보는 거래처정보마스터DB에서 자동으로 불러와요</div>
               <div class="foot-row" style="margin-bottom:6px;">
                 <label class="upload-drop compact" for="tempFileInput" style="flex:1 1 0;">
                   <span class="upload-icon">⬆</span>
@@ -5910,7 +5910,7 @@ function parseTempPasteText(text){
   // 특정 줄만 개별 판단하면, 셀 안에 줄바꿈이 섞여 밀린 줄이 콤마 규칙으로 잘못 쪼개져
   // 그 다음 줄부터 전부 컬럼이 밀리는 문제가 생길 수 있어 전체 텍스트 기준으로 통일합니다.
   const useTab = text.includes('\t');
-  return lines.map(line=>{
+  let rows = lines.map(line=>{
     if(useTab) return line.split('\t').map(v=>v.trim());
     // 콤마 CSV (따옴표로 감싸져 있을 수 있음)
     const out = [];
@@ -5924,30 +5924,62 @@ function parseTempPasteText(text){
     out.push(cur);
     return out.map(v=>v.trim());
   });
+  // '전체'(입고현황조회) 형식은 헤더 줄이 있을 수도, 없을 수도 있어요. 헤더가 있으면 건너뛰어야
+  // 첫 데이터 줄이 헤더 텍스트로 잘못 계산되지 않아서, 첫 줄의 수량 칸(14번째, N열)이 숫자가
+  // 아니면(헤더 텍스트로 보이면) 그 줄을 건너뜁니다. 헤더가 아예 없으면 이 조건에 안 걸려서 그대로 써요.
+  if(tempInputFormat === 'inbound' && rows.length){
+    const qtyCell = String(rows[0][13] || '').trim();
+    if(!qtyCell || isNaN(Number(qtyCell))) rows = rows.slice(1);
+  }
+  return rows;
 }
 
 // 엑셀에서 표준코드(바코드)가 숫자 형식이면 셀 너비/일반서식 때문에 "8.80675E+12" 처럼
 // 유효자리만 남기고 지수표기로 잘려서 복사되는 경우가 있습니다. 정확히 일치하는 코드가 없으면,
 // 같은 유효자리수로 반올림한 값끼리 비교해서 찾아주는 보조 색인(bySig)을 함께 만듭니다.
+// 붙여넣은 자료가 '건별'(헤더 없이 22열)인지 '전체'(헤더 있는 23열)인지 자동으로 판별해요.
+// 다미스와 똑같은 판별 로직(detectPayinputFormat)을 그대로 써서, 어느 쪽을 붙여넣어도
+// 다미스와 같은 열에서 값을 뽑아요 — 헤더가 없어도(전체 형식도 열 개수/날짜 패턴으로 구분되니까)
+// 정상적으로 인식돼요.
+let tempInputFormat = 'supply';
+
 function computeTempResults(){
   const productIndex = buildProductBarcodeMap();
   const skyjetIndex = buildSkyjetBarcodeMap();
   const vendorMap = buildVendorTaxMap();
   tempSelectedVendor = null;
+  const isInbound = tempInputFormat === 'inbound';
 
   tempComputed = tempRawRows.map(f=>{
     const get = i => (f[i] !== undefined ? f[i] : '');
-    const vendorTaxNo = String(get(1) || '').replace(/\D/g,'');
-    const barcodeRaw = String(get(10) || '').trim();
-    const qty = Number(get(12)) || 0;
-    const rawAmt = Number(get(14)) || 0;
-    const rawUnit = Number(get(15)) || 0;
-    const lotNoRaw = String(get(18) || '').trim();
-    const expiryRaw = String(get(19) || '').trim();
+    let vendorTaxNo, barcodeRaw, qty, rawAmt, rawUnit, lotNoRaw, expiryRaw, nameRaw;
+    if(isInbound){
+      // 입고현황조회(전체) 형식(헤더 있는 A~W): B(1)=사업자등록번호, K(10)=표준코드명칭, L(11)=표준코드,
+      // N(13)=공급수량, P(15)=공급단가, Q(16)=공급금액, S(18)=제조번호, T(19)=유효기간("YY-MM-DD")
+      vendorTaxNo = String(get(1) || '').replace(/\D/g,'');
+      barcodeRaw = String(get(11) || '').trim();
+      qty = Number(get(13)) || 0;
+      rawAmt = Number(String(get(16)||'').replace(/,/g,'')) || 0;
+      rawUnit = Number(String(get(15)||'').replace(/,/g,'')) || 0;
+      lotNoRaw = String(get(18) || '').trim();
+      expiryRaw = String(get(19) || '').trim().replace(/-/g,'');
+      nameRaw = get(10);
+    } else {
+      // 공급내역신고(건별) 형식(헤더 없이 A~V): B(1)=사업자번호, J(9)=상품명, K(10)=표준코드,
+      // M(12)=수량, O(14)=실금액, P(15)=단가, S(18)=제조번호, T(19)=사용기한(YYMMDD)
+      vendorTaxNo = String(get(1) || '').replace(/\D/g,'');
+      barcodeRaw = String(get(10) || '').trim();
+      qty = Number(get(12)) || 0;
+      rawAmt = Number(get(14)) || 0;
+      rawUnit = Number(get(15)) || 0;
+      lotNoRaw = String(get(18) || '').trim();
+      expiryRaw = String(get(19) || '').trim();
+      nameRaw = get(9);
+    }
     const lotNo = lotNoRaw ? lotNoRaw : '';
     const expiry = expiryRaw ? ('20' + expiryRaw.padStart(6,'0')) : '';
 
-    const prod = lookupProductByBarcode(barcodeRaw, productIndex, get(9));
+    const prod = lookupProductByBarcode(barcodeRaw, productIndex, nameRaw);
     // 매칭에 성공했으면 (지수표기로 잘렸던 코드라도) 다미스제품코드마스터DB의 정확한 표준코드로 바꿔서 보여줍니다.
     const barcode = prod && prod.barcode ? prod.barcode : barcodeRaw;
     const vend = vendorMap.get(vendorTaxNo) || null;
@@ -5979,7 +6011,7 @@ function computeTempResults(){
       masterCode: skyjetProd ? skyjetProd.otherCode : '', // 기존제품코드 열 전용: 스카이젯제품코드마스터DB의 기타코드
       barcode, dealType: 1, damageType: 1, qty, discount: '',
       lotNo, expiry,
-      productName: skyjetProd && skyjetProd.name ? skyjetProd.name : get(9),
+      productName: skyjetProd && skyjetProd.name ? skyjetProd.name : nameRaw,
       maker: prod ? prod.maker : '',
       note: prod ? prod.note : '', longout: prod ? prod.longout : '',
       generalPrice, modes
@@ -6266,7 +6298,9 @@ async function loadTempRaw(){
     const res = await window.storage.get(TEMP_STORAGE_KEY, true);
     if(res && res.value){
       tempRawRows = JSON.parse(res.value);
-      document.getElementById('tempPasteArea').value = tempRawRows.map(r=>r.join('\t')).join('\n');
+      const text = tempRawRows.map(r=>r.join('\t')).join('\n');
+      document.getElementById('tempPasteArea').value = text;
+      tempInputFormat = detectPayinputFormat(text) || 'supply';
     }
   }catch(e){ /* nothing saved yet */ }
 }
@@ -6360,6 +6394,7 @@ function bindTempTab(){
   });
   document.getElementById('tempApplyBtn').addEventListener('click', async ()=>{
     const text = document.getElementById('tempPasteArea').value;
+    tempInputFormat = detectPayinputFormat(text) || 'supply';
     tempRawRows = parseTempPasteText(text);
     computeTempResults();
     updateTempPasteInfo();
@@ -6367,7 +6402,7 @@ function bindTempTab(){
   });
   document.getElementById('tempClearBtn').addEventListener('click', async ()=>{
     if(!confirm('붙여넣은 공급내역신고 데이터를 지울까요?')) return;
-    tempRawRows = []; tempComputed = []; tempFinalRows = []; tempDecision = null; tempEditsMap = new Map();
+    tempRawRows = []; tempComputed = []; tempFinalRows = []; tempDecision = null; tempEditsMap = new Map(); tempInputFormat = 'supply';
     document.getElementById('tempPasteArea').value = '';
     updateTempPasteInfo();
     renderTempModeInfo();
@@ -7399,7 +7434,7 @@ function updateTempPharmregDongaSupplyAreaVisibility(){
 }
 
 // 일동제약은 명세서를 붙여넣기 대신 파일 업로드로 받습니다.
-const TEMP_PHARMREG_FILE_INPUT_COMPANIES = ['뉴신팜','유나이티드','동아에스티','온라인팜','일동제약','티알엔','한독','휴온스'];
+const TEMP_PHARMREG_FILE_INPUT_COMPANIES = ['뉴신팜','유나이티드','동아에스티','온라인팜','일동제약','티알엔','휴온스'];
 let tempPharmregMainFileName = '';
 function updateTempPharmregInputModeVisibility(){
   const company = document.getElementById('tempPharmregCompany').value;
@@ -10002,7 +10037,7 @@ function updatePharmregDongaSupplyAreaVisibility(){
 }
 
 // 일동제약은 명세서를 붙여넣기 대신 파일 업로드로 받습니다.
-const PHARMREG_FILE_INPUT_COMPANIES = ['뉴신팜','유나이티드','동아에스티','온라인팜','일동제약','티알엔','한독','휴온스'];
+const PHARMREG_FILE_INPUT_COMPANIES = ['뉴신팜','유나이티드','동아에스티','온라인팜','일동제약','티알엔','휴온스'];
 let pharmregMainFileName = '';
 function updatePharmregInputModeVisibility(){
   const company = document.getElementById('pharmregCompany').value;
