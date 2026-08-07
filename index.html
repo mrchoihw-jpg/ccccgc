@@ -5077,26 +5077,22 @@ function buildProductBarcodeMap(){
   return { map, bySig };
 }
 
-// 스카이젯제품코드마스터DB에서 표준코드 → {code(제품코드), name(제품명)}를 찾기 위한 맵을 만듭니다.
+// 스카이젯제품코드마스터DB에서 표준코드 → {code(보험코드), name(제품명)}를 찾기 위한 맵을 만듭니다.
 // 매입전표입력(엑셀)-스카이젯에서만 쓰여요(진짜 공급내역신고는 기존 제품코드마스터DB를 그대로 써요).
-// code는 마스터DB의 '제품코드' 열(B열)을 우선으로 쓰고, 그 열이 없는 파일이면 '보험코드' 열로 대체해요.
 function buildSkyjetBarcodeMap(){
   const map = new Map();
   const sm = uploadState['skyjetMaster'];
   if(!sm || !sm.headers || !sm.rows) return map;
   const idxStd = sm.headers.indexOf('표준코드');
-  const idxCode = sm.headers.indexOf('제품코드');
-  const idxCodeFallback = sm.headers.indexOf('보험코드');
+  const idxCode = sm.headers.indexOf('보험코드');
   const idxName = sm.headers.indexOf('제품명');
   if(idxStd === -1) return map;
   sm.rows.forEach(r=>{
     const std = String(r[idxStd] || '').trim();
     if(!std) return;
     if(!map.has(std)){
-      let code = idxCode!==-1 ? String(r[idxCode]||'').trim() : '';
-      if(!code && idxCodeFallback!==-1) code = String(r[idxCodeFallback]||'').trim();
       map.set(std, {
-        code,
+        code: idxCode!==-1 ? String(r[idxCode]||'').trim() : '',
         name: idxName!==-1 ? String(r[idxName]||'').trim() : ''
       });
     }
@@ -6231,11 +6227,10 @@ function updateTempPasteInfo(){
 
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일(XLSX/XLS)은 항상 Sheet1.xls 매입등록 양식(제품코드·제품명·수량·할증·단가·제조번호·
-// 유효기한·기존제품코드·제조일자·표준코드)을 그대로 따릅니다. 제품코드는 스카이젯제품코드마스터DB에서
-// 표준코드로 찾은 값(못 찾으면 제품코드마스터DB 값)을 그대로 내려주고, 할증·제조일자는 이 데이터로는
-// 채울 수 없어서 공란으로 두고, 기존제품코드는 표준코드로 제품코드마스터DB를 찾은 값이에요.
+// 유효기한·기존제품코드·제조일자·표준코드)을 그대로 따릅니다. 제품코드·할증·제조일자는 이 데이터로는
+// 채울 수 없어서 항상 공란으로 두고, 기존제품코드는 표준코드로 제품코드마스터DB를 찾은 값이에요.
 const TEMP_EXPORT_COLUMNS = [
-  { key:'productCode', label:'제품코드' },
+  { key:'productCode', label:'제품코드', blank:true },
   { key:'productName', label:'제품명' },
   { key:'qty', label:'수량', num:true },
   { key:'surcharge', label:'할증', blank:true },
@@ -6688,7 +6683,6 @@ function renderTempPharmregProfileInfo(company, profile){
 
 function computeTempPharmregResults(){
   const productIndex = buildProductBarcodeMap();
-  const skyjetIndex = buildSkyjetBarcodeMap();
   const vendorNameMap = buildTempPharmregVendorNameMap();
   tempPharmregSelectedVendor = null;
   tempPharmregComputed = [];
@@ -6790,8 +6784,6 @@ function computeTempPharmregResults(){
     const prod = lookupProductByBarcode(stdCode, productIndex, itemName);
     const barcode = prod && prod.barcode ? prod.barcode : stdCode;
     const generalPrice = prod ? Number(prod.price)||0 : 0;
-    // 제품코드는 스카이젯제품코드마스터DB에서 표준코드로 찾아요(못 찾으면 기존 방식으로 대체).
-    const skyjetProd = skyjetIndex.get(barcode) || null;
 
     const modes = {};
     if(profile.rawAlreadyExclusive){
@@ -6820,8 +6812,8 @@ function computeTempPharmregResults(){
     }
 
     tempPharmregComputed.push({
-      productCode: skyjetProd && skyjetProd.code ? skyjetProd.code : (prod ? prod.code : ''),
-      masterCode: prod ? prod.code : '', // 기존제품코드 열 전용: 항상 제품코드마스터DB(표준코드 매칭) 기준
+      productCode: prod ? prod.code : '',
+      masterCode: prod ? prod.code : '', // 기존제품코드 열 전용
       barcode, dealType: 1, damageType: 1, qty, discount: '',
       lotNo, expiry,
       productName: itemName,
@@ -7157,9 +7149,8 @@ function updateTempPharmregPasteInfo(){
 
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일(XLSX/XLS)은 항상 Sheet1.xls 매입등록 양식을 그대로 따릅니다(공급내역신고 자료 모드와 동일).
-// 제품코드는 스카이젯제품코드마스터DB에서 표준코드로 찾은 값(못 찾으면 제품코드마스터DB 값)을 그대로 내려줘요.
 const TEMP_PHARMREG_EXPORT_COLUMNS = [
-  { key:'productCode', label:'제품코드' },
+  { key:'productCode', label:'제품코드', blank:true },
   { key:'productName', label:'제품명' },
   { key:'qty', label:'수량', num:true },
   { key:'surcharge', label:'할증', blank:true },
