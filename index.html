@@ -6229,10 +6229,11 @@ function updateTempPasteInfo(){
 
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일(XLSX/XLS)은 항상 Sheet1.xls 매입등록 양식(제품코드·제품명·수량·할증·단가·제조번호·
-// 유효기한·기존제품코드·제조일자·표준코드)을 그대로 따릅니다. 제품코드·할증·제조일자는 이 데이터로는
-// 채울 수 없어서 항상 공란으로 두고, 기존제품코드는 표준코드로 다미스제품코드마스터DB를 찾은 값이에요.
+// 유효기한·기존제품코드·제조일자·표준코드)을 그대로 따릅니다. 제품코드는 스카이젯제품코드마스터DB에서
+// 표준코드로 찾은 값을 채우고(ERP 엑셀등록 시 제품코드가 비어있으면 오류가 나요), 할증·제조일자는
+// 이 데이터로는 채울 수 없어서 공란으로 두고, 기존제품코드는 표준코드로 다미스제품코드마스터DB를 찾은 값이에요.
 const TEMP_EXPORT_COLUMNS = [
-  { key:'productCode', label:'제품코드', blank:true },
+  { key:'productCode', label:'제품코드' },
   { key:'productName', label:'제품명' },
   { key:'qty', label:'수량', num:true },
   { key:'surcharge', label:'할증', blank:true },
@@ -7156,8 +7157,10 @@ function updateTempPharmregPasteInfo(){
 
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일(XLSX/XLS)은 항상 Sheet1.xls 매입등록 양식을 그대로 따릅니다(공급내역신고 자료 모드와 동일).
+// 제품코드는 스카이젯제품코드마스터DB에서 표준코드로 찾은 값을 채워요(ERP 엑셀등록 시 제품코드가
+// 비어있으면 오류가 나요).
 const TEMP_PHARMREG_EXPORT_COLUMNS = [
-  { key:'productCode', label:'제품코드', blank:true },
+  { key:'productCode', label:'제품코드' },
   { key:'productName', label:'제품명' },
   { key:'qty', label:'수량', num:true },
   { key:'surcharge', label:'할증', blank:true },
