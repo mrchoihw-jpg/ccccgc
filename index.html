@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 10:05</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 10:25</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -6614,8 +6614,8 @@ const TEMP_PHARMREG_PROFILES = {
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_ildong', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
     note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보에서 상품명으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가돼요. 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '에이치케이이노엔': { dynamicHeader: { need: ['품목','규격','수량'], map: { itemName:'품목', itemSpec:'규격', lotNo:'Lot.NO', expiry:'유효기간', qty:'수량', unit:'단가', amount:'공급가액' } },
-    codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true, computeAmtFromUnitQty: true,
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요 · 금액은 명세서 원본 공급가액 대신 항상 단가×수량으로 다시 계산해요(원본 공급가액이 실제 단가×수량과 안 맞는 경우가 있어서요).' },
   '한독': { dynamicHeader: { need: ['의약품표준코드','판매수량','단가'], map: { stdCode:'의약품표준코드', itemName:'제품명', lotNo:'배치', expiry:'유효기간', qty:'판매수량', unit:'단가', amount:'판매가격' } },
     forceVatMode: '별도', rawAlreadyExclusive: true, // 이 파일의 단가는 이미 부가세 별도 금액이라 그대로 씁니다.
   },
@@ -6847,7 +6847,8 @@ function computeTempPharmregResults(){
       // 1.1로 나누는 계산 없이 그대로 쓰고, 일반가(부가세 포함)와 비교할 때만 1.1로 나눠 마진을 냅니다.
       const compareBase = generalPrice ? generalPrice/1.1 : 0;
       const margin = compareBase ? ((compareBase - rawUnit) / compareBase) : null;
-      TEMP_PHARMREG_MODES.forEach(m=>{ modes[m.id] = { amt: rawAmt, unit: rawUnit, margin }; });
+      const finalAmt = profile.computeAmtFromUnitQty ? rawUnit * qty : rawAmt;
+      TEMP_PHARMREG_MODES.forEach(m=>{ modes[m.id] = { amt: finalAmt, unit: rawUnit, margin }; });
     } else {
     TEMP_PHARMREG_MODES.forEach(m=>{
       let amt, unit;
@@ -9249,8 +9250,8 @@ const PHARMREG_PROFILES = {
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_ildong', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
     note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보에서 상품명으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가돼요. 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
   '에이치케이이노엔': { dynamicHeader: { need: ['품목','규격','수량'], map: { itemName:'품목', itemSpec:'규격', lotNo:'Lot.NO', expiry:'유효기간', qty:'수량', unit:'단가', amount:'공급가액' } },
-    codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true, computeAmtFromUnitQty: true,
+    note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요 · 금액은 명세서 원본 공급가액 대신 항상 단가×수량으로 다시 계산해요(원본 공급가액이 실제 단가×수량과 안 맞는 경우가 있어서요).' },
   '한독': { dynamicHeader: { need: ['의약품표준코드','판매수량','단가'], map: { stdCode:'의약품표준코드', itemName:'제품명', lotNo:'배치', expiry:'유효기간', qty:'판매수량', unit:'단가', amount:'판매가격' } } },
   '온라인팜': { dynamicHeader: { need: ['의약품표준코드','수량','제조번호'], map: { stdCode:'의약품표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간', amount:'공급가액' } } },
   '종근당': { headerRows: 1, idx: { stdCode:4, qty:6, unit:8, amount:null, lotNo:11, expiry:12, itemName:5 },
@@ -9463,7 +9464,8 @@ function computePharmregResults(){
       // 1.1로 나누는 계산 없이 그대로 쓰고, 일반가(부가세 포함)와 비교할 때만 1.1로 나눠 마진을 냅니다.
       const compareBase = generalPrice ? generalPrice/1.1 : 0;
       const margin = compareBase ? ((compareBase - rawUnit) / compareBase) : null;
-      PHARMREG_MODES.forEach(m=>{ modes[m.id] = { amt: rawAmt, unit: rawUnit, margin }; });
+      const finalAmt = profile.computeAmtFromUnitQty ? rawUnit * qty : rawAmt;
+      PHARMREG_MODES.forEach(m=>{ modes[m.id] = { amt: finalAmt, unit: rawUnit, margin }; });
     } else {
     PHARMREG_MODES.forEach(m=>{
       let amt, unit;
