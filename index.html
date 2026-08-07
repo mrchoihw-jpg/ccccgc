@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 12:05</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 23:28</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -2772,14 +2772,30 @@ function pickEssentialColumns(headers, rows, essentialColumns){
 }
 
 self.onmessage = function(e){
-  const { buf, sheetNames, headerHint, essentialColumns, sheetKeyword } = e.data;
+  const { buf, filename, sheetNames, headerHint, essentialColumns, sheetKeyword } = e.data;
   try{
-    const wb = XLSX.read(buf, { type:'array', cellDates:false });
-    const sheetName = sheetNames.find(n => wb.SheetNames.includes(n))
-      || (sheetKeyword && wb.SheetNames.find(n => n.includes(sheetKeyword)))
-      || wb.SheetNames[0];
-    const ws = wb.Sheets[sheetName];
-    const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null });
+    let aoa;
+    if(/\.csv$/i.test(filename || '')){
+      // CSV는 파일 안에 인코딩 정보가 없어요. UTF-8로 읽어서 한글이 깨진 것 같으면(정부 공공데이터에
+      // 흔한 EUC-KR/CP949 저장) EUC-KR로 다시 읽어요.
+      let text = new TextDecoder('utf-8').decode(buf);
+      const sample = text.slice(0, 2000);
+      const badCount = (sample.match(/[\uFFFD\u00C0-\u00FF]/g) || []).length;
+      if(sample && badCount > sample.length * 0.05){
+        try{ text = new TextDecoder('euc-kr').decode(buf); }catch(err){ /* 지원 안 하면 utf-8 결과라도 씁니다 */ }
+      }
+      const wbCsv = XLSX.read(text, { type:'string' });
+      const wsCsv = wbCsv.Sheets[wbCsv.SheetNames[0]];
+      aoa = XLSX.utils.sheet_to_json(wsCsv, { header:1, raw:true, defval:null });
+      var sheetName = wbCsv.SheetNames[0];
+    } else {
+      const wb = XLSX.read(buf, { type:'array', cellDates:false });
+      sheetName = sheetNames.find(n => wb.SheetNames.includes(n))
+        || (sheetKeyword && wb.SheetNames.find(n => n.includes(sheetKeyword)))
+        || wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null });
+    }
     const { headerIdx, dataStart } = detectHeaderRow(aoa, headerHint);
     const rawHeaders = aoa[headerIdx].map((h,i)=> (h===null||h==='') ? ('열'+(i+1)) : String(h));
     const rawRows = aoa.slice(dataStart).filter(r => r.some(v => v!==null && v!==''));
@@ -2803,7 +2819,7 @@ function getParseWorker(){
   return parseWorker;
 }
 
-function parseFileInWorker(buf, cfg){
+function parseFileInWorker(buf, cfg, filename){
   return new Promise((resolve, reject)=>{
     const worker = getParseWorker();
     const handleMessage = (e)=>{
@@ -2819,7 +2835,7 @@ function parseFileInWorker(buf, cfg){
     };
     worker.addEventListener('message', handleMessage);
     worker.addEventListener('error', handleError);
-    worker.postMessage({ buf, sheetNames: cfg.sheetNames, headerHint: cfg.headerHint, essentialColumns: cfg.essentialColumns, sheetKeyword: cfg.sheetKeyword }, [buf]);
+    worker.postMessage({ buf, filename, sheetNames: cfg.sheetNames, headerHint: cfg.headerHint, essentialColumns: cfg.essentialColumns, sheetKeyword: cfg.sheetKeyword }, [buf]);
   });
 }
 
@@ -2885,7 +2901,7 @@ async function handleFile(id, file){
   setUploadProcessing(id, true, file.name);
   try{
     const buf = await file.arrayBuffer();
-    const result = await parseFileInWorker(buf, cfg);
+    const result = await parseFileInWorker(buf, cfg, file.name);
     await finishUploadProcessing(id, {
       headers: result.headers, rows: result.rows, sheetUsed: result.sheetName, fileName: file.name,
       trimmedColumns: result.trimmed ? { original: result.originalColumnCount, kept: result.keptColumnCount } : null
@@ -5678,12 +5694,35 @@ function switchPayinputMode(mode){
   const radio = document.querySelector(`input[name="payinputMode"][value="${mode}"]`);
   if(radio && !radio.checked){ radio.checked = true; radio.dispatchEvent(new Event('change')); }
 }
+// CSV 파일은 어떤 인코딩으로 저장됐는지 파일 안에 정보가 없어요(엑셀 xlsx/xls와 다르게).
+// 브라우저가 기본으로 가정하는 UTF-8이 아니라 EUC-KR/CP949로 저장된 한글 CSV(정부 공공데이터에 흔해요)를
+// 그대로 읽으면 글자가 깨져요("Á¦Ç°¸í" 처럼). UTF-8로 읽은 결과에 이상한 글자가 많으면 EUC-KR로 다시 읽어요.
+function looksMojibake(text){
+  const sample = text.slice(0, 2000);
+  if(!sample) return false;
+  const bad = (sample.match(/[\uFFFD\u00C0-\u00FF]/g) || []).length;
+  return bad > sample.length * 0.05;
+}
+function readWorkbookAoaFromBuffer(buf, filename){
+  const isCsv = /\.csv$/i.test(filename || '');
+  if(isCsv){
+    let text = new TextDecoder('utf-8').decode(buf);
+    if(looksMojibake(text)){
+      try{ text = new TextDecoder('euc-kr').decode(buf); }catch(e){ /* 브라우저가 euc-kr을 지원 안 하면 utf-8 결과라도 씁니다 */ }
+    }
+    const wb = XLSX.read(text, { type:'string' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+  }
+  const wb = XLSX.read(buf, { type:'array' });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+}
+
 // 엑셀/CSV 파일을 읽어서, 붙여넣기 칸에 그대로 넣을 수 있는 탭 구분 텍스트로 바꿔줍니다.
 async function readWorkbookAsTsv(file){
   const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type:'array' });
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+  const aoa = readWorkbookAoaFromBuffer(buf, file.name);
   return aoa.map(row => row.map(v => v===null ? '' : v).join('\t')).join('\n');
 }
 
@@ -7551,9 +7590,7 @@ function bindTempPharmregTab(){
     const file = e.target.files[0];
     if(!file) return;
     const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type:'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+    const aoa = readWorkbookAoaFromBuffer(buf, file.name);
     tempPharmregRawRows = aoa.map(row => row.map(v => v===null ? '' : v));
     tempPharmregMainFileName = file.name;
     updateTempPharmregFileInfo();
@@ -10154,9 +10191,7 @@ function bindPharmregTab(){
     const file = e.target.files[0];
     if(!file) return;
     const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type:'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const aoa = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+    const aoa = readWorkbookAoaFromBuffer(buf, file.name);
     pharmregRawRows = aoa.map(row => row.map(v => v===null ? '' : v));
     pharmregMainFileName = file.name;
     updatePharmregFileInfo();
