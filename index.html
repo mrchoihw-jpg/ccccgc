@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 06:30</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 09:00</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -2611,7 +2611,11 @@ const UPLOAD_CONFIGS = {
   // 써서, 나중에 다른 도구에서도 같은 키로 읽어 연동할 수 있게 준비해둡니다. 제품코드와 거래처코드는 체계가 달라
   // (우연히 겹칠 수 있음) 서로 자동으로 연동하지 않고 완전히 독립적으로 관리합니다.
   productMaster: { sheetNames: ['Sheet','제품코드','상품코드','제품코드마스터'], storageKey: 'shared_product_master_v1', label: '다미스제품코드마스터DB', readOnly: true },
-  skyjetMaster:  { sheetNames: ['제품','Sheet1','제품정보'], storageKey: 'shared_skyjet_master_v1', label: '스카이젯제품코드마스터DB', readOnly: true },
+  skyjetMaster:  { sheetNames: ['제품','Sheet1','제품정보'], storageKey: 'shared_skyjet_master_v1', label: '스카이젯제품코드마스터DB', readOnly: true,
+                 // 원본 파일이 59개 열(약 45MB)이라 그대로 저장하면 조각이 너무 많아져서 저장이 자주 실패해요.
+                 // 실제로 쓰는 5개 열만 자동으로 추려서 저장하면 2~3MB 수준으로 줄어 안정적으로 저장돼요.
+                 // 열 이름으로 찾기 때문에, 원본 그대로 올리든 이미 일부만 담긴 파일을 올리든 안전하게 동작해요.
+                 essentialColumns: { names: ['제품코드','제품명','제조사','표준코드','기타코드'] } },
   vendorMaster:  { sheetNames: ['Sheet1','거래처','거래처정보','거래처마스터'], storageKey: 'shared_vendor_master_v1', label: '거래처정보마스터DB', headerHint: '매입처명', noPagination: true },
   // 제약사등록자료(테스트중): 표준코드가 없는 회사의 제약사상품정보(상품명/제품코드/표준코드)를 엑셀 업로드+표 형태로
   // 관리합니다. 명세서상의 미매칭 품목은 이 표에 표준코드 빈 채로 자동 추가되고, 표 안에서 바로 수기 수정할 수 있어요.
@@ -2684,6 +2688,18 @@ function detectHeaderRow(aoa, headerHint){
 
 function pickEssentialColumns(headers, rows, essentialColumns){
   if(!essentialColumns) return { headers, rows, trimmed: false };
+  if(essentialColumns.names){
+    // 열 이름으로 찾습니다 — 원본 파일의 열 순서가 달라져도(또는 이미 일부만 담긴 파일이어도) 안전해요.
+    const keepIdx = essentialColumns.names.map(n => headers.indexOf(n)).filter(i => i !== -1);
+    if(keepIdx.length === 0) return { headers, rows, trimmed: false };
+    return {
+      headers: keepIdx.map(i => headers[i]),
+      rows: rows.map(r => keepIdx.map(i => r[i])),
+      trimmed: true,
+      originalColumnCount: headers.length,
+      keptColumnCount: keepIdx.length
+    };
+  }
   if(essentialColumns.colIndexes){
     // 열 이름이 아니라 엑셀 열 위치(0-based) 기준으로 뽑습니다 — 예: 우선처별 재고 및 매입실적 시트는
     // '%' 헤더가 두 번 나와서 이름 매칭으로는 어떤 '%'인지 구분할 수 없기 때문입니다.
@@ -6229,9 +6245,8 @@ function updateTempPasteInfo(){
 
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일(XLSX/XLS)은 항상 Sheet1.xls 매입등록 양식(제품코드·제품명·수량·할증·단가·제조번호·
-// 유효기한·기존제품코드·제조일자·표준코드)을 그대로 따릅니다. 제품코드는 스카이젯제품코드마스터DB에서
-// 표준코드로 찾은 값을 채우고(ERP 엑셀등록 시 제품코드가 비어있으면 오류가 나요), 할증·제조일자는
-// 이 데이터로는 채울 수 없어서 공란으로 두고, 기존제품코드는 표준코드로 다미스제품코드마스터DB를 찾은 값이에요.
+// 유효기한·기존제품코드·제조일자·표준코드)을 그대로 따릅니다. 제품코드·할증·제조일자는 이 데이터로는
+// 채울 수 없어서 항상 공란으로 두고, 기존제품코드는 표준코드로 다미스제품코드마스터DB를 찾은 값이에요.
 const TEMP_EXPORT_COLUMNS = [
   { key:'productCode', label:'제품코드' },
   { key:'productName', label:'제품명' },
@@ -6276,8 +6291,7 @@ async function exportTempXlsx(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  XLSX.utils.book_append_sheet(wb, ws, (tempDecision ? tempDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, tempExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
 }
 
@@ -6289,8 +6303,7 @@ function exportTempXls(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  XLSX.utils.book_append_sheet(wb, ws, (tempDecision ? tempDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, tempExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
 }
 
@@ -6570,11 +6583,12 @@ const TEMP_PHARMREG_PROFILES = {
   '에이치케이이노엔': { dynamicHeader: { need: ['품목','규격','수량'], map: { itemName:'품목', itemSpec:'규격', lotNo:'Lot.NO', expiry:'유효기간', qty:'수량', unit:'단가', amount:'공급가액' } },
     codeTable:'stdByName', codeTableUploadId: 'pharminfo_hk', autoAddUnmatchedToCodeTable: true, forceVatMode: '별도', rawAlreadyExclusive: true,
     note:'이 회사 자료엔 표준코드가 없어서, 저장해둔 제약사상품정보(상품명/제품코드/표준코드)에서 제품명(품목)으로 표준코드를 찾아요. 명세서에 있는데 제약사상품정보에 없는 품목은 표준코드가 빈 채로 자동 추가되니, 나중에 제품코드·표준코드만 채워주시면 돼요. 이 회사 단가·공급가액은 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
-  '한독': { dynamicHeader: { need: ['의약품표준코드','판매수량','단가'], map: { stdCode:'의약품표준코드', itemName:'제품명', lotNo:'배치', expiry:'유효기간', qty:'판매수량', unit:'단가', amount:'판매가격' } } },
+  '한독': { dynamicHeader: { need: ['의약품표준코드','판매수량','단가'], map: { stdCode:'의약품표준코드', itemName:'제품명', lotNo:'배치', expiry:'유효기간', qty:'판매수량', unit:'단가', amount:'판매가격' } },
+    forceVatMode: '별도', rawAlreadyExclusive: true, // 이 파일의 단가는 이미 부가세 별도 금액이라 그대로 씁니다.
+  },
   '온라인팜': { dynamicHeader: { need: ['의약품표준코드','수량','제조번호'], map: { stdCode:'의약품표준코드', itemName:'제품명', qty:'수량', lotNo:'제조번호', expiry:'유효기간', amount:'공급가액' } } },
   '종근당': { headerRows: 1, idx: { stdCode:4, qty:6, unit:8, amount:null, lotNo:11, expiry:12, itemName:5 },
-    forceVatMode: '별도', rawAlreadyExclusive: true,
-    note:'이 회사는 표준코드 컬럼이 따로 없어서, 품목코드를 표준코드로 그대로 사용해요(원본 수식과 동일). 단가는 항상 부가세 별도 금액이라(추정 아님), 1.1로 나누는 계산 없이 그대로 쓰고, 다미스제품코드마스터DB 일반가(부가세 포함)와 비교할 때만 일반가를 1.1로 나눠서 마진을 계산해요.' },
+    note:'이 회사는 표준코드 컬럼이 따로 없어서, 품목코드를 표준코드로 그대로 사용해요(원본 수식과 동일).' },
   '휴온스': { dynamicHeader: { need: ['표준코드','수량','단가'], map: { stdCode:'표준코드', itemName:'제품명', lotNo:'제조번호', expiry:'유효일자', qty:'수량', unit:'단가' } },
     note:'원본 엑셀 수식은 실금액 칸에 단가를 잘못 넣고 있어서(수식 오류로 보여요), 여기서는 수량×단가로 정확히 계산했어요.' },
   '팜베이': { headerRows: 1, idx: { stdCode:10, qty:6, unit:5, amount:7, lotNo:8, expiry:9, itemName:3 } },
@@ -7158,8 +7172,6 @@ function updateTempPharmregPasteInfo(){
 
 // 수정 내역을 표 마지막에 별도 블록으로 덧붙인, 내보내기용 행 배열(일반 객체)을 만듭니다.
 // 다운로드 파일(XLSX/XLS)은 항상 Sheet1.xls 매입등록 양식을 그대로 따릅니다(공급내역신고 자료 모드와 동일).
-// 제품코드는 스카이젯제품코드마스터DB에서 표준코드로 찾은 값을 채워요(ERP 엑셀등록 시 제품코드가
-// 비어있으면 오류가 나요).
 const TEMP_PHARMREG_EXPORT_COLUMNS = [
   { key:'productCode', label:'제품코드' },
   { key:'productName', label:'제품명' },
@@ -7202,8 +7214,7 @@ async function exportTempPharmregXlsx(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_PHARMREG_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  XLSX.utils.book_append_sheet(wb, ws, (tempPharmregDecision ? tempPharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, tempPharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xlsx', { bookType:'xlsx' });
 }
 
@@ -7215,8 +7226,7 @@ function exportTempPharmregXls(){
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   forceTextFormatForColumns(ws, TEMP_PHARMREG_EXPORT_COLUMNS, ['productCode','masterCode','barcode','lotNo'], rows.length);
   const wb = XLSX.utils.book_new();
-  // 매입등록 양식(Sheet1.xls)과 시트 탭 이름까지 그대로 맞춰야 ERP에서 인식해요.
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  XLSX.utils.book_append_sheet(wb, ws, (tempPharmregDecision ? tempPharmregDecision.mode : '공급내역신고').replace(/[\\/*?:[\]]/g,'').slice(0,31));
   XLSX.writeFile(wb, tempPharmregExportFileBaseName() + '_' + new Date().toISOString().slice(0,10) + '.xls', { bookType:'xls' });
 }
 
