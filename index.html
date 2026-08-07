@@ -585,7 +585,7 @@
         <div class="sub">동원약품그룹 · <b id="dataDate">-</b> 기준 · 셀을 클릭해 값을 바로 수정할 수 있어요 · 저장한 내용은 이 대시보드를 보는 모든 사람에게 공유돼요 · <span id="lastSavedGlobal">아직 저장 이력 없음</span></div>
       </div>
     </div>
-    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 23:28</div>
+    <div class="head-updated" id="dashUpdatedBadge">업데이트 2026-08-07 23:40</div>
     <button class="btn" id="themeToggleBtn" style="align-self:flex-start;">🌙 다크 모드</button>
     <div class="head-actions">
       <button class="btn primary" id="saveBtn">💾 저장</button>
@@ -3037,6 +3037,23 @@ async function storageSetWithRetry(key, value, shared, retries){
   throw lastErr || new Error('알 수 없는 저장 오류');
 }
 
+// window.storage.get()도 저장(set)과 마찬가지로 가끔 응답이 안 올 수 있어요. 특히 여러 조각으로
+// 나눠 저장한 데이터는 조각 하나만 못 불러와도 그만큼 행이 통째로 빠진 채로 보여서 "데이터가
+// 지워졌다"처럼 보일 수 있어서, 저장할 때와 똑같이 재시도하게 만들었어요.
+async function storageGetWithRetry(key, shared, retries){
+  retries = retries === undefined ? 3 : retries;
+  let lastErr = null;
+  for(let attempt=0; attempt<=retries; attempt++){
+    try{
+      return await window.storage.get(key, shared);
+    }catch(e){
+      lastErr = e;
+    }
+    if(attempt < retries) await new Promise(r=>setTimeout(r, 500 + attempt*600));
+  }
+  throw lastErr || new Error('알 수 없는 조회 오류');
+}
+
 function splitRowsIntoChunks(rows, maxBytes){
   if(rows.length === 0) return [[]];
   const totalBytes = byteLengthOf(rows);
@@ -3059,30 +3076,50 @@ async function saveUpload(id){
     const now = new Date().toISOString();
     const chunks = splitRowsIntoChunks(st.rows, MAX_VALUE_BYTES);
     const isChunked = chunks.length > 1;
+    const prevChunkVersion = st.chunkVersion || null;
+    // 매번 새 버전표(타임스탬프+임의값)를 붙여서, 새 조각을 예전 조각 자리에 덮어쓰지 않고 항상
+    // 새 이름으로 저장해요. 이러면 저장 도중 일부만 성공하고 실패해도, 예전 조각은 하나도
+    // 손대지 않은 채로 온전히 남아있어서 "일부는 새 데이터, 일부는 예전 데이터" 식으로 섞이는
+    // 문제(예전 방식의 진짜 위험 지점이었어요)가 안 생겨요.
+    const newVersion = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-    // if a previous save had more chunks than we need now (e.g. re-uploaded a smaller file), drop the leftovers
-    const prevChunkCount = st.chunkCount || 0;
-    for(let i=chunks.length; i<prevChunkCount; i++){
-      try{ await window.storage.delete(cfg.storageKey + '_chunk_' + i, true); }catch(e){}
-    }
-
+    // 1) 새 조각을 전부 "새 버전" 이름으로 저장합니다. 예전 조각은 이 단계에서 전혀 안 건드려요.
     if(isChunked){
       for(let i=0; i<chunks.length; i++){
         setUploadSaveState(id, 'saving', `저장 중... (${i+1}/${chunks.length})`);
-        await storageSetWithRetry(cfg.storageKey + '_chunk_' + i, JSON.stringify(chunks[i]), true);
+        await storageSetWithRetry(cfg.storageKey + '_v' + newVersion + '_chunk_' + i, JSON.stringify(chunks[i]), true);
       }
     }
 
     const metaPayload = {
       headers: st.headers, sheetUsed: st.sheetUsed, uploadedAt: st.uploadedAt, fileName: st.fileName, savedAt: now,
-      chunked: isChunked, chunkCount: chunks.length, trimmedColumns: st.trimmedColumns || null,
-      fileMonth: st.fileMonth || null
+      chunked: isChunked, chunkCount: chunks.length, chunkVersion: isChunked ? newVersion : null,
+      trimmedColumns: st.trimmedColumns || null, fileMonth: st.fileMonth || null
     };
     if(!isChunked) metaPayload.rows = chunks[0];
 
+    // 2) 메타데이터를 새 버전표로 갱신합니다 — 이 한 번의 쓰기가 성공해야 "새 데이터로 완전히
+    //    바뀌었다"고 확정돼요. 여기서 실패해도 예전 메타데이터가 예전 버전의 조각들을 그대로
+    //    가리키고 있어서 안전해요(새로 쓴 조각들은 그냥 안 쓰는 채로 남을 뿐이에요).
     await storageSetWithRetry(cfg.storageKey, JSON.stringify(metaPayload), true);
+
+    // 3) 이제 메타데이터가 새 버전을 가리키니, 예전 버전의 조각들은 더 이상 안 쓰여요 — 정리합니다.
+    //    이 정리가 실패해도(그냥 안 쓰는 조각이 남는 것뿐) 이미 새 데이터로 안전하게 넘어간 뒤라 문제없어요.
+    if(prevChunkVersion){
+      const prevChunkCount = st.chunkCount || 0;
+      for(let i=0; i<prevChunkCount; i++){
+        try{ await window.storage.delete(cfg.storageKey + '_v' + prevChunkVersion + '_chunk_' + i, true); }catch(e){}
+      }
+    } else if(st.chunkCount){
+      // 예전 버전 표시 없이 저장된(이전 방식으로 저장된) 데이터가 있으면, 옛 이름 규칙으로도 정리해줍니다.
+      for(let i=0; i<st.chunkCount; i++){
+        try{ await window.storage.delete(cfg.storageKey + '_chunk_' + i, true); }catch(e){}
+      }
+    }
+
     st.savedAt = now;
     st.chunkCount = chunks.length;
+    st.chunkVersion = isChunked ? newVersion : null;
     lastSavedAt = now;
     updateGlobalSavedLabel();
     updateUploadMeta(id);
@@ -3099,20 +3136,32 @@ async function loadUploadFromStorage(id){
     if(res && res.value){
       const parsed = JSON.parse(res.value);
       let rows = parsed.rows || [];
+      let missingChunks = 0;
       if(parsed.chunked){
+        const chunkKeyPrefix = parsed.chunkVersion
+          ? cfg.storageKey + '_v' + parsed.chunkVersion + '_chunk_'
+          : cfg.storageKey + '_chunk_'; // 이 버전 표시(chunkVersion) 도입 전에 저장된 예전 데이터 호환용
         const chunkResults = await Promise.all(
           Array.from({length: parsed.chunkCount}, (_, i) =>
-            window.storage.get(cfg.storageKey + '_chunk_' + i, true).catch(()=>null)
+            storageGetWithRetry(chunkKeyPrefix + i, true).catch(()=>null)
           )
         );
         rows = [];
-        chunkResults.forEach(r=>{ if(r && r.value) rows = rows.concat(JSON.parse(r.value)); });
+        chunkResults.forEach(r=>{
+          if(r && r.value) rows = rows.concat(JSON.parse(r.value));
+          else missingChunks++;
+        });
+        if(missingChunks > 0){
+          console.error(`${cfg.label || id}: 저장된 ${parsed.chunkCount}개 조각 중 ${missingChunks}개를 못 불러왔어요 — 일부 행이 빠진 채로 표시될 수 있어요. 새로고침해서 다시 시도해보시거나, 계속되면 다시 업로드해주세요.`);
+        }
       }
       uploadState[id] = {
         headers: parsed.headers, rows, page:0, pageSize:50,
         sort:{key:null,dir:1}, sheetUsed: parsed.sheetUsed, uploadedAt: parsed.uploadedAt, fileName: parsed.fileName,
         savedAt: parsed.savedAt || parsed.uploadedAt, chunkCount: parsed.chunked ? parsed.chunkCount : 0,
+        chunkVersion: parsed.chunked ? (parsed.chunkVersion || null) : null,
         trimmedColumns: parsed.trimmedColumns || null,
+        missingChunks: missingChunks || 0,
         fileMonth: parsed.fileMonth || (STOCK_WAREHOUSES.some(p=>p.id===id) ? fileMonthKeyOf(parsed.fileName) : null)
       };
       if(id === 'productMaster') autoMarkSplitByRepCode(uploadState[id]);
@@ -3150,7 +3199,10 @@ function updateUploadMeta(id){
   const trimPart = st.trimmedColumns
     ? ` · <span style="color:var(--ink-dim);">필요한 컬럼만 저장됨 (원본 ${st.trimmedColumns.original}개 → ${st.trimmedColumns.kept}개)</span>`
     : '';
-  meta.innerHTML = `${dt.toLocaleString('ko-KR')} 업로드${savedPart}${trimPart}`;
+  const missingPart = st.missingChunks
+    ? ` · <span style="color:var(--red); font-weight:800;">⚠ 일부 데이터를 못 불러왔어요(${st.missingChunks}개 조각 실패) — 새로고침해서 다시 시도해보시거나, 계속되면 다시 업로드해주세요</span>`
+    : '';
+  meta.innerHTML = `${dt.toLocaleString('ko-KR')} 업로드${savedPart}${trimPart}${missingPart}`;
   meta.title = meta.textContent;
   clearBtn.style.display = 'inline-flex';
   if(saveBtn) saveBtn.style.display = 'inline-flex';
